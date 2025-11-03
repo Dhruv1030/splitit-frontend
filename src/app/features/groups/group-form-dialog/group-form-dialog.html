@@ -1,0 +1,87 @@
+<div class="dialog-container">
+  <h2 mat-dialog-title>
+    <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+    {{ isEditMode ? 'Edit Group' : 'Create New Group' }}
+  </h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="groupForm">
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-banner">
+        <mat-icon>error</mat-icon>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Group Name -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Group Name</mat-label>
+        <input
+          matInput
+          formControlName="name"
+          placeholder="e.g., Trip to Bali"
+          maxlength="100"
+        />
+        <mat-icon matPrefix>label</mat-icon>
+        <mat-error>{{ getErrorMessage('name') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Description -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description (Optional)</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          placeholder="Add details about this group"
+          rows="3"
+          maxlength="500"
+        ></textarea>
+        <mat-icon matPrefix>description</mat-icon>
+      </mat-form-field>
+
+      <!-- Category -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          <mat-option *ngFor="let cat of categories" [value]="cat.value">
+            <mat-icon class="option-icon">{{ cat.icon }}</mat-icon>
+            {{ cat.label }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>category</mat-icon>
+        <mat-error>{{ getErrorMessage('category') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Currency (only for create mode) -->
+      <mat-form-field *ngIf="!isEditMode" appearance="outline" class="full-width">
+        <mat-label>Currency</mat-label>
+        <mat-select formControlName="currency">
+          <mat-option *ngFor="let curr of currencies" [value]="curr.code">
+            {{ curr.code }} - {{ curr.name }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>attach_money</mat-icon>
+        <mat-error>{{ getErrorMessage('currency') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Currency Display (edit mode) -->
+      <div *ngIf="isEditMode" class="currency-display">
+        <mat-icon>attach_money</mat-icon>
+        <span>Currency: {{ data.group?.currency }}</span>
+        <small>(Currency cannot be changed)</small>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="loading">Cancel</button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onSubmit()"
+      [disabled]="loading || groupForm.invalid"
+    >
+      <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+      <span *ngIf="!loading">{{ isEditMode ? 'Update' : 'Create' }}</span>
+    </button>
+  </mat-dialog-actions>
+</div>

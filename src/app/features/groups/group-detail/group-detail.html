@@ -1,0 +1,285 @@
+<div class="group-detail-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Group Detail Content -->
+  <div *ngIf="!loading && group" class="group-content">
+    <!-- Header -->
+    <div class="group-header">
+      <div class="header-left">
+        <button mat-icon-button (click)="router.navigate(['/groups'])" class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="group-info">
+          <div class="group-title">
+            <mat-icon [class]="'category-icon ' + group.category.toLowerCase()">
+              {{ getCategoryIcon(group.category) }}
+            </mat-icon>
+            <h1>{{ group.name }}</h1>
+            <mat-chip class="category-chip">{{ group.category }}</mat-chip>
+          </div>
+          <p class="group-description" *ngIf="group.description">{{ group.description }}</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="onAddExpense()">
+          <mat-icon>add</mat-icon>
+          Add Expense
+        </button>
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="onEditGroup()">
+            <mat-icon>edit</mat-icon>
+            <span>Edit Group</span>
+          </button>
+          <button mat-menu-item (click)="onAddMember()">
+            <mat-icon>person_add</mat-icon>
+            <span>Add Member</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="onDeleteGroup()" class="delete-option">
+            <mat-icon>delete</mat-icon>
+            <span>Delete Group</span>
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-row">
+      <mat-card class="stat-card">
+        <mat-icon class="stat-icon">receipt</mat-icon>
+        <div class="stat-content">
+          <div class="stat-value">{{ expenses.length }}</div>
+          <div class="stat-label">Expenses</div>
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-icon class="stat-icon">people</mat-icon>
+        <div class="stat-content">
+          <div class="stat-value">{{ group.members.length || 0 }}</div>
+          <div class="stat-label">Members</div>
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-icon class="stat-icon">account_balance_wallet</mat-icon>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatCurrency(group.totalExpenses || 0) }}</div>
+          <div class="stat-label">Total Spent</div>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group (selectedIndexChange)="onTabChange($event)" class="group-tabs">
+      <!-- Overview Tab -->
+      <mat-tab label="Overview">
+        <div class="tab-content">
+          <div class="overview-grid">
+            <!-- Recent Expenses -->
+            <mat-card class="overview-card">
+              <mat-card-header>
+                <mat-card-title>Recent Expenses</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-list *ngIf="expenses.length > 0; else noExpenses">
+                  <mat-list-item *ngFor="let expense of expenses.slice(0, 5)">
+                    <mat-icon matListItemIcon>{{ expense.category.toLowerCase() === 'food' ? 'restaurant' : 'receipt' }}</mat-icon>
+                    <div matListItemTitle>{{ expense.description }}</div>
+                    <div matListItemLine>{{ formatDate(expense.createdAt) }}</div>
+                    <div matListItemMeta class="expense-amount">{{ formatCurrency(expense.amount) }}</div>
+                  </mat-list-item>
+                </mat-list>
+                <ng-template #noExpenses>
+                  <div class="empty-state">
+                    <mat-icon>receipt_long</mat-icon>
+                    <p>No expenses yet</p>
+                    <button mat-stroked-button color="primary" (click)="onAddExpense()">Add First Expense</button>
+                  </div>
+                </ng-template>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Group Info -->
+            <mat-card class="overview-card">
+              <mat-card-header>
+                <mat-card-title>Group Information</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-item">
+                  <mat-icon>category</mat-icon>
+                  <div>
+                    <div class="info-label">Category</div>
+                    <div class="info-value">{{ group.category }}</div>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  <div>
+                    <div class="info-label">Currency</div>
+                    <div class="info-value">{{ group.currency }}</div>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <mat-icon>calendar_today</mat-icon>
+                  <div>
+                    <div class="info-label">Created</div>
+                    <div class="info-value">{{ formatDate(group.createdAt) }}</div>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <mat-icon>person</mat-icon>
+                  <div>
+                    <div class="info-label">Created By</div>
+                    <div class="info-value">{{ group.createdBy }}</div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Members Tab -->
+      <mat-tab label="Members">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Group Members ({{ group.members.length || 0 }})</mat-card-title>
+              <button mat-raised-button color="primary" (click)="onAddMember()">
+                <mat-icon>person_add</mat-icon>
+                Add Member
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list *ngIf="group.members && group.members.length > 0">
+                <mat-list-item *ngFor="let member of group.members">
+                  <mat-icon matListItemIcon>person</mat-icon>
+                  <div matListItemTitle>{{ member.name }}</div>
+                  <div matListItemLine>
+                    <mat-chip [color]="member.role === 'ADMIN' ? 'primary' : 'default'" class="role-chip">
+                      {{ member.role }}
+                    </mat-chip>
+                  </div>
+                  <div matListItemMeta class="member-balance">
+                    <span [ngClass]="getBalanceColor(getMemberBalance(member.userId))">
+                      {{ formatCurrency(getMemberBalance(member.userId)) }}
+                    </span>
+                    <button mat-icon-button [matMenuTriggerFor]="memberMenu" *ngIf="member.role !== 'ADMIN'">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #memberMenu="matMenu">
+                      <button mat-menu-item (click)="onRemoveMember(member.userId)">
+                        <mat-icon>person_remove</mat-icon>
+                        <span>Remove Member</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+                </mat-list-item>
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Expenses Tab -->
+      <mat-tab label="Expenses">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>All Expenses ({{ expenses.length }})</mat-card-title>
+              <button mat-raised-button color="primary" (click)="onAddExpense()">
+                <mat-icon>add</mat-icon>
+                Add Expense
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list *ngIf="expenses.length > 0; else noExpensesTab">
+                <mat-list-item *ngFor="let expense of expenses">
+                  <mat-icon matListItemIcon [class]="'expense-category-icon ' + expense.category.toLowerCase()">
+                    {{ expense.category.toLowerCase() === 'food' ? 'restaurant' : 'receipt' }}
+                  </mat-icon>
+                  <div matListItemTitle>{{ expense.description }}</div>
+                  <div matListItemLine>
+                    Paid by {{ expense.paidByName }} • {{ formatDate(expense.createdAt) }}
+                  </div>
+                  <div matListItemMeta class="expense-amount">
+                    <div class="amount-primary">{{ formatCurrency(expense.amount) }}</div>
+                    <mat-chip class="split-chip">{{ expense.splitType }}</mat-chip>
+                  </div>
+                </mat-list-item>
+              </mat-list>
+              <ng-template #noExpensesTab>
+                <div class="empty-state">
+                  <mat-icon>receipt_long</mat-icon>
+                  <p>No expenses in this group yet</p>
+                  <button mat-raised-button color="primary" (click)="onAddExpense()">
+                    <mat-icon>add</mat-icon>
+                    Add First Expense
+                  </button>
+                </div>
+              </ng-template>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Settlements Tab -->
+      <mat-tab label="Settlements">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Settlements</mat-card-title>
+              <button mat-raised-button color="accent" (click)="onSettleUp()">
+                <mat-icon>account_balance</mat-icon>
+                Settle Up
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list *ngIf="settlements.length > 0; else noSettlements">
+                <mat-list-item *ngFor="let settlement of settlements">
+                  <mat-icon matListItemIcon>payments</mat-icon>
+                  <div matListItemTitle>
+                    {{ settlement.payerName }} paid {{ settlement.payeeName }}
+                  </div>
+                  <div matListItemLine>
+                    {{ settlement.paymentMethod }} • {{ formatDate(settlement.recordedAt || settlement.createdAt) }}
+                  </div>
+                  <div matListItemMeta>
+                    <mat-chip [color]="settlement.status === 'COMPLETED' ? 'primary' : 'warn'">
+                      {{ settlement.status }}
+                    </mat-chip>
+                    <span class="settlement-amount">{{ formatCurrency(settlement.amount) }}</span>
+                  </div>
+                </mat-list-item>
+              </mat-list>
+              <ng-template #noSettlements>
+                <div class="empty-state">
+                  <mat-icon>account_balance</mat-icon>
+                  <p>No settlements recorded yet</p>
+                  <button mat-stroked-button color="accent" (click)="onSettleUp()">Calculate Settlements</button>
+                </div>
+              </ng-template>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!loading && !group" class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <h2>Group not found</h2>
+    <button mat-raised-button color="primary" (click)="router.navigate(['/groups'])">
+      Back to Groups
+    </button>
+  </div>
+</div>
