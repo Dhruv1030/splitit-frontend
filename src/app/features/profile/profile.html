@@ -1,0 +1,249 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>Profile</h1>
+  </div>
+
+  <mat-tab-group class="profile-tabs">
+    <!-- Profile Info Tab -->
+    <mat-tab label="Profile Info">
+      <div class="tab-content">
+        <mat-card class="profile-info-card">
+          <mat-card-header>
+            <div class="avatar-section">
+              <div class="avatar-large">
+                {{ currentUser ? getInitials(currentUser.name) : 'U' }}
+              </div>
+              <div class="user-info">
+                <h2>{{ currentUser?.name }}</h2>
+                <p>{{ currentUser?.email }}</p>
+              </div>
+            </div>
+          </mat-card-header>
+
+          <mat-card-content>
+            <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()">
+              <div class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>Name</mat-label>
+                  <input matInput formControlName="name" required>
+                  <mat-icon matPrefix>person</mat-icon>
+                  @if (profileForm.get('name')?.hasError('required')) {
+                    <mat-error>Name is required</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Email</mat-label>
+                  <input matInput type="email" formControlName="email" required>
+                  <mat-icon matPrefix>email</mat-icon>
+                  @if (profileForm.get('email')?.hasError('required')) {
+                    <mat-error>Email is required</mat-error>
+                  }
+                  @if (profileForm.get('email')?.hasError('email')) {
+                    <mat-error>Invalid email address</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Phone Number</mat-label>
+                  <input matInput type="tel" formControlName="phone">
+                  <mat-icon matPrefix>phone</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Default Currency</mat-label>
+                  <mat-select formControlName="defaultCurrency" required>
+                    <mat-option value="USD">USD ($)</mat-option>
+                    <mat-option value="EUR">EUR (€)</mat-option>
+                    <mat-option value="GBP">GBP (£)</mat-option>
+                    <mat-option value="INR">INR (₹)</mat-option>
+                    <mat-option value="JPY">JPY (¥)</mat-option>
+                  </mat-select>
+                  <mat-icon matPrefix>attach_money</mat-icon>
+                </mat-form-field>
+              </div>
+
+              <div class="form-actions">
+                <button mat-raised-button color="primary" type="submit" [disabled]="!profileForm.valid || loading">
+                  <mat-icon>save</mat-icon>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Settings Tab -->
+    <mat-tab label="Settings">
+      <div class="tab-content">
+        <mat-card class="settings-card">
+          <mat-card-header>
+            <mat-card-title>Change Password</mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+              <div class="form-grid">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Current Password</mat-label>
+                  <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" 
+                         formControlName="currentPassword" required>
+                  <button mat-icon-button matSuffix type="button"
+                          (click)="hideCurrentPassword = !hideCurrentPassword">
+                    <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  @if (passwordForm.get('currentPassword')?.hasError('required')) {
+                    <mat-error>Current password is required</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>New Password</mat-label>
+                  <input matInput [type]="hideNewPassword ? 'password' : 'text'" 
+                         formControlName="newPassword" required>
+                  <button mat-icon-button matSuffix type="button"
+                          (click)="hideNewPassword = !hideNewPassword">
+                    <mat-icon>{{ hideNewPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  @if (passwordForm.get('newPassword')?.hasError('required')) {
+                    <mat-error>New password is required</mat-error>
+                  }
+                  @if (passwordForm.get('newPassword')?.hasError('minlength')) {
+                    <mat-error>Password must be at least 8 characters</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Confirm New Password</mat-label>
+                  <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" 
+                         formControlName="confirmPassword" required>
+                  <button mat-icon-button matSuffix type="button"
+                          (click)="hideConfirmPassword = !hideConfirmPassword">
+                    <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  @if (passwordForm.get('confirmPassword')?.hasError('required')) {
+                    <mat-error>Please confirm your password</mat-error>
+                  }
+                  @if (passwordForm.hasError('passwordMismatch')) {
+                    <mat-error>Passwords do not match</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <div class="form-actions">
+                <button mat-raised-button color="primary" type="submit" 
+                        [disabled]="!passwordForm.valid || loading">
+                  <mat-icon>lock</mat-icon>
+                  Change Password
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="danger-zone">
+          <mat-card-header>
+            <mat-card-title>Danger Zone</mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <button mat-raised-button color="warn" (click)="onLogout()">
+              <mat-icon>logout</mat-icon>
+              Logout
+            </button>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Friends Tab -->
+    <mat-tab label="Friends">
+      <div class="tab-content">
+        <!-- Search Section -->
+        <mat-card class="search-card">
+          <mat-card-header>
+            <mat-card-title>Add Friends</mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Search users</mat-label>
+              <input matInput [(ngModel)]="searchQuery" (input)="searchFriends()" 
+                     placeholder="Search by name or email">
+              <mat-icon matPrefix>search</mat-icon>
+              @if (searching) {
+                <mat-spinner matSuffix diameter="20"></mat-spinner>
+              }
+            </mat-form-field>
+
+            @if (searchResults.length > 0) {
+              <div class="search-results">
+                @for (user of searchResults; track user.id) {
+                  <div class="user-item">
+                    <div class="user-info">
+                      <div class="avatar-small">
+                        {{ getInitials(user.name) }}
+                      </div>
+                      <div class="user-details">
+                        <div class="user-name">{{ user.name }}</div>
+                        <div class="user-email">{{ user.email }}</div>
+                      </div>
+                    </div>
+                    <button mat-icon-button color="primary" (click)="onAddFriend(user.id)">
+                      <mat-icon>person_add</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Friends List -->
+        <mat-card class="friends-card">
+          <mat-card-header>
+            <mat-card-title>
+              My Friends ({{ friends.length }})
+            </mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            @if (loadingFriends) {
+              <div class="loading-container">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Loading friends...</p>
+              </div>
+            } @else if (friends.length === 0) {
+              <div class="empty-state">
+                <mat-icon>people_outline</mat-icon>
+                <p>No friends yet</p>
+                <span>Search and add friends to start sharing expenses</span>
+              </div>
+            } @else {
+              <div class="friends-list">
+                @for (friend of friends; track friend.id) {
+                  <div class="friend-item">
+                    <div class="friend-info">
+                      <div class="avatar-medium">
+                        {{ getInitials(friend.name) }}
+                      </div>
+                      <div class="friend-details">
+                        <div class="friend-name">{{ friend.name }}</div>
+                        <div class="friend-email">{{ friend.email }}</div>
+                      </div>
+                    </div>
+                    <button mat-icon-button color="warn" (click)="removeFriend(friend.id)">
+                      <mat-icon>person_remove</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

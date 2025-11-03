@@ -1,0 +1,299 @@
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+
+  .profile-header {
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: 32px;
+      font-weight: 500;
+      margin: 0;
+      color: #333;
+    }
+  }
+
+  .profile-tabs {
+    ::ng-deep {
+      .mat-mdc-tab-body-content {
+        overflow: visible;
+      }
+    }
+  }
+
+  .tab-content {
+    padding: 24px 0;
+  }
+
+  // Profile Info Card
+  .profile-info-card {
+    margin-bottom: 24px;
+
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+
+      .avatar-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 32px;
+        font-weight: 500;
+        flex-shrink: 0;
+      }
+
+      .user-info {
+        flex: 1;
+
+        h2 {
+          margin: 0 0 4px 0;
+          font-size: 24px;
+          font-weight: 500;
+        }
+
+        p {
+          margin: 0;
+          color: #666;
+          font-size: 14px;
+        }
+      }
+    }
+
+    mat-card-content {
+      padding-top: 24px;
+    }
+  }
+
+  // Form Styles
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    button {
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  // Settings Card
+  .settings-card {
+    margin-bottom: 24px;
+  }
+
+  // Danger Zone
+  .danger-zone {
+    border: 2px solid #f44336;
+
+    mat-card-header {
+      mat-card-title {
+        color: #f44336;
+      }
+    }
+  }
+
+  // Search Card
+  .search-card {
+    margin-bottom: 24px;
+
+    .search-results {
+      margin-top: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+
+      .user-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        border-bottom: 1px solid #e0e0e0;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: #f5f5f5;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .user-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex: 1;
+
+          .avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            flex-shrink: 0;
+          }
+
+          .user-details {
+            .user-name {
+              font-weight: 500;
+              color: #333;
+              margin-bottom: 2px;
+            }
+
+            .user-email {
+              font-size: 12px;
+              color: #666;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Friends Card
+  .friends-card {
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      gap: 16px;
+
+      p {
+        margin: 0;
+        color: #666;
+      }
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
+
+      mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: #bdbdbd;
+        margin-bottom: 16px;
+      }
+
+      p {
+        font-size: 18px;
+        font-weight: 500;
+        color: #666;
+        margin: 0 0 8px 0;
+      }
+
+      span {
+        color: #999;
+        font-size: 14px;
+      }
+    }
+
+    .friends-list {
+      max-height: 600px;
+      overflow-y: auto;
+
+      .friend-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border-bottom: 1px solid #e0e0e0;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: #f5f5f5;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .friend-info {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          flex: 1;
+
+          .avatar-medium {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 500;
+            flex-shrink: 0;
+          }
+
+          .friend-details {
+            .friend-name {
+              font-weight: 500;
+              font-size: 16px;
+              color: #333;
+              margin-bottom: 4px;
+            }
+
+            .friend-email {
+              font-size: 13px;
+              color: #666;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 16px;
+
+    .profile-header h1 {
+      font-size: 24px;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-info-card .avatar-section {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+}
