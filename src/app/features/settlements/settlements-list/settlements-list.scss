@@ -1,0 +1,242 @@
+.settlements-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+
+  .settlements-header {
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: 32px;
+      font-weight: 500;
+      margin: 0 0 8px 0;
+      color: #333;
+    }
+
+    .subtitle {
+      color: #666;
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+
+  .filters-card {
+    margin-bottom: 24px;
+    padding: 16px;
+
+    .group-filter {
+      width: 100%;
+      max-width: 400px;
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 16px;
+
+    p {
+      color: #666;
+      margin: 0;
+    }
+  }
+
+  .settlements-tabs {
+    ::ng-deep {
+      .mat-mdc-tab-label {
+        .tab-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      text-align: center;
+      margin-top: 24px;
+
+      mat-icon {
+        font-size: 80px;
+        width: 80px;
+        height: 80px;
+        color: #bdbdbd;
+        margin-bottom: 16px;
+      }
+
+      h2 {
+        font-size: 24px;
+        font-weight: 500;
+        color: #666;
+        margin: 0 0 8px 0;
+      }
+
+      p {
+        color: #999;
+        font-size: 14px;
+        margin: 0;
+      }
+    }
+
+    .settlements-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 24px 0;
+    }
+  }
+
+  .settlement-card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-left: 4px solid transparent;
+
+    &.pending {
+      border-left-color: #ff9800;
+    }
+
+    &.completed {
+      border-left-color: #4caf50;
+      opacity: 0.9;
+    }
+
+    &:hover {
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .settlement-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+
+      .settlement-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        mat-icon {
+          color: white;
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+
+        &.completed-icon {
+          background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        }
+      }
+
+      .settlement-info {
+        flex: 1;
+        min-width: 0;
+
+        .settlement-title {
+          font-size: 16px;
+          font-weight: 500;
+          margin-bottom: 4px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #333;
+
+          .arrow-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: #999;
+          }
+        }
+
+        .settlement-subtitle {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 13px;
+          color: #666;
+
+          .small-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+
+      .settlement-amount {
+        font-size: 20px;
+        font-weight: 600;
+        color: #ff9800;
+        white-space: nowrap;
+
+        &.completed-amount {
+          color: #4caf50;
+        }
+      }
+    }
+
+    .settlement-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid #e0e0e0;
+
+      .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #666;
+
+        .small-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+          color: #999;
+        }
+      }
+
+      mat-chip {
+        height: 24px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .settlements-container {
+    padding: 16px;
+
+    .settlements-header h1 {
+      font-size: 24px;
+    }
+
+    .settlement-card {
+      .settlement-header {
+        flex-wrap: wrap;
+
+        .settlement-amount {
+          width: 100%;
+          text-align: right;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+}

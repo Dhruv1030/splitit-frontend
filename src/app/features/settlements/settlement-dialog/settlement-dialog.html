@@ -1,0 +1,109 @@
+<div class="settlement-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>account_balance</mat-icon>
+    Settle Up - {{ data.groupName }}
+  </h2>
+
+  <mat-dialog-content>
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Calculating optimal settlements...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <h3>Failed to Load Settlements</h3>
+      <p>Unable to calculate settlement suggestions. Please try again.</p>
+      <button mat-raised-button color="primary" (click)="loadSuggestions()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </div>
+
+    <!-- No Settlements Needed -->
+    <div *ngIf="!loading && !error && suggestions.length === 0" class="empty-state">
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <h3>All Settled Up!</h3>
+      <p>Everyone in this group is square. No payments needed.</p>
+    </div>
+
+    <!-- Settlement Suggestions -->
+    <div *ngIf="!loading && !error && suggestions.length > 0" class="suggestions-container">
+      <div class="info-banner">
+        <mat-icon>info</mat-icon>
+        <span>
+          <strong>{{ suggestions.length }}</strong> optimal 
+          {{ suggestions.length === 1 ? 'payment' : 'payments' }} to settle all balances
+        </span>
+      </div>
+
+      <div class="suggestions-list">
+        <mat-card *ngFor="let suggestion of suggestions" class="suggestion-card">
+          <mat-card-content>
+            <div class="settlement-flow">
+              <!-- Payer -->
+              <div class="person payer">
+                <mat-icon class="person-icon">person</mat-icon>
+                <div class="person-info">
+                  <div class="name">{{ suggestion.payerName }}</div>
+                  <div class="label">Pays</div>
+                </div>
+              </div>
+
+              <!-- Arrow with Amount -->
+              <div class="payment-arrow">
+                <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                <div class="amount-badge">
+                  {{ formatCurrency(suggestion.amount) }}
+                </div>
+              </div>
+
+              <!-- Payee -->
+              <div class="person payee">
+                <mat-icon class="person-icon">person</mat-icon>
+                <div class="person-info">
+                  <div class="name">{{ suggestion.payeeName }}</div>
+                  <div class="label">Receives</div>
+                </div>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="card-actions">
+              <button 
+                mat-raised-button 
+                color="primary" 
+                (click)="onRecordPayment(suggestion)"
+                matTooltip="Record this payment after it's made">
+                <mat-icon>check</mat-icon>
+                Record Payment
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="settlement-note">
+        <mat-icon>lightbulb</mat-icon>
+        <p>
+          These settlements are optimized to minimize the number of transactions needed. 
+          After making a payment, click "Record Payment" to update the balances.
+        </p>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onClose()">Close</button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onDone()"
+      *ngIf="!loading && suggestions.length === 0">
+      Done
+    </button>
+  </mat-dialog-actions>
+</div>

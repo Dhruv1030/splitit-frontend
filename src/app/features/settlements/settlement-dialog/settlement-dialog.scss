@@ -1,0 +1,302 @@
+.settlement-dialog {
+  min-width: 600px;
+
+  h2[mat-dialog-title] {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 24px 24px 16px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1976d2;
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  mat-dialog-content {
+    padding: 0 24px 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  mat-dialog-actions {
+    padding: 16px 24px;
+    border-top: 1px solid #e0e0e0;
+    margin: 0;
+  }
+}
+
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+
+  p {
+    margin-top: 16px;
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+// Error State
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #d32f2f;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 20px;
+    margin: 0 0 8px 0;
+    color: #333;
+  }
+
+  p {
+    color: #666;
+    margin: 0 0 24px 0;
+  }
+}
+
+// Empty State
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  .success-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    color: #388e3c;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 24px;
+    margin: 0 0 8px 0;
+    color: #388e3c;
+  }
+
+  p {
+    color: #666;
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+// Suggestions Container
+.suggestions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.info-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 8px;
+  color: #1976d2;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  span {
+    font-size: 14px;
+  }
+}
+
+// Suggestions List
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.suggestion-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+}
+
+// Settlement Flow
+.settlement-flow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  .person {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+
+    &.payer {
+      justify-content: flex-start;
+    }
+
+    &.payee {
+      justify-content: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .person-icon {
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
+      color: #1976d2;
+      background: #e3f2fd;
+      border-radius: 50%;
+      padding: 8px;
+    }
+
+    .person-info {
+      .name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+      }
+
+      .label {
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+
+    &.payee .person-info {
+      text-align: right;
+    }
+  }
+
+  .payment-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+
+    .arrow-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #388e3c;
+    }
+
+    .amount-badge {
+      background: #388e3c;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+  }
+}
+
+// Card Actions
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+
+  button {
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+// Settlement Note
+.settlement-note {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: #fff3e0;
+  border: 1px solid #ffe0b2;
+  border-radius: 8px;
+
+  mat-icon {
+    color: #f57c00;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: #e65100;
+    line-height: 1.5;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .settlement-dialog {
+    min-width: 100%;
+  }
+
+  .settlement-flow {
+    flex-direction: column;
+    gap: 16px;
+
+    .person {
+      width: 100%;
+      justify-content: flex-start !important;
+      flex-direction: row !important;
+
+      &.payee .person-info {
+        text-align: left;
+      }
+    }
+
+    .payment-arrow {
+      transform: rotate(90deg);
+      min-width: auto;
+    }
+  }
+}

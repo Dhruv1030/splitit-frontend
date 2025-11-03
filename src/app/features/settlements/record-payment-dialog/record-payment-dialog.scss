@@ -1,0 +1,180 @@
+.record-payment-dialog {
+  min-width: 500px;
+
+  h2[mat-dialog-title] {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 24px 24px 16px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #388e3c;
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  mat-dialog-content {
+    padding: 0 24px 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  mat-dialog-actions {
+    padding: 16px 24px;
+    border-top: 1px solid #e0e0e0;
+    margin: 0;
+
+    button {
+      min-width: 120px;
+
+      mat-spinner {
+        display: inline-block;
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+// Payment Summary
+.payment-summary {
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+
+  .summary-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+
+    mat-icon {
+      color: #1976d2;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+
+      .label {
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+
+        &.payer {
+          color: #1976d2;
+        }
+
+        &.payee {
+          color: #388e3c;
+        }
+
+        &.amount {
+          font-size: 20px;
+          color: #388e3c;
+        }
+      }
+
+      &.amount-row {
+        margin-top: 8px;
+        padding-top: 12px;
+        border-top: 1px solid #e0e0e0;
+      }
+    }
+  }
+}
+
+// Payment Form
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  .full-width {
+    width: 100%;
+  }
+}
+
+// Method Icon in Select
+.method-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+// Info Note
+.info-note {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: #fff3e0;
+  border: 1px solid #ffe0b2;
+  border-radius: 8px;
+
+  mat-icon {
+    color: #f57c00;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: #e65100;
+    line-height: 1.5;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .record-payment-dialog {
+    min-width: 100%;
+  }
+}
+
+// Form Field Styling
+::ng-deep {
+  .mat-mdc-form-field {
+    .mat-mdc-text-field-wrapper {
+      padding-bottom: 0;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      margin-top: 4px;
+    }
+  }
+}

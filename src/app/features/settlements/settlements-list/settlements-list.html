@@ -1,0 +1,155 @@
+<div class="settlements-container">
+  <div class="settlements-header">
+    <h1>Settlements</h1>
+    <p class="subtitle">Track and manage payment settlements across groups</p>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-form-field appearance="outline" class="group-filter">
+      <mat-label>Filter by Group</mat-label>
+      <mat-select [(ngModel)]="selectedGroup" (selectionChange)="onGroupChange()">
+        <mat-option value="all">All Groups</mat-option>
+        @for (group of groups; track group.id) {
+          <mat-option [value]="group.id">{{ group.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-icon matPrefix>group</mat-icon>
+    </mat-form-field>
+  </mat-card>
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading settlements...</p>
+    </div>
+  }
+
+  <!-- Tabs for Pending and Completed -->
+  @else {
+    <mat-tab-group class="settlements-tabs">
+      <!-- Pending Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">schedule</mat-icon>
+          Pending ({{ pendingSettlements.length }})
+        </ng-template>
+
+        @if (pendingSettlements.length === 0) {
+          <mat-card class="empty-state">
+            <mat-icon>check_circle</mat-icon>
+            <h2>No pending settlements</h2>
+            <p>All settlements are up to date!</p>
+          </mat-card>
+        } @else {
+          <div class="settlements-list">
+            @for (settlement of pendingSettlements; track settlement.id) {
+              <mat-card class="settlement-card pending" (click)="onSettlementClick(settlement)">
+                <div class="settlement-header">
+                  <div class="settlement-icon">
+                    <mat-icon>payments</mat-icon>
+                  </div>
+                  <div class="settlement-info">
+                    <div class="settlement-title">
+                      {{ settlement.payerName || settlement.payerId }}
+                      <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                      {{ settlement.payeeName || settlement.payeeId }}
+                    </div>
+                    <div class="settlement-subtitle">
+                      <mat-icon class="small-icon">group</mat-icon>
+                      {{ getGroupName(settlement.groupId) }}
+                    </div>
+                  </div>
+                  <div class="settlement-amount">
+                    {{ formatCurrency(settlement.amount, settlement.currency) }}
+                  </div>
+                </div>
+
+                <div class="settlement-details">
+                  <div class="detail-row">
+                    <mat-icon class="small-icon">calendar_today</mat-icon>
+                    <span>Created {{ formatDate(settlement.createdAt) }}</span>
+                  </div>
+                  @if (settlement.notes) {
+                    <div class="detail-row">
+                      <mat-icon class="small-icon">note</mat-icon>
+                      <span>{{ settlement.notes }}</span>
+                    </div>
+                  }
+                  <mat-chip [color]="getStatusColor(settlement.status)">
+                    {{ settlement.status }}
+                  </mat-chip>
+                </div>
+              </mat-card>
+            }
+          </div>
+        }
+      </mat-tab>
+
+      <!-- Completed Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">check_circle</mat-icon>
+          Completed ({{ completedSettlements.length }})
+        </ng-template>
+
+        @if (completedSettlements.length === 0) {
+          <mat-card class="empty-state">
+            <mat-icon>history</mat-icon>
+            <h2>No completed settlements</h2>
+            <p>Settlement history will appear here</p>
+          </mat-card>
+        } @else {
+          <div class="settlements-list">
+            @for (settlement of completedSettlements; track settlement.id) {
+              <mat-card class="settlement-card completed" (click)="onSettlementClick(settlement)">
+                <div class="settlement-header">
+                  <div class="settlement-icon completed-icon">
+                    <mat-icon>check</mat-icon>
+                  </div>
+                  <div class="settlement-info">
+                    <div class="settlement-title">
+                      {{ settlement.payerName || settlement.payerId }}
+                      <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                      {{ settlement.payeeName || settlement.payeeId }}
+                    </div>
+                    <div class="settlement-subtitle">
+                      <mat-icon class="small-icon">group</mat-icon>
+                      {{ getGroupName(settlement.groupId) }}
+                    </div>
+                  </div>
+                  <div class="settlement-amount completed-amount">
+                    {{ formatCurrency(settlement.amount, settlement.currency) }}
+                  </div>
+                </div>
+
+                <div class="settlement-details">
+                  <div class="detail-row">
+                    <mat-icon class="small-icon">calendar_today</mat-icon>
+                    <span>Settled {{ formatDate(settlement.settledAt || settlement.createdAt) }}</span>
+                  </div>
+                  @if (settlement.paymentMethod) {
+                    <div class="detail-row">
+                      <mat-icon class="small-icon">payment</mat-icon>
+                      <span>{{ settlement.paymentMethod }}</span>
+                    </div>
+                  }
+                  @if (settlement.transactionId) {
+                    <div class="detail-row">
+                      <mat-icon class="small-icon">tag</mat-icon>
+                      <span>Txn: {{ settlement.transactionId }}</span>
+                    </div>
+                  }
+                  <mat-chip [color]="getStatusColor(settlement.status)">
+                    {{ settlement.status }}
+                  </mat-chip>
+                </div>
+              </mat-card>
+            }
+          </div>
+        }
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>
