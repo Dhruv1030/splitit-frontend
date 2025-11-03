@@ -11,29 +11,34 @@ A modern, responsive web application built with Angular 18 and Material Design f
 ## 🌟 Features
 
 ### 👤 User Management
+
 - **Authentication & Authorization** - Secure JWT-based login/registration
 - **Profile Management** - Update personal info, phone, and currency preferences
 - **Friend System** - Add and manage friends for easy expense splitting
 
 ### 💳 Expense Tracking
+
 - **Create & Split Expenses** - Easily add expenses and split among participants
 - **Multiple Categories** - Food, Transport, Entertainment, Utilities, and more
 - **Expense History** - View all your expenses with detailed information
 - **Group Expenses** - Organize expenses by groups (trips, roommates, etc.)
 
 ### 👥 Group Management
+
 - **Create Groups** - Set up groups for different occasions (trips, shared apartments, etc.)
 - **Member Management** - Add/remove members from groups
 - **Group Dashboard** - View group-specific expenses and settlements
 - **Group Statistics** - Track total spending per group
 
 ### 💰 Settlement & Payments
+
 - **Balance Overview** - See who owes you and whom you owe
 - **Smart Settlement Suggestions** - Optimal payment paths to minimize transactions
 - **Record Payments** - Mark settlements as paid
 - **Settlement History** - Track all payment activities
 
 ### 📊 Dashboard
+
 - **Financial Overview** - Quick stats on amounts owed and owing
 - **Recent Activity** - Latest expenses at a glance
 - **Quick Actions** - Fast access to create groups and add expenses
@@ -116,12 +121,12 @@ src/
 
 ## 🔧 Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start development server on port 4200 |
+| Command         | Description                               |
+| --------------- | ----------------------------------------- |
+| `npm start`     | Start development server on port 4200     |
 | `npm run build` | Build for production (outputs to `dist/`) |
-| `npm test` | Run unit tests with Karma |
-| `npm run lint` | Lint code with ESLint |
+| `npm test`      | Run unit tests with Karma                 |
+| `npm run lint`  | Lint code with ESLint                     |
 
 ## 🌐 API Integration
 
@@ -158,6 +163,7 @@ $accent: mat.define-palette(mat.$pink-palette);
 ## 📱 Responsive Design
 
 Fully responsive layout optimized for:
+
 - 📱 Mobile devices (320px+)
 - 📱 Tablets (768px+)
 - 💻 Desktop (1024px+)
