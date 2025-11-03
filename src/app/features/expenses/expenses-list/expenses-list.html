@@ -1,0 +1,106 @@
+<div class="expenses-container">
+  <div class="expenses-header">
+    <h1>All Expenses</h1>
+    <p class="subtitle">View and manage all your expenses across groups</p>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <div class="filters">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search expenses</mat-label>
+        <input matInput [(ngModel)]="searchQuery" (input)="onSearchChange()" 
+               placeholder="Search by description">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Group</mat-label>
+        <mat-select [(ngModel)]="selectedGroup" (selectionChange)="onGroupChange()">
+          <mat-option value="all">All Groups</mat-option>
+          @for (group of groups; track group.id) {
+            <mat-option [value]="group.id">{{ group.name }}</mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>group</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Category</mat-label>
+        <mat-select [(ngModel)]="selectedCategory" (selectionChange)="onCategoryChange()">
+          <mat-option value="all">All Categories</mat-option>
+          @for (category of categories; track category) {
+            <mat-option [value]="category">{{ category }}</mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>category</mat-icon>
+      </mat-form-field>
+    </div>
+  </mat-card>
+
+  <!-- Results Count -->
+  <div class="results-info">
+    <p>{{ filteredExpenses.length }} expense(s) found</p>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading expenses...</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @else if (filteredExpenses.length === 0) {
+    <mat-card class="empty-state">
+      <mat-icon>receipt_long</mat-icon>
+      <h2>No expenses found</h2>
+      <p>{{ searchQuery || selectedGroup !== 'all' || selectedCategory !== 'all' 
+          ? 'Try adjusting your filters' 
+          : 'Start by creating an expense in a group' }}</p>
+    </mat-card>
+  }
+
+  <!-- Expenses List -->
+  @else {
+    <div class="expenses-grid">
+      @for (expense of filteredExpenses; track expense.id) {
+        <mat-card class="expense-card" (click)="onExpenseClick(expense)">
+          <mat-card-header>
+            <div class="expense-icon" [class]="'category-' + expense.category.toLowerCase()">
+              <mat-icon>{{ getCategoryIcon(expense.category) }}</mat-icon>
+            </div>
+            <div class="expense-header-content">
+              <mat-card-title>{{ expense.description }}</mat-card-title>
+              <mat-card-subtitle>
+                <mat-icon class="small-icon">group</mat-icon>
+                {{ getGroupName(expense.groupId) }}
+              </mat-card-subtitle>
+            </div>
+            <div class="expense-amount">
+              {{ formatCurrency(expense.amount, expense.currency) }}
+            </div>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="expense-details">
+              <div class="detail-item">
+                <mat-icon class="small-icon">person</mat-icon>
+                <span>Paid by {{ expense.paidByName || expense.paidBy }}</span>
+              </div>
+              <div class="detail-item">
+                <mat-icon class="small-icon">calendar_today</mat-icon>
+                <span>{{ formatDate(expense.createdAt) }}</span>
+              </div>
+              <div class="detail-item">
+                <mat-chip class="split-chip">{{ expense.splitType }}</mat-chip>
+                <mat-chip class="category-chip">{{ expense.category }}</mat-chip>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,245 @@
+.expenses-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+
+  .expenses-header {
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: 32px;
+      font-weight: 500;
+      margin: 0 0 8px 0;
+      color: #333;
+    }
+
+    .subtitle {
+      color: #666;
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+
+  .filters-card {
+    margin-bottom: 24px;
+    padding: 16px;
+
+    .filters {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 16px;
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+
+      .search-field {
+        mat-icon {
+          color: #666;
+        }
+      }
+    }
+  }
+
+  .results-info {
+    margin-bottom: 16px;
+
+    p {
+      color: #666;
+      font-size: 14px;
+      margin: 0;
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 16px;
+
+    p {
+      color: #666;
+      margin: 0;
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+
+    mat-icon {
+      font-size: 80px;
+      width: 80px;
+      height: 80px;
+      color: #bdbdbd;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 500;
+      color: #666;
+      margin: 0 0 8px 0;
+    }
+
+    p {
+      color: #999;
+      font-size: 14px;
+      margin: 0;
+    }
+  }
+
+  .expenses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .expense-card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    mat-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+
+      .expense-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        mat-icon {
+          color: white;
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+
+        &.category-food {
+          background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+        }
+
+        &.category-transport {
+          background: linear-gradient(135deg, #4E54C8 0%, #8F94FB 100%);
+        }
+
+        &.category-accommodation {
+          background: linear-gradient(135deg, #F093FB 0%, #F5576C 100%);
+        }
+
+        &.category-entertainment {
+          background: linear-gradient(135deg, #FA709A 0%, #FEE140 100%);
+        }
+
+        &.category-utilities {
+          background: linear-gradient(135deg, #30CFD0 0%, #330867 100%);
+        }
+
+        &.category-shopping {
+          background: linear-gradient(135deg, #A8EDEA 0%, #FED6E3 100%);
+        }
+
+        &.category-other {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+      }
+
+      .expense-header-content {
+        flex: 1;
+        min-width: 0;
+
+        mat-card-title {
+          font-size: 16px;
+          font-weight: 500;
+          margin: 0 0 4px 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        mat-card-subtitle {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 13px;
+          color: #666;
+          margin: 0;
+
+          .small-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+
+      .expense-amount {
+        font-size: 18px;
+        font-weight: 600;
+        color: #667eea;
+        white-space: nowrap;
+      }
+    }
+
+    mat-card-content {
+      padding-top: 0;
+
+      .expense-details {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .detail-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+          color: #666;
+
+          .small-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: #999;
+          }
+
+          mat-chip {
+            height: 24px;
+            font-size: 11px;
+          }
+
+          .split-chip {
+            background-color: #e3f2fd;
+            color: #1976d2;
+          }
+
+          .category-chip {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+          }
+        }
+      }
+    }
+  }
+}

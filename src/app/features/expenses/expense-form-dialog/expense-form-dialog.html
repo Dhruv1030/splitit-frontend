@@ -1,0 +1,201 @@
+<div class="expense-form-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+    {{ isEditMode ? 'Edit Expense' : 'Add New Expense' }}
+  </h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="expenseForm" class="expense-form">
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3 class="section-title">Basic Information</h3>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description" placeholder="e.g., Dinner at Italian Restaurant" maxlength="100">
+          <mat-icon matSuffix>description</mat-icon>
+          <mat-error *ngIf="expenseForm.get('description')?.hasError('required')">
+            Description is required
+          </mat-error>
+          <mat-error *ngIf="expenseForm.get('description')?.hasError('minlength')">
+            Description must be at least 3 characters
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Amount</mat-label>
+            <input matInput type="number" formControlName="amount" placeholder="0.00" step="0.01" min="0">
+            <span matTextPrefix>$&nbsp;</span>
+            <mat-error *ngIf="expenseForm.get('amount')?.hasError('required')">
+              Amount is required
+            </mat-error>
+            <mat-error *ngIf="expenseForm.get('amount')?.hasError('min')">
+              Amount must be greater than 0
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Currency</mat-label>
+            <mat-select formControlName="currency">
+              <mat-option value="USD">USD ($)</mat-option>
+              <mat-option value="EUR">EUR (€)</mat-option>
+              <mat-option value="GBP">GBP (£)</mat-option>
+              <mat-option value="INR">INR (₹)</mat-option>
+              <mat-option value="CAD">CAD (C$)</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="category">
+              <mat-option *ngFor="let cat of categories" [value]="cat.value">
+                <mat-icon class="category-icon">{{ cat.icon }}</mat-icon>
+                {{ cat.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Paid By</mat-label>
+            <mat-select formControlName="paidBy">
+              <mat-option *ngFor="let member of data.members" [value]="member.userId">
+                {{ member.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="expenseForm.get('paidBy')?.hasError('required')">
+              Please select who paid
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Split Type -->
+      <div class="form-section">
+        <h3 class="section-title">Split Type</h3>
+        
+        <mat-radio-group formControlName="splitType" class="split-type-group">
+          <mat-radio-button *ngFor="let type of splitTypes" [value]="type.value" class="split-type-option">
+            <div class="split-type-content">
+              <div class="split-type-label">{{ type.label }}</div>
+              <div class="split-type-description">{{ type.description }}</div>
+            </div>
+          </mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Participants -->
+      <div class="form-section">
+        <h3 class="section-title">Participants</h3>
+        
+        <!-- Equal Split -->
+        <div *ngIf="expenseForm.get('splitType')?.value === 'EQUAL'" class="participants-section">
+          <div class="participants-select">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select Participants</mat-label>
+              <mat-select formControlName="participants" multiple>
+                <mat-option *ngFor="let member of data.members" [value]="member.userId">
+                  {{ member.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          
+          <div *ngIf="expenseForm.get('participants')?.value?.length > 0" class="split-preview">
+            <div class="preview-header">
+              <span>Split Preview</span>
+              <span class="per-person">{{ calculateEqualShare() | currency }} per person</span>
+            </div>
+            <div class="participant-item" *ngFor="let userId of expenseForm.get('participants')?.value">
+              <span>{{ getMemberName(userId) }}</span>
+              <span class="amount">{{ calculateEqualShare() | currency }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exact Split -->
+        <div *ngIf="expenseForm.get('splitType')?.value === 'EXACT'" class="exact-split-section">
+          <div class="exact-amounts" formArrayName="exactAmounts">
+            <div *ngFor="let control of exactAmounts.controls; let i = index" [formGroupName]="i" class="exact-amount-row">
+              <span class="member-name">{{ getMemberName(control.get('userId')?.value) }}</span>
+              <mat-form-field appearance="outline" class="amount-input">
+                <mat-label>Amount</mat-label>
+                <input matInput type="number" formControlName="amount" step="0.01" min="0">
+                <span matTextPrefix>$&nbsp;</span>
+              </mat-form-field>
+            </div>
+          </div>
+          
+          <div class="split-validation" [class.error]="!isExactAmountValid()">
+            <span>Total: {{ getTotalExactAmount() | currency }}</span>
+            <span class="divider">|</span>
+            <span>Expected: {{ expenseForm.get('amount')?.value | currency }}</span>
+            <mat-icon *ngIf="isExactAmountValid()" class="valid-icon">check_circle</mat-icon>
+            <mat-icon *ngIf="!isExactAmountValid()" class="error-icon">error</mat-icon>
+          </div>
+        </div>
+
+        <!-- Percentage Split -->
+        <div *ngIf="expenseForm.get('splitType')?.value === 'PERCENTAGE'" class="percentage-split-section">
+          <div class="percentages" formArrayName="percentages">
+            <div *ngFor="let control of percentages.controls; let i = index" [formGroupName]="i" class="percentage-row">
+              <span class="member-name">{{ getMemberName(control.get('userId')?.value) }}</span>
+              <mat-form-field appearance="outline" class="percentage-input">
+                <mat-label>Percentage</mat-label>
+                <input matInput type="number" formControlName="percentage" step="0.01" min="0" max="100">
+                <span matTextSuffix>%</span>
+              </mat-form-field>
+              <span class="amount-preview">
+                {{ (expenseForm.get('amount')?.value * control.get('percentage')?.value / 100) | currency }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="split-validation" [class.error]="!isPercentageValid()">
+            <span>Total: {{ getTotalPercentage() }}%</span>
+            <span class="divider">|</span>
+            <span>Expected: 100%</span>
+            <mat-icon *ngIf="isPercentageValid()" class="valid-icon">check_circle</mat-icon>
+            <mat-icon *ngIf="!isPercentageValid()" class="error-icon">error</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Additional Information -->
+      <div class="form-section">
+        <h3 class="section-title">Additional Information (Optional)</h3>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Notes</mat-label>
+          <textarea matInput formControlName="notes" rows="3" placeholder="Add any additional notes..."></textarea>
+          <mat-icon matSuffix>note</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Receipt URL</mat-label>
+          <input matInput formControlName="receiptUrl" placeholder="https://example.com/receipt.jpg">
+          <mat-icon matSuffix>receipt</mat-icon>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="loading">
+      Cancel
+    </button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading || expenseForm.invalid">
+      <mat-icon *ngIf="!loading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+      {{ loading ? 'Saving...' : (isEditMode ? 'Update' : 'Create Expense') }}
+    </button>
+  </mat-dialog-actions>
+</div>
