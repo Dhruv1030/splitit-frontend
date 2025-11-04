@@ -1,0 +1,231 @@
+// Base skeleton styles
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Text skeleton
+.skeleton-text {
+  height: 16px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+// Card skeleton
+.skeleton-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-card-header {
+  height: 24px;
+  width: 60%;
+  margin-bottom: 16px;
+  border-radius: 4px;
+}
+
+.skeleton-card-content {
+  height: 16px;
+  width: 100%;
+  margin-bottom: 12px;
+  border-radius: 4px;
+}
+
+.skeleton-card-footer {
+  height: 20px;
+  width: 40%;
+  margin-top: 16px;
+  border-radius: 4px;
+}
+
+// List skeleton
+.skeleton-list-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: white;
+  border-radius: 8px;
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.skeleton-list-content {
+  flex: 1;
+}
+
+// Table skeleton
+.skeleton-table {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.skeleton-table-header,
+.skeleton-table-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+
+.skeleton-table-header {
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.skeleton-table-cell {
+  height: 16px;
+  border-radius: 4px;
+}
+
+.skeleton-table-row {
+  border-bottom: 1px solid #f0f0f0;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// Expense Card skeleton
+.skeleton-expense-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-expense-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.skeleton-expense-title {
+  height: 24px;
+  width: 50%;
+  border-radius: 4px;
+}
+
+.skeleton-expense-amount {
+  height: 28px;
+  width: 80px;
+  border-radius: 4px;
+}
+
+.skeleton-expense-body {
+  margin-bottom: 16px;
+}
+
+.skeleton-expense-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.skeleton-chip {
+  height: 24px;
+  width: 80px;
+  border-radius: 12px;
+}
+
+// Group Card skeleton
+.skeleton-group-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-group-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.skeleton-group-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.skeleton-group-info {
+  flex: 1;
+}
+
+.skeleton-group-body {
+  margin-bottom: 16px;
+}
+
+.skeleton-group-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.skeleton-badge {
+  height: 20px;
+  width: 60px;
+  border-radius: 10px;
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      #2a2a2a 25%,
+      #3a3a3a 50%,
+      #2a2a2a 75%
+    );
+    background-size: 200% 100%;
+  }
+  
+  .skeleton-card,
+  .skeleton-list-item,
+  .skeleton-table,
+  .skeleton-expense-card,
+  .skeleton-group-card {
+    background: #1e1e1e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .skeleton-table-header {
+    background: #252525;
+    border-bottom-color: #3a3a3a;
+  }
+  
+  .skeleton-table-row {
+    border-bottom-color: #2a2a2a;
+  }
+}

@@ -1,0 +1,92 @@
+<!-- Text Skeleton -->
+@if (type === 'text') {
+  @for (item of items; track $index) {
+    <div class="skeleton skeleton-text" [style.height]="height" [style.width]="width"></div>
+  }
+}
+
+<!-- Card Skeleton -->
+@if (type === 'card') {
+  @for (item of items; track $index) {
+    <div class="skeleton-card">
+      <div class="skeleton skeleton-card-header"></div>
+      <div class="skeleton skeleton-card-content"></div>
+      <div class="skeleton skeleton-card-content" style="width: 80%;"></div>
+      <div class="skeleton skeleton-card-footer"></div>
+    </div>
+  }
+}
+
+<!-- List Skeleton -->
+@if (type === 'list') {
+  @for (item of items; track $index) {
+    <div class="skeleton-list-item">
+      <div class="skeleton skeleton-avatar"></div>
+      <div class="skeleton-list-content">
+        <div class="skeleton skeleton-text" style="width: 60%;"></div>
+        <div class="skeleton skeleton-text" style="width: 40%;"></div>
+      </div>
+    </div>
+  }
+}
+
+<!-- Table Skeleton -->
+@if (type === 'table') {
+  <div class="skeleton-table">
+    <div class="skeleton-table-header">
+      @for (col of [1,2,3,4]; track col) {
+        <div class="skeleton skeleton-table-cell"></div>
+      }
+    </div>
+    @for (row of items; track $index) {
+      <div class="skeleton-table-row">
+        @for (col of [1,2,3,4]; track col) {
+          <div class="skeleton skeleton-table-cell"></div>
+        }
+      </div>
+    }
+  </div>
+}
+
+<!-- Expense Card Skeleton -->
+@if (type === 'expense-card') {
+  @for (item of items; track $index) {
+    <div class="skeleton-expense-card">
+      <div class="skeleton-expense-header">
+        <div class="skeleton skeleton-expense-title"></div>
+        <div class="skeleton skeleton-expense-amount"></div>
+      </div>
+      <div class="skeleton-expense-body">
+        <div class="skeleton skeleton-text" style="width: 70%;"></div>
+        <div class="skeleton skeleton-text" style="width: 50%;"></div>
+      </div>
+      <div class="skeleton-expense-footer">
+        <div class="skeleton skeleton-chip"></div>
+        <div class="skeleton skeleton-chip"></div>
+      </div>
+    </div>
+  }
+}
+
+<!-- Group Card Skeleton -->
+@if (type === 'group-card') {
+  @for (item of items; track $index) {
+    <div class="skeleton-group-card">
+      <div class="skeleton-group-header">
+        <div class="skeleton skeleton-group-icon"></div>
+        <div class="skeleton-group-info">
+          <div class="skeleton skeleton-text" style="width: 60%;"></div>
+          <div class="skeleton skeleton-text" style="width: 40%; height: 12px;"></div>
+        </div>
+      </div>
+      <div class="skeleton-group-body">
+        <div class="skeleton skeleton-text" style="width: 100%;"></div>
+        <div class="skeleton skeleton-text" style="width: 80%;"></div>
+      </div>
+      <div class="skeleton-group-footer">
+        <div class="skeleton skeleton-badge"></div>
+        <div class="skeleton skeleton-badge"></div>
+      </div>
+    </div>
+  }
+}

@@ -13,6 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { GroupService } from '../../../core/services/group.service';
 import { Group } from '../../../core/models/group.model';
+import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleton-loader';
 
 @Component({
   selector: 'app-groups-list',
@@ -30,6 +31,7 @@ import { Group } from '../../../core/models/group.model';
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatDialogModule,
+    SkeletonLoaderComponent,
   ],
   templateUrl: './groups-list.html',
   styleUrls: ['./groups-list.scss'],

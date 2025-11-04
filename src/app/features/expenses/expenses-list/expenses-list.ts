@@ -12,8 +12,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { ExpenseService } from '../../../core/services/expense.service';
 import { GroupService } from '../../../core/services/group.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Expense, ExpenseCategory } from '../../../core/models/expense.model';
 import { Group } from '../../../core/models/group.model';
+import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleton-loader';
 
 @Component({
   selector: 'app-expenses-list',
@@ -29,6 +31,7 @@ import { Group } from '../../../core/models/group.model';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    SkeletonLoaderComponent,
   ],
   templateUrl: './expenses-list.html',
   styleUrls: ['./expenses-list.scss'],
@@ -37,6 +40,7 @@ export class ExpensesListComponent implements OnInit {
   private expenseService = inject(ExpenseService);
   private groupService = inject(GroupService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   expenses: Expense[] = [];
   filteredExpenses: Expense[] = [];
@@ -62,6 +66,7 @@ export class ExpensesListComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error loading groups:', error);
+        this.toastService.error('Failed to load groups. Please try again.');
       },
     });
   }
@@ -89,6 +94,7 @@ export class ExpensesListComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error loading expenses:', error);
+        this.toastService.error('Failed to load expenses. Please try again.');
         this.loading = false;
       },
     });
