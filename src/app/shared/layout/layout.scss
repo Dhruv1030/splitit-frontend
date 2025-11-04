@@ -1,42 +1,61 @@
+// ============================================================================
+// LAYOUT - Main Application Structure
+// ============================================================================
+
 .layout-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  background-color: #f5f7fa;
 }
 
 .layout-content {
   display: flex;
   flex: 1;
   overflow: hidden;
+  position: relative;
 }
 
 .main-content {
   flex: 1;
   overflow-y: auto;
-  background-color: #f5f5f5;
+  overflow-x: hidden;
+  background-color: #f5f7fa;
   padding: 24px;
-
-  // Ensure smooth scrolling
   scroll-behavior: smooth;
-}
-
-// Responsive Design
-@media (max-width: 960px) {
-  .main-content {
+  -webkit-overflow-scrolling: touch;
+  
+  @media (min-width: 768px) {
+    padding: 32px;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 40px;
+  }
+  
+  @media (max-width: 640px) {
     padding: 16px;
   }
-}
-
-@media (max-width: 600px) {
-  .main-content {
+  
+  @media (max-width: 480px) {
     padding: 12px;
   }
 }
 
-// Scrollbar Styling for main content
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+// ============================================================================
+// SCROLLBAR STYLING
+// ============================================================================
+
 .main-content::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 .main-content::-webkit-scrollbar-track {
@@ -44,10 +63,26 @@
 }
 
 .main-content::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
+  transition: background 0.2s;
 
   &:hover {
-    background: #999;
+    background: rgba(0, 0, 0, 0.3);
+  }
+}
+
+// ============================================================================
+// MOBILE ADJUSTMENTS
+// ============================================================================
+
+@media (max-width: 768px) {
+  .layout-container {
+    height: 100dvh; // Use dynamic viewport height on mobile
+  }
+  
+  .main-content {
+    // Improve mobile scroll performance
+    will-change: scroll-position;
   }
 }

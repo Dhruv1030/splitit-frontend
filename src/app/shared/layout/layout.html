@@ -5,7 +5,10 @@
     <app-sidebar></app-sidebar>
     
     <main class="main-content">
-      <router-outlet></router-outlet>
+      <div class="content-wrapper">
+        <app-breadcrumb></app-breadcrumb>
+        <router-outlet></router-outlet>
+      </div>
     </main>
   </div>
 </div>
