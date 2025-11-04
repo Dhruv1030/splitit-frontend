@@ -1,0 +1,75 @@
+<div class="add-member-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>person_add</mat-icon>
+    Add Member to Group
+  </h2>
+
+  <mat-dialog-content>
+    <!-- Search Form -->
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Search by name or email</mat-label>
+        <input
+          matInput
+          formControlName="searchQuery"
+          placeholder="e.g., john@example.com"
+          (keyup.enter)="onSearch()"
+        />
+        <mat-icon matPrefix>search</mat-icon>
+        <button
+          mat-icon-button
+          matSuffix
+          type="submit"
+          [disabled]="searchForm.invalid || searching"
+        >
+          <mat-spinner *ngIf="searching" diameter="20"></mat-spinner>
+          <mat-icon *ngIf="!searching">arrow_forward</mat-icon>
+        </button>
+        <mat-error *ngIf="searchForm.get('searchQuery')?.hasError('required')">
+          Search query is required
+        </mat-error>
+        <mat-error *ngIf="searchForm.get('searchQuery')?.hasError('minlength')">
+          Enter at least 2 characters
+        </mat-error>
+      </mat-form-field>
+    </form>
+
+    <!-- Search Results -->
+    <div *ngIf="searchResults.length > 0" class="search-results">
+      <h3 class="results-title">Search Results</h3>
+      <mat-list>
+        <mat-list-item *ngFor="let user of searchResults" class="user-item">
+          <div class="user-info">
+            <div class="user-avatar" mat-list-avatar>
+              <mat-icon>account_circle</mat-icon>
+            </div>
+            <div class="user-details">
+              <div class="user-name">{{ user.name }}</div>
+              <div class="user-email">{{ user.email }}</div>
+            </div>
+          </div>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onSelectUser(user)"
+            class="add-button"
+          >
+            <mat-icon>add</mat-icon>
+            Add
+          </button>
+        </mat-list-item>
+      </mat-list>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!searching && searchResults.length === 0" class="empty-state">
+      <mat-icon>search</mat-icon>
+      <p>Search for users to add to the group</p>
+      <small>You can search by name or email</small>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancel</button>
+  </mat-dialog-actions>
+</div>
