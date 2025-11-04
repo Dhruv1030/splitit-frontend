@@ -14,9 +14,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExpenseService } from '../../../core/services/expense.service';
 import { UserService } from '../../../core/services/user.service';
+import { GroupService } from '../../../core/services/group.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { CreateExpenseRequest } from '../../../core/models/expense.model';
 
 interface GroupMember {
@@ -25,9 +26,17 @@ interface GroupMember {
   role: string;
 }
 
+interface Group {
+  id: number;
+  name: string;
+  members: string[] | GroupMember[]; // Can be either format
+  currency: string;
+}
+
 interface DialogData {
-  groupId: number;
-  members: GroupMember[];
+  groupId?: number;
+  members?: GroupMember[];
+  groups?: Group[]; // For dashboard mode
   expense?: any;
 }
 
@@ -57,14 +66,20 @@ interface DialogData {
 export class ExpenseFormDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private expenseService = inject(ExpenseService);
+  private groupService = inject(GroupService);
   private dialogRef = inject(MatDialogRef<ExpenseFormDialogComponent>);
-  private snackBar = inject(MatSnackBar);
+  private toastService = inject(ToastService);
 
-  data = inject<DialogData>(MAT_DIALOG_DATA, { optional: true }) || { groupId: 0, members: [] };
+  data = inject<DialogData>(MAT_DIALOG_DATA, { optional: true }) || { groups: [] };
 
   expenseForm: FormGroup;
   isEditMode = false;
   loading = false;
+  
+  // For dashboard mode
+  isDashboardMode = false;
+  availableGroups: Group[] = [];
+  selectedGroupMembers: GroupMember[] = [];
 
   categories = [
     { value: 'FOOD', label: 'Food & Drinks', icon: 'restaurant' },
@@ -83,7 +98,12 @@ export class ExpenseFormDialogComponent implements OnInit {
   ];
 
   constructor() {
+    // Determine mode
+    this.isDashboardMode = !!this.data.groups;
+    this.availableGroups = this.data.groups || [];
+    
     this.expenseForm = this.fb.group({
+      groupId: [this.data.groupId || '', this.isDashboardMode ? Validators.required : []], // Required in dashboard mode
       description: ['', [Validators.required, Validators.minLength(3)]],
       amount: ['', [Validators.required, Validators.min(0.01)]],
       currency: ['USD', Validators.required],
@@ -98,17 +118,32 @@ export class ExpenseFormDialogComponent implements OnInit {
     });
 
     this.isEditMode = !!this.data.expense;
+    
+    // Listen to group selection changes in dashboard mode
+    if (this.isDashboardMode) {
+      this.expenseForm.get('groupId')?.valueChanges.subscribe((groupId) => {
+        this.onGroupSelected(groupId);
+      });
+    }
   }
 
   ngOnInit(): void {
+    // Debug: Check if members data is being passed correctly
+    console.log('ExpenseFormDialog - data.members:', this.data.members);
+    console.log('ExpenseFormDialog - groupId:', this.data.groupId);
+    console.log('ExpenseFormDialog - isDashboardMode:', this.isDashboardMode);
+    console.log('ExpenseFormDialog - availableGroups:', this.availableGroups);
+    
     // Set default payer to current user if available
     const currentUserId = localStorage.getItem('userId');
     if (currentUserId && !this.isEditMode) {
       this.expenseForm.patchValue({ paidBy: currentUserId });
-      // Default: all members participate
-      this.expenseForm.patchValue({ 
-        participants: this.data.members.map(m => m.userId) 
-      });
+      // Default: all members participate (only if we have members)
+      if (this.data.members && this.data.members.length > 0) {
+        this.expenseForm.patchValue({ 
+          participants: this.data.members.map(m => m.userId) 
+        });
+      }
     }
 
     if (this.isEditMode && this.data.expense) {
@@ -138,6 +173,62 @@ export class ExpenseFormDialogComponent implements OnInit {
       notes: expense.notes || '',
       receiptUrl: expense.receiptUrl || '',
     });
+  }
+
+  onGroupSelected(groupId: number): void {
+    const selectedGroup = this.availableGroups.find(g => g.id === groupId);
+    if (!selectedGroup) return;
+    
+    // Update currency based on selected group
+    this.expenseForm.patchValue({ currency: selectedGroup.currency });
+    
+    // Fetch full group details to get member information
+    this.loading = true;
+    this.groupService.getGroup(groupId).subscribe({
+      next: (response) => {
+        this.loading = false;
+        const groupDetail = response.data as any;
+        
+        console.log('Fetched group details:', groupDetail);
+        
+        // Backend now returns members with userId, name, email, and role
+        if (groupDetail.members && Array.isArray(groupDetail.members)) {
+          this.selectedGroupMembers = groupDetail.members.map((m: any) => ({
+            userId: m.userId,
+            name: m.name || m.email || m.userId, // Use name, fallback to email or userId
+            role: m.role || 'MEMBER'
+          }));
+          console.log('Selected group members with names:', this.selectedGroupMembers);
+          
+          // Auto-select current user as payer if they're a member
+          const currentUserId = localStorage.getItem('userId');
+          if (currentUserId) {
+            const isMember = this.selectedGroupMembers.some(m => m.userId === currentUserId);
+            if (isMember) {
+              this.expenseForm.patchValue({ paidBy: currentUserId });
+            }
+          }
+          
+          // Auto-select all members as participants
+          this.expenseForm.patchValue({
+            participants: this.selectedGroupMembers.map(m => m.userId)
+          });
+        }
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Error fetching group details:', error);
+        this.toastService.error('Failed to load group members');
+      }
+    });
+  }  getMemberName(userId: string): string {
+    // Try data.members first (group detail mode)
+    let member = this.data.members?.find(m => m.userId === userId);
+    if (member) return member.name;
+    
+    // Try selectedGroupMembers (dashboard mode)
+    member = this.selectedGroupMembers.find(m => m.userId === userId);
+    return member ? member.name : userId;
   }
 
   onSplitTypeChange(splitType: string): void {
@@ -185,11 +276,6 @@ export class ExpenseFormDialogComponent implements OnInit {
     return this.expenseForm.get('percentages') as FormArray;
   }
 
-  getMemberName(userId: string): string {
-    const member = this.data.members.find(m => m.userId === userId);
-    return member ? member.name : userId;
-  }
-
   calculateEqualShare(): number {
     const amount = this.expenseForm.get('amount')?.value || 0;
     const participants = this.expenseForm.get('participants')?.value || [];
@@ -235,12 +321,12 @@ export class ExpenseFormDialogComponent implements OnInit {
     
     // Validate split amounts
     if (splitType === 'EXACT' && !this.isExactAmountValid()) {
-      alert('Exact amounts must add up to the total expense amount');
+      this.toastService.warning('Exact amounts must add up to the total expense amount');
       return;
     }
 
     if (splitType === 'PERCENTAGE' && !this.isPercentageValid()) {
-      alert('Percentages must add up to 100%');
+      this.toastService.warning('Percentages must add up to 100%');
       return;
     }
 
@@ -277,20 +363,32 @@ export class ExpenseFormDialogComponent implements OnInit {
 
     this.loading = true;
 
+    // Determine the group ID (from data or form)
+    const groupId = this.isDashboardMode 
+      ? this.expenseForm.get('groupId')?.value 
+      : this.data.groupId;
+
+    if (!groupId) {
+      this.toastService.error('Please select a group');
+      this.loading = false;
+      return;
+    }
+
     if (this.isEditMode) {
       // TODO: Implement update expense
       console.log('Update expense:', request);
       this.dialogRef.close(true);
     } else {
-      this.expenseService.createExpense(this.data.groupId, request).subscribe({
+      this.expenseService.createExpense(groupId, request).subscribe({
         next: (response) => {
           this.loading = false;
+          this.toastService.success('Expense created successfully!');
           this.dialogRef.close(true);
         },
         error: (error: any) => {
           console.error('Error creating expense:', error);
           this.loading = false;
-          alert('Failed to create expense. Please try again.');
+          this.toastService.error('Failed to create expense. Please try again.');
         },
       });
     }

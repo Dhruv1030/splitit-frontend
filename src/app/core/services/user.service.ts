@@ -13,9 +13,11 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  searchUsers(query: string): Observable<ApiResponse<User[]>> {
-    const params = new HttpParams().set('q', query);
-    return this.http.get<ApiResponse<User[]>>(`${this.apiUrl}/search`, { params });
+  searchUsers(query: string): Observable<User[]> {
+    // Backend returns array directly, not wrapped in ApiResponse
+    // Parameter name is 'query' for searching by name, email, or phone
+    const params = new HttpParams().set('query', query);
+    return this.http.get<User[]>(`${this.apiUrl}/search`, { params });
   }
 
   getUserById(userId: string): Observable<User> {
@@ -31,11 +33,13 @@ export class UserService {
   }
 
   addFriend(userId: string, friendId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${userId}/friends/${friendId}`, {});
+    // Backend expects friendId as query parameter, not path parameter
+    return this.http.post<void>(`${this.apiUrl}/${userId}/friends?friendId=${friendId}`, {});
   }
 
   removeFriend(userId: string, friendId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${userId}/friends/${friendId}`);
+    // Backend expects friendId as query parameter, not path parameter
+    return this.http.delete<void>(`${this.apiUrl}/${userId}/friends?friendId=${friendId}`);
   }
 
   getUsersByGroup(groupId: number): Observable<ApiResponse<User[]>> {

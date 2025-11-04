@@ -1,10 +1,47 @@
 
 // Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+
+// Include Angular Material core styles (needed for overlays like dropdowns)
+@include mat.core();
+
+// ============================================================================
+// DESIGN SYSTEM - Senior Frontend Engineer Standards
+// ============================================================================
+
+// Spacing Scale (8px base unit)
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+$spacing-3xl: 64px;
+
+// Responsive Breakpoints
+$breakpoint-xs: 480px;
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// Border Radius Scale
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+$radius-full: 9999px;
+
+// Shadow Scale
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+// ============================================================================
+// THEME SETUP
+// ============================================================================
 
 html {
   @include mat.theme((
@@ -18,22 +55,476 @@ html {
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
+  background-color: #f5f7fa;
   color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
   margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-/* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html, body { 
+  height: 100%; 
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+// ============================================================================
+// RESPONSIVE UTILITIES
+// ============================================================================
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+  
+  @media (min-width: $breakpoint-md) {
+    padding: 0 $spacing-lg;
+  }
+  
+  @media (min-width: $breakpoint-xl) {
+    padding: 0 $spacing-xl;
+  }
+}
+
+// ============================================================================
+// MATERIAL COMPONENT OVERRIDES
+// ============================================================================
+
+/* Material Card Enhancements */
+.mat-mdc-card {
+  border-radius: $radius-lg !important;
+  box-shadow: $shadow-sm !important;
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    box-shadow: $shadow-md !important;
+  }
+}
+
+.mat-mdc-card-header {
+  padding: $spacing-lg !important;
+  
+  .mat-mdc-card-title {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+.mat-mdc-card-content {
+  padding: $spacing-lg !important;
+}
+
+/* Material Button Enhancements */
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  border-radius: $radius-md !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* Material Form Field Enhancements */
+.mat-mdc-form-field {
+  width: 100%;
+  
+  .mat-mdc-text-field-wrapper {
+    border-radius: $radius-md !important;
+  }
+  
+  &.mat-form-field-appearance-outline {
+    .mat-mdc-text-field-wrapper {
+      .mat-mdc-form-field-flex {
+        .mat-mdc-notched-outline {
+          .mat-mdc-notched-outline-leading {
+            border-radius: $radius-md 0 0 $radius-md !important;
+          }
+          
+          .mat-mdc-notched-outline-trailing {
+            border-radius: 0 $radius-md $radius-md 0 !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Additional Material form field styling
+.mat-form-field-appearance-outline {
+  .mat-form-field-outline {
+    border-radius: $radius-md !important;
+  }
+  
+  .mat-form-field-outline-start {
+    border-radius: $radius-md 0 0 $radius-md !important;
+  }
+  
+  .mat-form-field-outline-end {
+    border-radius: 0 $radius-md $radius-md 0 !important;
+  }
+}
+
+/* Material Dialog Enhancements */
+.mat-mdc-dialog-container,
+.mat-dialog-container {
+  border-radius: $radius-xl !important;
+  box-shadow: $shadow-xl !important;
+  max-width: 95vw !important;
+  overflow: hidden !important;
+  
+  @media (min-width: $breakpoint-md) {
+    max-width: 90vw !important;
+  }
+  
+  .mdc-dialog__surface {
+    border-radius: $radius-xl !important;
+    overflow: hidden !important;
+  }
+  
+  .mat-mdc-dialog-surface {
+    border-radius: $radius-xl !important;
+    overflow: hidden !important;
+  }
+}
+
+.cdk-overlay-pane {
+  .mat-mdc-dialog-container {
+    border-radius: $radius-xl !important;
+    overflow: hidden !important;
+  }
+}
+
+.mat-mdc-dialog-title,
+.mat-dialog-title {
+  padding: 20px 16px 14px !important;
+  margin: 0 !important;
+  
+  @media (min-width: $breakpoint-sm) {
+    padding: 24px 24px 16px !important;
+  }
+}
+
+.mat-mdc-dialog-content,
+.mat-dialog-content {
+  padding: 0 16px 20px !important;
+  
+  @media (min-width: $breakpoint-sm) {
+    padding: 0 24px 24px !important;
+  }
+}
+
+.mat-mdc-dialog-actions,
+.mat-dialog-actions {
+  padding: 14px 16px !important;
+  
+  @media (min-width: $breakpoint-sm) {
+    padding: 16px 24px !important;
+  }
+}
+
+/* Material Chip Enhancements */
+.mat-mdc-chip {
+  border-radius: $radius-full !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+// ============================================================================
+// CDK OVERLAY FIXES
+// ============================================================================
+
+.cdk-overlay-container {
+  z-index: 1000;
+  position: fixed;
+}
+
+.cdk-overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.cdk-overlay-pane {
+  position: absolute;
+  pointer-events: auto;
+  box-sizing: border-box;
+  z-index: 1000;
+}
+
+.mat-mdc-select-panel {
+  max-height: 256px !important;
+  min-width: 100% !important;
+  z-index: 1001 !important;
+  border-radius: $radius-md !important;
+  box-shadow: $shadow-lg !important;
+}
+
+// ============================================================================
+// UTILITY CLASSES
+// ============================================================================
+
+/* Spacing Utilities */
+.p-xs { padding: $spacing-xs !important; }
+.p-sm { padding: $spacing-sm !important; }
+.p-md { padding: $spacing-md !important; }
+.p-lg { padding: $spacing-lg !important; }
+.p-xl { padding: $spacing-xl !important; }
+
+.m-xs { margin: $spacing-xs !important; }
+.m-sm { margin: $spacing-sm !important; }
+.m-md { margin: $spacing-md !important; }
+.m-lg { margin: $spacing-lg !important; }
+.m-xl { margin: $spacing-xl !important; }
+
+.mt-xs { margin-top: $spacing-xs !important; }
+.mt-sm { margin-top: $spacing-sm !important; }
+.mt-md { margin-top: $spacing-md !important; }
+.mt-lg { margin-top: $spacing-lg !important; }
+.mt-xl { margin-top: $spacing-xl !important; }
+
+.mb-xs { margin-bottom: $spacing-xs !important; }
+.mb-sm { margin-bottom: $spacing-sm !important; }
+.mb-md { margin-bottom: $spacing-md !important; }
+.mb-lg { margin-bottom: $spacing-lg !important; }
+.mb-xl { margin-bottom: $spacing-xl !important; }
+
+/* Display Utilities */
+.hidden-xs { 
+  @media (max-width: $breakpoint-xs) { display: none !important; } 
+}
+.hidden-sm { 
+  @media (max-width: $breakpoint-sm) { display: none !important; } 
+}
+.hidden-md { 
+  @media (max-width: $breakpoint-md) { display: none !important; } 
+}
+
+/* Text Utilities */
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+
+.font-bold { font-weight: 700 !important; }
+.font-semibold { font-weight: 600 !important; }
+.font-medium { font-weight: 500 !important; }
+
+/* Flexbox Utilities */
+.flex { display: flex !important; }
+.flex-col { flex-direction: column !important; }
+.items-center { align-items: center !important; }
+.justify-center { justify-content: center !important; }
+.justify-between { justify-content: space-between !important; }
+.gap-xs { gap: $spacing-xs !important; }
+.gap-sm { gap: $spacing-sm !important; }
+.gap-md { gap: $spacing-md !important; }
+.gap-lg { gap: $spacing-lg !important; }
+
+/* Width Utilities */
+.w-full { width: 100% !important; }
+.max-w-screen-sm { max-width: $breakpoint-sm !important; }
+.max-w-screen-md { max-width: $breakpoint-md !important; }
+.max-w-screen-lg { max-width: $breakpoint-lg !important; }
+.max-w-screen-xl { max-width: $breakpoint-xl !important; }
+
+// ============================================================================
+// COMMON PATTERNS
+// ============================================================================
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-3xl $spacing-lg;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.54);
+  
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: $spacing-lg;
+    opacity: 0.3;
+  }
+  
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 $spacing-sm 0;
+    color: rgba(0, 0, 0, 0.87);
+  }
+  
+  p {
+    font-size: 14px;
+    margin: 0 0 $spacing-md 0;
+  }
+  
+  small {
+    font-size: 12px;
+    opacity: 0.7;
+  }
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-3xl;
+  
+  p {
+    margin-top: $spacing-md;
+    color: rgba(0, 0, 0, 0.54);
+  }
+}
+
+/* Responsive Grid */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-md;
+  
+  @media (min-width: $breakpoint-sm) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: $breakpoint-lg) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// ============================================================================
+// SCROLLBAR STYLING
+// ============================================================================
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: $radius-sm;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: $radius-sm;
+  
+  &:hover {
+    background: #a8a8a8;
+  }
+}
+
+// ============================================================================
+// ANIMATIONS
+// ============================================================================
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+// ============================================================================
+// TOAST NOTIFICATION STYLES
+// ============================================================================
+
+// Toast success
+.toast-success {
+  .mdc-snackbar__surface {
+    background-color: #10b981 !important;
+    color: white !important;
+  }
+  
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+  }
+  
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+// Toast error
+.toast-error {
+  .mdc-snackbar__surface {
+    background-color: #ef4444 !important;
+    color: white !important;
+  }
+  
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+  }
+  
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+// Toast warning
+.toast-warning {
+  .mdc-snackbar__surface {
+    background-color: #f59e0b !important;
+    color: white !important;
+  }
+  
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+  }
+  
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+// Toast info
+.toast-info {
+  .mdc-snackbar__surface {
+    background-color: #3b82f6 !important;
+    color: white !important;
+  }
+  
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+  }
+  
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+// ============================================================================
+// PRINT STYLES
+// ============================================================================
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

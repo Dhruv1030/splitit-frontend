@@ -45,9 +45,8 @@
 
   <!-- Loading State -->
   @if (loading) {
-    <div class="loading-container">
-      <mat-spinner diameter="50"></mat-spinner>
-      <p>Loading expenses...</p>
+    <div class="expenses-grid">
+      <app-skeleton-loader type="expense-card" [count]="6"></app-skeleton-loader>
     </div>
   }
 

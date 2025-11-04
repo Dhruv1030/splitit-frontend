@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { SettlementService } from '../../../core/services/settlement.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { RecordSettlementRequest } from '../../../core/models/settlement.model';
 
 interface SettlementSuggestion {
@@ -50,6 +51,7 @@ export class RecordPaymentDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private settlementService = inject(SettlementService);
   private dialogRef = inject(MatDialogRef<RecordPaymentDialogComponent>);
+  private toastService = inject(ToastService);
 
   @Inject(MAT_DIALOG_DATA) public data!: DialogData;
 
@@ -101,12 +103,13 @@ export class RecordPaymentDialogComponent implements OnInit {
     this.settlementService.recordSettlement(this.data.groupId, request).subscribe({
       next: (response) => {
         this.loading = false;
+        this.toastService.success('Payment recorded successfully!');
         this.dialogRef.close(true);
       },
       error: (error: any) => {
         console.error('Error recording settlement:', error);
         this.loading = false;
-        alert('Failed to record payment. Please try again.');
+        this.toastService.error('Failed to record payment. Please try again.');
       },
     });
   }

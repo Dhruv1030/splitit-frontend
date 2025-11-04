@@ -1,7 +1,13 @@
 <div class="group-detail-container">
   <!-- Loading State -->
-  <div *ngIf="loading" class="loading-container">
-    <mat-spinner></mat-spinner>
+  <div *ngIf="loading" class="loading-skeleton">
+    <div class="skeleton-header">
+      <app-skeleton-loader type="text" [count]="1" height="40px" width="60%"></app-skeleton-loader>
+      <app-skeleton-loader type="text" [count]="1" height="20px" width="40%"></app-skeleton-loader>
+    </div>
+    <div class="skeleton-tabs">
+      <app-skeleton-loader type="card" [count]="3"></app-skeleton-loader>
+    </div>
   </div>
 
   <!-- Group Detail Content -->
@@ -234,13 +240,44 @@
       <!-- Settlements Tab -->
       <mat-tab label="Settlements">
         <div class="tab-content">
-          <mat-card>
+          <!-- Settlement Suggestions -->
+          <mat-card class="suggestions-card">
             <mat-card-header>
-              <mat-card-title>Settlements</mat-card-title>
-              <button mat-raised-button color="accent" (click)="onSettleUp()">
+              <mat-card-title>Who Owes Whom</mat-card-title>
+              <button mat-raised-button color="accent" (click)="onSettleUp()" [disabled]="settlementSuggestions.length === 0">
                 <mat-icon>account_balance</mat-icon>
                 Settle Up
               </button>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list *ngIf="settlementSuggestions.length > 0; else noDebts">
+                <mat-list-item *ngFor="let suggestion of settlementSuggestions" class="settlement-suggestion">
+                  <mat-icon matListItemIcon class="settlement-icon">arrow_forward</mat-icon>
+                  <div matListItemTitle class="settlement-description">
+                    <strong>{{ suggestion.payerName }}</strong> owes <strong>{{ suggestion.payeeName }}</strong>
+                  </div>
+                  <div matListItemLine class="settlement-note">
+                    Click "Record Payment" to mark as paid
+                  </div>
+                  <div matListItemMeta class="settlement-amount-meta">
+                    <div class="amount-owed">{{ formatCurrency(suggestion.amount) }}</div>
+                  </div>
+                </mat-list-item>
+              </mat-list>
+              <ng-template #noDebts>
+                <div class="empty-state">
+                  <mat-icon>check_circle</mat-icon>
+                  <p>All settled up!</p>
+                  <small>No pending debts in this group</small>
+                </div>
+              </ng-template>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Settlement History -->
+          <mat-card class="history-card" style="margin-top: 24px;">
+            <mat-card-header>
+              <mat-card-title>Settlement History</mat-card-title>
             </mat-card-header>
             <mat-card-content>
               <mat-list *ngIf="settlements.length > 0; else noSettlements">
@@ -262,9 +299,8 @@
               </mat-list>
               <ng-template #noSettlements>
                 <div class="empty-state">
-                  <mat-icon>account_balance</mat-icon>
-                  <p>No settlements recorded yet</p>
-                  <button mat-stroked-button color="accent" (click)="onSettleUp()">Calculate Settlements</button>
+                  <mat-icon>history</mat-icon>
+                  <p>No settlement history yet</p>
                 </div>
               </ng-template>
             </mat-card-content>

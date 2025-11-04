@@ -15,9 +15,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { GroupService } from '../../../core/services/group.service';
 import { ExpenseService } from '../../../core/services/expense.service';
 import { SettlementService } from '../../../core/services/settlement.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Group } from '../../../core/models/group.model';
 import { Expense } from '../../../core/models/expense.model';
 import { Settlement } from '../../../core/models/settlement.model';
+import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleton-loader';
 
 interface GroupMember {
   userId: string;
@@ -56,6 +58,7 @@ interface GroupDetail {
     MatListModule,
     MatDividerModule,
     MatTooltipModule,
+    SkeletonLoaderComponent,
   ],
   templateUrl: './group-detail.html',
   styleUrls: ['./group-detail.scss'],
@@ -67,10 +70,12 @@ export class GroupDetailComponent implements OnInit {
   private expenseService = inject(ExpenseService);
   private settlementService = inject(SettlementService);
   private dialog = inject(MatDialog);
+  private toastService = inject(ToastService);
 
   group: GroupDetail | null = null;
   expenses: Expense[] = [];
   settlements: Settlement[] = [];
+  settlementSuggestions: any[] = []; // Settlement suggestions from backend
   groupBalances: { [userId: string]: number } = {};
   loading = true;
   activeTab = 0;
@@ -124,24 +129,52 @@ export class GroupDetailComponent implements OnInit {
   }
 
   loadSettlements(groupId: number): void {
-    if (this.settlements.length === 0) {
-      this.settlementService.getGroupSettlements(groupId).subscribe({
-        next: (response) => {
-          this.settlements = response.data || [];
-        },
-        error: (error: any) => {
-          console.error('Error loading settlements:', error);
-          this.settlements = [];
-        },
-      });
-    }
+    this.settlementService.getGroupSettlements(groupId).subscribe({
+      next: (response) => {
+        this.settlements = response.data || [];
+      },
+      error: (error: any) => {
+        console.error('Error loading settlements:', error);
+        this.settlements = [];
+      },
+    });
+  }
+
+  loadSettlementSuggestions(groupId: number): void {
+    this.settlementService.getSettlementSuggestions(groupId).subscribe({
+      next: (response) => {
+        console.log('Raw settlement response:', response);
+        
+        // Backend returns directly without ApiResponse wrapper:
+        // { suggestions: [...], totalTransactions: 1, groupId: 14 }
+        if ((response as any).suggestions) {
+          this.settlementSuggestions = (response as any).suggestions;
+        } else if (response.data && (response.data as any).suggestions) {
+          // Fallback: if wrapped in ApiResponse
+          this.settlementSuggestions = (response.data as any).suggestions;
+        } else if (Array.isArray(response)) {
+          this.settlementSuggestions = response;
+        } else if (Array.isArray(response.data)) {
+          this.settlementSuggestions = response.data;
+        } else {
+          this.settlementSuggestions = [];
+        }
+        
+        console.log('Settlement suggestions:', this.settlementSuggestions);
+      },
+      error: (error: any) => {
+        console.error('Error loading settlement suggestions:', error);
+        this.settlementSuggestions = [];
+      },
+    });
   }
 
   onTabChange(index: number): void {
     this.activeTab = index;
     if (index === 3 && this.group) {
-      // Settlements tab
+      // Settlements tab - load both suggestions and history
       this.loadSettlements(this.group.id);
+      this.loadSettlementSuggestions(this.group.id);
     }
   }
 
@@ -150,8 +183,10 @@ export class GroupDetailComponent implements OnInit {
 
     import('../../expenses/expense-form-dialog/expense-form-dialog').then((m) => {
       const dialogRef = this.dialog.open(m.ExpenseFormDialogComponent, {
-        width: '700px',
+        width: '90vw',
+        maxWidth: '700px',
         maxHeight: '90vh',
+        panelClass: 'expense-form-dialog-container',
         data: {
           groupId: this.group!.id,
           members: this.group!.members,
@@ -191,19 +226,65 @@ export class GroupDetailComponent implements OnInit {
     if (confirm(`Are you sure you want to delete "${this.group.name}"? This action cannot be undone.`)) {
       this.groupService.deleteGroup(this.group.id).subscribe({
         next: () => {
+          this.toastService.success('Group deleted successfully');
           this.router.navigate(['/groups']);
         },
         error: (error) => {
           console.error('Error deleting group:', error);
-          alert('Failed to delete group. Please try again.');
+          this.toastService.error('Failed to delete group. Please try again.');
         },
       });
     }
   }
 
   onAddMember(): void {
-    // TODO: Open add member dialog
-    console.log('Add member clicked');
+    if (!this.group) return;
+
+    // Dynamically import the add member dialog
+    import('../add-member-dialog/add-member-dialog').then((m) => {
+      const dialogRef = this.dialog.open(m.AddMemberDialogComponent, {
+        width: '600px',
+        disableClose: false,
+      });
+
+      dialogRef.afterClosed().subscribe((selectedUser) => {
+        if (selectedUser && this.group) {
+          // Check if user is already a member
+          const isAlreadyMember = this.group.members.some(
+            (member) => member.userId === selectedUser.id
+          );
+
+          if (isAlreadyMember) {
+            this.toastService.warning('This user is already a member of the group');
+            return;
+          }
+
+          // Add the member
+          this.addMemberToGroup(selectedUser.id);
+        }
+      });
+    });
+  }
+
+  addMemberToGroup(userId: string): void {
+    if (!this.group) return;
+
+    this.loading = true;
+
+    this.groupService.addMember(this.group.id, userId).subscribe({
+      next: (response) => {
+        this.loading = false;
+        // Reload group details to show the new member
+        this.loadGroupDetails(this.group!.id);
+        this.toastService.success('Member added successfully!');
+      },
+      error: (error) => {
+        console.error('Error adding member:', error);
+        this.loading = false;
+        const errorMessage = error.error?.message || 'Failed to add member';
+        this.toastService.error(errorMessage);
+      },
+    });
   }
 
   onRemoveMember(memberId: string): void {
@@ -222,11 +303,12 @@ export class GroupDetailComponent implements OnInit {
         next: () => {
           if (this.group) {
             this.loadGroupDetails(this.group.id);
+            this.toastService.success('Member removed successfully');
           }
         },
         error: (error: any) => {
           console.error('Error removing member:', error);
-          alert('Failed to remove member. Please try again.');
+          this.toastService.error('Failed to remove member. Please try again.');
         },
       });
     }

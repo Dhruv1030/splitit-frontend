@@ -17,8 +17,8 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="loading-container">
-    <mat-spinner></mat-spinner>
+  <div *ngIf="loading" class="groups-grid">
+    <app-skeleton-loader type="group-card" [count]="6"></app-skeleton-loader>
   </div>
 
   <!-- Empty State -->

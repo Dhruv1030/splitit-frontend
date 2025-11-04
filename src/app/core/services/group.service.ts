@@ -50,8 +50,11 @@ export class GroupService {
   /**
    * Add a member to a group
    */
-  addMember(groupId: number, userId: number): Observable<ApiResponse<Group>> {
-    return this.http.post<ApiResponse<Group>>(`${this.apiUrl}/${groupId}/members/${userId}`, {});
+  addMember(groupId: number, userId: string): Observable<ApiResponse<Group>> {
+    return this.http.post<ApiResponse<Group>>(
+      `${this.apiUrl}/${groupId}/members`, 
+      { userId }
+    );
   }
 
   /**

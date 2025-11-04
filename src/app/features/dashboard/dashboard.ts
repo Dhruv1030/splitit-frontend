@@ -9,6 +9,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { GroupService } from '../../core/services/group.service';
 import { ExpenseService } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Group } from '../../core/models/group.model';
 import { Expense } from '../../core/models/expense.model';
 
@@ -39,6 +40,7 @@ export class DashboardComponent implements OnInit {
   private expenseService = inject(ExpenseService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
+  private toastService = inject(ToastService);
 
   loading = true;
   userName = '';
@@ -137,14 +139,16 @@ export class DashboardComponent implements OnInit {
   onAddExpense(): void {
     // Check if user has at least one group
     if (this.groups.length === 0) {
-      alert('Please create a group first before adding expenses.');
+      this.toastService.info('Please create a group first before adding expenses.');
       return;
     }
 
     import('../expenses/expense-form-dialog/expense-form-dialog').then((m) => {
       const dialogRef = this.dialog.open(m.ExpenseFormDialogComponent, {
-        width: '800px',
+        width: '90vw',
+        maxWidth: '700px',
         disableClose: false,
+        panelClass: 'expense-form-dialog-container',
         data: {
           groups: this.groups, // Pass available groups
         },
