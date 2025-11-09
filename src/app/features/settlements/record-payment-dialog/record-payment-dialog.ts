@@ -103,7 +103,15 @@ export class RecordPaymentDialogComponent implements OnInit {
     this.settlementService.recordSettlement(this.data.groupId, request).subscribe({
       next: (response) => {
         this.loading = false;
-        this.toastService.success('Payment recorded successfully!');
+        
+        // Check if email notifications are enabled
+        const emailPrefs = this.getEmailPreferences();
+        if (emailPrefs.paymentReceived) {
+          this.toastService.success('Payment recorded successfully! Email notification sent to ' + this.data.suggestion.payeeName + '.');
+        } else {
+          this.toastService.success('Payment recorded successfully!');
+        }
+        
         this.dialogRef.close(true);
       },
       error: (error: any) => {
@@ -112,6 +120,22 @@ export class RecordPaymentDialogComponent implements OnInit {
         this.toastService.error('Failed to record payment. Please try again.');
       },
     });
+  }
+
+  private getEmailPreferences(): any {
+    const stored = localStorage.getItem('emailPreferences');
+    if (stored) {
+      return JSON.parse(stored);
+    }
+    // Default preferences
+    return {
+      paymentReminders: true,
+      paymentReceived: true,
+      groupInvitations: true,
+      weeklyDigest: true,
+      newExpenseNotifications: true,
+      settlementReminders: true,
+    };
   }
 
   onCancel(): void {

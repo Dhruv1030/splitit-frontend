@@ -21,6 +21,18 @@ export const routes: Routes = [
       import('./features/auth/register/register').then((m) => m.RegisterComponent),
   },
 
+  // Error pages (public)
+  {
+    path: '403',
+    loadComponent: () =>
+      import('./shared/forbidden/forbidden').then((m) => m.ForbiddenComponent),
+  },
+  {
+    path: '404',
+    loadComponent: () =>
+      import('./shared/not-found/not-found').then((m) => m.NotFoundComponent),
+  },
+
   // Protected routes (with Layout)
   {
     path: '',
@@ -54,6 +66,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'expenses/:id',
+        loadComponent: () =>
+          import('./features/expenses/expense-detail/expense-detail').then(
+            (m) => m.ExpenseDetailComponent
+          ),
+      },
+      {
         path: 'settlements',
         loadComponent: () =>
           import('./features/settlements/settlements-list/settlements-list').then(
@@ -65,13 +84,21 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/profile/profile').then((m) => m.ProfileComponent),
       },
+      {
+        path: 'profile/email-preferences',
+        loadComponent: () =>
+          import('./features/profile/email-preferences/email-preferences').then(
+            (m) => m.EmailPreferencesComponent
+          ),
+      },
     ],
   },
 
   // Wildcard route (404 Not Found)
   {
     path: '**',
-    redirectTo: '/dashboard',
+    loadComponent: () =>
+      import('./shared/not-found/not-found').then((m) => m.NotFoundComponent),
   },
 ];
 

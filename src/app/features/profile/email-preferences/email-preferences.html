@@ -1,0 +1,206 @@
+<div class="email-preferences-container">
+  <!-- Header -->
+  <div class="preferences-header">
+    <h1>
+      <mat-icon>mail</mat-icon>
+      Email Notifications
+    </h1>
+    <p class="subtitle">Manage how you receive email notifications for {{ currentUserEmail }}</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading preferences...</p>
+  </div>
+
+  <!-- Preferences Content -->
+  <div *ngIf="!loading" class="preferences-content">
+    <!-- Quick Actions -->
+    <mat-card class="quick-actions-card">
+      <mat-card-content>
+        <div class="quick-actions">
+          <button mat-stroked-button (click)="enableAll()" class="action-button">
+            <mat-icon>notifications_active</mat-icon>
+            Enable All
+          </button>
+          <button mat-stroked-button (click)="disableAll()" class="action-button">
+            <mat-icon>notifications_off</mat-icon>
+            Disable All
+          </button>
+          <button mat-stroked-button (click)="resetToDefaults()" class="action-button">
+            <mat-icon>restore</mat-icon>
+            Reset to Defaults
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Email Preferences -->
+    <mat-card class="preferences-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>tune</mat-icon>
+          Notification Preferences
+        </mat-card-title>
+        <mat-card-subtitle>Choose which notifications you want to receive</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Payment Notifications -->
+        <div class="preference-section">
+          <h3 class="section-title">
+            <mat-icon>payments</mat-icon>
+            Payment Notifications
+          </h3>
+          
+          <div class="preference-item">
+            <div class="preference-info">
+              <div class="preference-label">Payment Reminders</div>
+              <div class="preference-description">
+                Get notified when you have pending payments to settle
+              </div>
+            </div>
+            <mat-slide-toggle
+              [(ngModel)]="preferences.paymentReminders"
+              color="primary"
+              matTooltip="Toggle payment reminders">
+            </mat-slide-toggle>
+          </div>
+
+          <div class="preference-item">
+            <div class="preference-info">
+              <div class="preference-label">Payment Received</div>
+              <div class="preference-description">
+                Get notified when someone pays you back
+              </div>
+            </div>
+            <mat-slide-toggle
+              [(ngModel)]="preferences.paymentReceived"
+              color="primary"
+              matTooltip="Toggle payment received notifications">
+            </mat-slide-toggle>
+          </div>
+
+          <div class="preference-item">
+            <div class="preference-info">
+              <div class="preference-label">Settlement Reminders</div>
+              <div class="preference-description">
+                Periodic reminders about outstanding balances
+              </div>
+            </div>
+            <mat-slide-toggle
+              [(ngModel)]="preferences.settlementReminders"
+              color="primary"
+              matTooltip="Toggle settlement reminders">
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Group & Expense Notifications -->
+        <div class="preference-section">
+          <h3 class="section-title">
+            <mat-icon>group</mat-icon>
+            Group & Expense Notifications
+          </h3>
+          
+          <div class="preference-item">
+            <div class="preference-info">
+              <div class="preference-label">Group Invitations</div>
+              <div class="preference-description">
+                Get notified when someone adds you to a group
+              </div>
+            </div>
+            <mat-slide-toggle
+              [(ngModel)]="preferences.groupInvitations"
+              color="primary"
+              matTooltip="Toggle group invitation notifications">
+            </mat-slide-toggle>
+          </div>
+
+          <div class="preference-item">
+            <div class="preference-info">
+              <div class="preference-label">New Expense Notifications</div>
+              <div class="preference-description">
+                Get notified when a new expense is added to your groups
+              </div>
+            </div>
+            <mat-slide-toggle
+              [(ngModel)]="preferences.newExpenseNotifications"
+              color="primary"
+              matTooltip="Toggle new expense notifications">
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Digest Notifications -->
+        <div class="preference-section">
+          <h3 class="section-title">
+            <mat-icon>summarize</mat-icon>
+            Digest Notifications
+          </h3>
+          
+          <div class="preference-item">
+            <div class="preference-info">
+              <div class="preference-label">Weekly Digest</div>
+              <div class="preference-description">
+                Receive a weekly summary of your expenses and settlements
+              </div>
+            </div>
+            <mat-slide-toggle
+              [(ngModel)]="preferences.weeklyDigest"
+              color="primary"
+              matTooltip="Toggle weekly digest">
+            </mat-slide-toggle>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Test Email Section -->
+    <mat-card class="test-email-card">
+      <mat-card-content>
+        <div class="test-email-content">
+          <div class="test-email-info">
+            <mat-icon>bug_report</mat-icon>
+            <div>
+              <h3>Test Email Notifications</h3>
+              <p>Send a test email to verify your notification settings</p>
+            </div>
+          </div>
+          <button
+            mat-raised-button
+            color="accent"
+            (click)="sendTestEmail()"
+            [disabled]="sendingTestEmail">
+            <mat-spinner *ngIf="sendingTestEmail" diameter="20"></mat-spinner>
+            <mat-icon *ngIf="!sendingTestEmail">send</mat-icon>
+            {{ sendingTestEmail ? 'Sending...' : 'Send Test Email' }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Save Actions -->
+    <div class="save-actions">
+      <div class="changes-indicator" *ngIf="hasChanges()">
+        <mat-icon>info</mat-icon>
+        You have unsaved changes
+      </div>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="savePreferences()"
+        [disabled]="saving || !hasChanges()"
+        class="save-button">
+        <mat-spinner *ngIf="saving" diameter="20"></mat-spinner>
+        <mat-icon *ngIf="!saving">save</mat-icon>
+        {{ saving ? 'Saving...' : 'Save Preferences' }}
+      </button>
+    </div>
+  </div>
+</div>

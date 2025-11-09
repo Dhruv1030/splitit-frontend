@@ -78,6 +78,33 @@
     <!-- Settings Tab -->
     <mat-tab label="Settings">
       <div class="tab-content">
+        <!-- Email Preferences Section -->
+        <mat-card class="settings-card email-prefs-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>notifications</mat-icon>
+              Notifications
+            </mat-card-title>
+            <mat-card-subtitle>Manage your notification preferences</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="setting-item clickable" routerLink="/profile/email-preferences">
+              <div class="setting-icon">
+                <mat-icon>mail</mat-icon>
+              </div>
+              <div class="setting-content">
+                <div class="setting-label">Email Preferences</div>
+                <div class="setting-description">
+                  Manage how you receive email notifications
+                </div>
+              </div>
+              <mat-icon class="arrow-icon">chevron_right</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Password Change Section -->
         <mat-card class="settings-card">
           <mat-card-header>
             <mat-card-title>Change Password</mat-card-title>

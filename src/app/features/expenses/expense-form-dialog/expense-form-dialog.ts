@@ -138,6 +138,9 @@ export class ExpenseFormDialogComponent implements OnInit {
     const currentUserId = localStorage.getItem('userId');
     if (currentUserId && !this.isEditMode) {
       this.expenseForm.patchValue({ paidBy: currentUserId });
+      // Disable payer field - users can only create expenses they paid for
+      this.expenseForm.get('paidBy')?.disable();
+      
       // Default: all members participate (only if we have members)
       if (this.data.members && this.data.members.length > 0) {
         this.expenseForm.patchValue({ 
@@ -206,13 +209,14 @@ export class ExpenseFormDialogComponent implements OnInit {
             const isMember = this.selectedGroupMembers.some(m => m.userId === currentUserId);
             if (isMember) {
               this.expenseForm.patchValue({ paidBy: currentUserId });
+              // Disable payer field - users can only create expenses they paid for
+              this.expenseForm.get('paidBy')?.disable();
             }
           }
           
-          // Auto-select all members as participants
-          this.expenseForm.patchValue({
-            participants: this.selectedGroupMembers.map(m => m.userId)
-          });
+          // Auto-select all members as participants for equal split
+          const allParticipantIds = this.selectedGroupMembers.map(m => m.userId);
+          this.expenseForm.patchValue({ participants: allParticipantIds });
         }
       },
       error: (error) => {
@@ -319,6 +323,15 @@ export class ExpenseFormDialogComponent implements OnInit {
 
     const splitType = this.expenseForm.get('splitType')?.value;
     
+    // Validate participants for EQUAL split
+    if (splitType === 'EQUAL') {
+      const participants = this.expenseForm.get('participants')?.value || [];
+      if (participants.length === 0) {
+        this.toastService.warning('Please select at least one participant for equal split');
+        return;
+      }
+    }
+    
     // Validate split amounts
     if (splitType === 'EXACT' && !this.isExactAmountValid()) {
       this.toastService.warning('Exact amounts must add up to the total expense amount');
@@ -330,7 +343,7 @@ export class ExpenseFormDialogComponent implements OnInit {
       return;
     }
 
-    const formValue = this.expenseForm.value;
+    const formValue = this.expenseForm.getRawValue(); // Use getRawValue() to include disabled fields
     const request: CreateExpenseRequest = {
       description: formValue.description,
       amount: parseFloat(formValue.amount),
@@ -374,6 +387,11 @@ export class ExpenseFormDialogComponent implements OnInit {
       return;
     }
 
+    // Debug: Log the complete request being sent
+    console.log('🚀 Creating expense with request:', JSON.stringify(request, null, 2));
+    console.log('🚀 Group ID:', groupId);
+    console.log('🚀 Participants:', formValue.participants);
+
     if (this.isEditMode) {
       // TODO: Implement update expense
       console.log('Update expense:', request);
@@ -382,7 +400,17 @@ export class ExpenseFormDialogComponent implements OnInit {
       this.expenseService.createExpense(groupId, request).subscribe({
         next: (response) => {
           this.loading = false;
-          this.toastService.success('Expense created successfully!');
+          
+          // Check if email notifications are enabled
+          const emailPrefs = this.getEmailPreferences();
+          const participantCount = formValue.participants.filter((p: any) => p.selected || p.amount > 0).length;
+          
+          if (emailPrefs.newExpenseNotifications) {
+            this.toastService.success(`Expense created successfully! Email notifications sent to ${participantCount} member(s).`);
+          } else {
+            this.toastService.success('Expense created successfully!');
+          }
+          
           this.dialogRef.close(true);
         },
         error: (error: any) => {
@@ -392,6 +420,22 @@ export class ExpenseFormDialogComponent implements OnInit {
         },
       });
     }
+  }
+
+  private getEmailPreferences(): any {
+    const stored = localStorage.getItem('emailPreferences');
+    if (stored) {
+      return JSON.parse(stored);
+    }
+    // Default preferences
+    return {
+      paymentReminders: true,
+      paymentReceived: true,
+      groupInvitations: true,
+      weeklyDigest: true,
+      newExpenseNotifications: true,
+      settlementReminders: true,
+    };
   }
 
   onCancel(): void {

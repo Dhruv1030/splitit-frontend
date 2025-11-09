@@ -1,0 +1,275 @@
+.email-preferences-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+
+  @media (min-width: 768px) {
+    padding: 32px;
+  }
+}
+
+// Header
+.preferences-header {
+  margin-bottom: 32px;
+
+  h1 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 28px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+    margin: 0 0 8px 0;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #667eea;
+    }
+
+    @media (min-width: 768px) {
+      font-size: 32px;
+    }
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0;
+    padding-left: 44px;
+  }
+}
+
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 16px;
+
+  p {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0;
+  }
+}
+
+// Preferences Content
+.preferences-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Quick Actions Card
+.quick-actions-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+
+  .quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .action-button {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: white;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
+      mat-icon {
+        color: white;
+      }
+    }
+  }
+}
+
+// Preferences Card
+.preferences-card {
+  mat-card-header {
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+
+      mat-icon {
+        color: #667eea;
+      }
+    }
+
+    mat-card-subtitle {
+      padding-left: 32px;
+    }
+  }
+
+  mat-card-content {
+    padding-top: 16px;
+  }
+
+  .preference-section {
+    padding: 24px 0;
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.87);
+      margin: 0 0 16px 0;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: #667eea;
+      }
+    }
+
+    .preference-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-radius: 8px;
+      transition: background 0.2s;
+      gap: 16px;
+
+      &:hover {
+        background: rgba(102, 126, 234, 0.05);
+      }
+
+      .preference-info {
+        flex: 1;
+
+        .preference-label {
+          font-size: 15px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.87);
+          margin-bottom: 4px;
+        }
+
+        .preference-description {
+          font-size: 13px;
+          color: rgba(0, 0, 0, 0.6);
+          line-height: 1.4;
+        }
+      }
+
+      mat-slide-toggle {
+        flex-shrink: 0;
+      }
+    }
+  }
+}
+
+// Test Email Card
+.test-email-card {
+  background: #fff3e0;
+  border: 1px solid #ffe0b2;
+
+  .test-email-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .test-email-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      flex: 1;
+
+      > mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #f57c00;
+        flex-shrink: 0;
+      }
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e65100;
+        margin: 0 0 4px 0;
+      }
+
+      p {
+        font-size: 14px;
+        color: #e65100;
+        margin: 0;
+        opacity: 0.9;
+      }
+    }
+
+    button {
+      flex-shrink: 0;
+
+      mat-spinner {
+        display: inline-block;
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+// Save Actions
+.save-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .changes-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #f57c00;
+    font-size: 14px;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .save-button {
+    min-width: 180px;
+
+    mat-spinner {
+      display: inline-block;
+      margin-right: 8px;
+    }
+  }
+}
