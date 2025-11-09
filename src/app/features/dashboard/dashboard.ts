@@ -10,14 +10,18 @@ import { GroupService } from '../../core/services/group.service';
 import { ExpenseService } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ActivityService } from '../../core/services/activity.service';
 import { Group } from '../../core/models/group.model';
 import { Expense } from '../../core/models/expense.model';
+import { Activity } from '../../core/models/activity.model';
+import { ActivityFeedComponent } from '../activities/activity-feed/activity-feed';
 
 interface DashboardStats {
   totalGroups: number;
   totalExpenses: number;
   amountOwed: number;
   amountOwing: number;
+  netBalance: number;
 }
 
 @Component({
@@ -31,6 +35,7 @@ interface DashboardStats {
     MatIconModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    ActivityFeedComponent,
   ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss'],
@@ -39,16 +44,22 @@ export class DashboardComponent implements OnInit {
   private groupService = inject(GroupService);
   private expenseService = inject(ExpenseService);
   private authService = inject(AuthService);
+  private activityService = inject(ActivityService);
   private dialog = inject(MatDialog);
   private toastService = inject(ToastService);
 
+  // Expose Math to template
+  Math = Math;
+
   loading = true;
   userName = '';
+  userId = '';
   stats: DashboardStats = {
     totalGroups: 0,
     totalExpenses: 0,
     amountOwed: 0,
     amountOwing: 0,
+    netBalance: 0,
   };
   recentExpenses: Expense[] = [];
   groups: Group[] = [];
@@ -56,6 +67,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUserValue();
     this.userName = currentUser?.name || 'User';
+    this.userId = currentUser?.id || '';
     this.loadDashboardData();
   }
 
@@ -96,6 +108,8 @@ export class DashboardComponent implements OnInit {
         const balance = response.data;
         this.stats.amountOwed = balance.totalOwed || 0;
         this.stats.amountOwing = balance.totalOwing || 0;
+        // Calculate net balance (positive = you're owed, negative = you owe)
+        this.stats.netBalance = this.stats.amountOwing - this.stats.amountOwed;
         this.checkLoadingComplete();
       },
       error: (error) => {
@@ -103,6 +117,7 @@ export class DashboardComponent implements OnInit {
         // Set default values on error (e.g., network issues)
         this.stats.amountOwed = 0;
         this.stats.amountOwing = 0;
+        this.stats.netBalance = 0;
         this.checkLoadingComplete();
       },
     });

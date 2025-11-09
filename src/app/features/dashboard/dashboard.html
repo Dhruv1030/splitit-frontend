@@ -14,45 +14,74 @@
 
     <!-- Stats Cards -->
     <div class="stats-grid">
-      <mat-card class="stat-card">
-        <div class="stat-icon" style="background-color: #e3f2fd">
-          <mat-icon style="color: #1976d2">group</mat-icon>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.totalGroups }}</div>
-          <div class="stat-label">Total Groups</div>
-        </div>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <div class="stat-icon" style="background-color: #f3e5f5">
-          <mat-icon style="color: #7b1fa2">receipt</mat-icon>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.totalExpenses }}</div>
-          <div class="stat-label">Total Expenses</div>
-        </div>
-      </mat-card>
-
-      <mat-card class="stat-card balance-owed">
-        <div class="stat-icon" style="background-color: #ffebee">
-          <mat-icon style="color: #c62828">arrow_upward</mat-icon>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">${{ stats.amountOwed.toFixed(2) }}</div>
-          <div class="stat-label">You Owe</div>
+      <!-- Net Balance Card - Prominent Display -->
+      <mat-card class="stat-card net-balance-card" [ngClass]="{
+        'balance-positive': stats.netBalance > 0,
+        'balance-negative': stats.netBalance < 0,
+        'balance-neutral': stats.netBalance === 0
+      }">
+        <div class="net-balance-content">
+          <div class="net-balance-label">
+            <mat-icon>account_balance</mat-icon>
+            <span>Net Balance</span>
+          </div>
+          <div class="net-balance-value">
+            <span class="currency-symbol">$</span>
+            <span class="amount">{{ Math.abs(stats.netBalance).toFixed(2) }}</span>
+          </div>
+          <div class="net-balance-status">
+            <mat-icon *ngIf="stats.netBalance > 0">trending_up</mat-icon>
+            <mat-icon *ngIf="stats.netBalance < 0">trending_down</mat-icon>
+            <mat-icon *ngIf="stats.netBalance === 0">trending_flat</mat-icon>
+            <span *ngIf="stats.netBalance > 0" class="status-text">You're owed overall</span>
+            <span *ngIf="stats.netBalance < 0" class="status-text">You owe overall</span>
+            <span *ngIf="stats.netBalance === 0" class="status-text">All settled up!</span>
+          </div>
         </div>
       </mat-card>
 
-      <mat-card class="stat-card balance-owing">
-        <div class="stat-icon" style="background-color: #e8f5e9">
-          <mat-icon style="color: #2e7d32">arrow_downward</mat-icon>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">${{ stats.amountOwing.toFixed(2) }}</div>
-          <div class="stat-label">You're Owed</div>
-        </div>
-      </mat-card>
+      <!-- Secondary Stats -->
+      <div class="secondary-stats">
+        <mat-card class="stat-card">
+          <div class="stat-icon" style="background-color: #e3f2fd">
+            <mat-icon style="color: #1976d2">group</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.totalGroups }}</div>
+            <div class="stat-label">Total Groups</div>
+          </div>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <div class="stat-icon" style="background-color: #f3e5f5">
+            <mat-icon style="color: #7b1fa2">receipt</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.totalExpenses }}</div>
+            <div class="stat-label">Total Expenses</div>
+          </div>
+        </mat-card>
+
+        <mat-card class="stat-card balance-owed">
+          <div class="stat-icon" style="background-color: #ffebee">
+            <mat-icon style="color: #c62828">arrow_upward</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">${{ stats.amountOwed.toFixed(2) }}</div>
+            <div class="stat-label">You Owe</div>
+          </div>
+        </mat-card>
+
+        <mat-card class="stat-card balance-owing">
+          <div class="stat-icon" style="background-color: #e8f5e9">
+            <mat-icon style="color: #2e7d32">arrow_downward</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">${{ stats.amountOwing.toFixed(2) }}</div>
+            <div class="stat-label">You're Owed</div>
+          </div>
+        </mat-card>
+      </div>
     </div>
 
     <!-- Quick Actions -->
@@ -81,7 +110,7 @@
         <button mat-button routerLink="/expenses" class="view-all-button">View All</button>
       </div>
 
-      <div *ngIf="recentExpenses.length === 0" class="empty-state">
+      <div *ngIf="recentExpenses.length === 0 && !userId" class="empty-state">
         <mat-icon>receipt_long</mat-icon>
         <p>No recent expenses</p>
         <button mat-raised-button color="primary" routerLink="/expenses">
@@ -89,22 +118,9 @@
         </button>
       </div>
 
-      <div *ngIf="recentExpenses.length > 0" class="expenses-list">
-        <mat-card *ngFor="let expense of recentExpenses" class="expense-card">
-          <div class="expense-icon">
-            <mat-icon>{{ getCategoryIcon(expense.category) }}</mat-icon>
-          </div>
-          <div class="expense-details">
-            <div class="expense-description">{{ expense.description }}</div>
-            <div class="expense-meta">
-              {{ expense.date | date : 'MMM d, y' }} • {{ expense.category }}
-            </div>
-          </div>
-          <div class="expense-amount">
-            <div class="amount-value">{{ expense.currency }} {{ expense.amount }}</div>
-            <div class="amount-payer">Paid by {{ expense.paidBy }}</div>
-          </div>
-        </mat-card>
+      <!-- Activity Feed -->
+      <div *ngIf="userId" class="activity-feed-container">
+        <app-activity-feed [userId]="userId" [maxItems]="10" [showFilters]="false"></app-activity-feed>
       </div>
     </div>
   </div>

@@ -19,6 +19,15 @@ interface SettlementSuggestion {
   currency: string;
 }
 
+interface SettlementResponse {
+  groupId: number;
+  suggestions: SettlementSuggestion[];
+  totalTransactions: number;
+  totalAmount: number;
+  currency: string;
+  message: string;
+}
+
 interface DialogData {
   groupId: number;
   groupName: string;
@@ -50,8 +59,12 @@ export class SettlementDialogComponent implements OnInit {
   public data = inject<DialogData>(MAT_DIALOG_DATA);
 
   suggestions: SettlementSuggestion[] = [];
+  totalTransactions = 0;
+  totalAmount = 0;
+  settlementMessage = '';
   loading = true;
   error = false;
+  completedPayments = new Set<string>();
 
   ngOnInit(): void {
     this.loadSuggestions();
@@ -63,8 +76,14 @@ export class SettlementDialogComponent implements OnInit {
 
     this.settlementService.getSettlementSuggestions(this.data.groupId).subscribe({
       next: (response: any) => {
-        // Handle both response formats: wrapped in ApiResponse or direct array
-        this.suggestions = response.suggestions || response.data?.suggestions || response;
+        // Handle the new structured response format
+        const settlementData: SettlementResponse = response.data || response;
+        
+        this.suggestions = settlementData.suggestions || [];
+        this.totalTransactions = settlementData.totalTransactions || this.suggestions.length;
+        this.totalAmount = settlementData.totalAmount || 0;
+        this.settlementMessage = settlementData.message || '';
+        
         this.loading = false;
       },
       error: (err: any) => {
@@ -87,11 +106,27 @@ export class SettlementDialogComponent implements OnInit {
 
       recordDialogRef.afterClosed().subscribe((result) => {
         if (result) {
+          // Mark this payment as completed (visual feedback)
+          const paymentKey = `${suggestion.payerId}-${suggestion.payeeId}-${suggestion.amount}`;
+          this.completedPayments.add(paymentKey);
+          
           // Refresh suggestions after recording payment
-          this.loadSuggestions();
+          setTimeout(() => {
+            this.loadSuggestions();
+          }, 500);
         }
       });
     });
+  }
+
+  isPaymentCompleted(suggestion: SettlementSuggestion): boolean {
+    const paymentKey = `${suggestion.payerId}-${suggestion.payeeId}-${suggestion.amount}`;
+    return this.completedPayments.has(paymentKey);
+  }
+
+  getProgressPercentage(): number {
+    if (this.totalTransactions === 0) return 100;
+    return Math.round((this.completedPayments.size / this.totalTransactions) * 100);
   }
 
   formatCurrency(amount: number): string {

@@ -25,27 +25,57 @@
     <!-- No Settlements Needed -->
     <div *ngIf="!loading && !error && suggestions.length === 0" class="empty-state">
       <mat-icon class="success-icon">check_circle</mat-icon>
-      <h3>All Settled Up!</h3>
+      <h3>{{ settlementMessage || 'All Settled Up!' }}</h3>
       <p>Everyone in this group is square. No payments needed.</p>
+      <div class="celebration-emoji">🎉</div>
     </div>
 
     <!-- Settlement Suggestions -->
     <div *ngIf="!loading && !error && suggestions.length > 0" class="suggestions-container">
+      <!-- Summary Stats -->
+      <div class="summary-stats">
+        <div class="stat-item">
+          <mat-icon>swap_horiz</mat-icon>
+          <div class="stat-content">
+            <div class="stat-value">{{ totalTransactions }}</div>
+            <div class="stat-label">{{ totalTransactions === 1 ? 'Payment' : 'Payments' }}</div>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <mat-icon>attach_money</mat-icon>
+          <div class="stat-content">
+            <div class="stat-value">{{ formatCurrency(totalAmount) }}</div>
+            <div class="stat-label">Total Amount</div>
+          </div>
+        </div>
+      </div>
+
       <div class="info-banner">
-        <mat-icon>info</mat-icon>
+        <mat-icon>lightbulb</mat-icon>
         <span>
-          <strong>{{ suggestions.length }}</strong> optimal 
-          {{ suggestions.length === 1 ? 'payment' : 'payments' }} to settle all balances
+          These <strong>{{ totalTransactions }}</strong> optimized 
+          {{ totalTransactions === 1 ? 'payment' : 'payments' }} will settle all group balances
         </span>
       </div>
 
       <div class="suggestions-list">
-        <mat-card *ngFor="let suggestion of suggestions" class="suggestion-card">
+        <mat-card 
+          *ngFor="let suggestion of suggestions; let i = index" 
+          class="suggestion-card"
+          [class.completed]="isPaymentCompleted(suggestion)">
           <mat-card-content>
+            <!-- Payment Number Badge -->
+            <div class="payment-number">
+              <span>Payment {{ i + 1 }}</span>
+            </div>
+
             <div class="settlement-flow">
               <!-- Payer -->
               <div class="person payer">
-                <mat-icon class="person-icon">person</mat-icon>
+                <div class="person-avatar">
+                  <mat-icon class="person-icon">account_circle</mat-icon>
+                </div>
                 <div class="person-info">
                   <div class="name">{{ suggestion.payerName }}</div>
                   <div class="label">Pays</div>
@@ -54,15 +84,18 @@
 
               <!-- Arrow with Amount -->
               <div class="payment-arrow">
+                <div class="arrow-line"></div>
                 <mat-icon class="arrow-icon">arrow_forward</mat-icon>
                 <div class="amount-badge">
-                  {{ formatCurrency(suggestion.amount) }}
+                  <span class="amount-value">{{ formatCurrency(suggestion.amount) }}</span>
                 </div>
               </div>
 
               <!-- Payee -->
               <div class="person payee">
-                <mat-icon class="person-icon">person</mat-icon>
+                <div class="person-avatar">
+                  <mat-icon class="person-icon">account_circle</mat-icon>
+                </div>
                 <div class="person-info">
                   <div class="name">{{ suggestion.payeeName }}</div>
                   <div class="label">Receives</div>
@@ -75,23 +108,32 @@
             <div class="card-actions">
               <button 
                 mat-raised-button 
-                color="primary" 
+                [color]="isPaymentCompleted(suggestion) ? 'accent' : 'primary'"
                 (click)="onRecordPayment(suggestion)"
+                [disabled]="isPaymentCompleted(suggestion)"
                 matTooltip="Record this payment after it's made">
-                <mat-icon>check</mat-icon>
-                Record Payment
+                <mat-icon>{{ isPaymentCompleted(suggestion) ? 'done' : 'check' }}</mat-icon>
+                {{ isPaymentCompleted(suggestion) ? 'Recorded' : 'Record Payment' }}
               </button>
+            </div>
+
+            <!-- Completed Overlay -->
+            <div *ngIf="isPaymentCompleted(suggestion)" class="completed-overlay">
+              <mat-icon>check_circle</mat-icon>
             </div>
           </mat-card-content>
         </mat-card>
       </div>
 
       <div class="settlement-note">
-        <mat-icon>lightbulb</mat-icon>
-        <p>
-          These settlements are optimized to minimize the number of transactions needed. 
-          After making a payment, click "Record Payment" to update the balances.
-        </p>
+        <mat-icon>tips_and_updates</mat-icon>
+        <div class="note-content">
+          <h4>Smart Settlement Algorithm</h4>
+          <p>
+            Our algorithm minimizes the number of transactions needed to settle all debts. 
+            After making a payment, click "Record Payment" to update balances and mark it as complete.
+          </p>
+        </div>
       </div>
     </div>
   </mat-dialog-content>
