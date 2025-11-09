@@ -9,11 +9,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatBadgeModule } from '@angular/material/badge';
 import { FormsModule } from '@angular/forms';
 import { ExpenseService } from '../../../core/services/expense.service';
 import { GroupService } from '../../../core/services/group.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { Expense, ExpenseCategory } from '../../../core/models/expense.model';
+import { Expense, ExpenseCategory, SplitType } from '../../../core/models/expense.model';
 import { Group } from '../../../core/models/group.model';
 import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleton-loader';
 
@@ -31,6 +35,9 @@ import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleto
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatSliderModule,
+    MatExpansionModule,
+    MatBadgeModule,
     SkeletonLoaderComponent,
   ],
   templateUrl: './expenses-list.html',
@@ -39,6 +46,7 @@ import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleto
 export class ExpensesListComponent implements OnInit {
   private expenseService = inject(ExpenseService);
   private groupService = inject(GroupService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private toastService = inject(ToastService);
 
@@ -46,15 +54,39 @@ export class ExpensesListComponent implements OnInit {
   filteredExpenses: Expense[] = [];
   groups: Group[] = [];
   loading = true;
+  currentUserId = '';
 
-  // Filters
+  // Basic Filters
   searchQuery = '';
   selectedGroup: number | 'all' = 'all';
   selectedCategory: ExpenseCategory | 'all' = 'all';
 
+  // Advanced Filters
+  selectedSplitType: SplitType | 'all' = 'all';
+  minAmount = 0;
+  maxAmount = 1000;
+  currentMinAmount = 0;
+  currentMaxAmount = 1000;
+  createdByMe = false;
+  showAdvancedFilters = false;
+
   categories = Object.values(ExpenseCategory);
+  splitTypes = Object.values(SplitType);
+
+  get activeFiltersCount(): number {
+    let count = 0;
+    if (this.searchQuery) count++;
+    if (this.selectedGroup !== 'all') count++;
+    if (this.selectedCategory !== 'all') count++;
+    if (this.selectedSplitType !== 'all') count++;
+    if (this.currentMinAmount > this.minAmount || this.currentMaxAmount < this.maxAmount) count++;
+    if (this.createdByMe) count++;
+    return count;
+  }
 
   ngOnInit(): void {
+    const currentUser = this.authService.getCurrentUserValue();
+    this.currentUserId = currentUser?.id || '';
     this.loadGroups();
     this.loadExpenses();
   }
@@ -88,6 +120,7 @@ export class ExpensesListComponent implements OnInit {
           )
         ).then((results: any[]) => {
           this.expenses = results.flatMap(r => r?.data || []);
+          this.calculateAmountRange();
           this.applyFilters();
           this.loading = false;
         });
@@ -98,6 +131,16 @@ export class ExpensesListComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  calculateAmountRange(): void {
+    if (this.expenses.length === 0) return;
+    
+    const amounts = this.expenses.map(e => e.amount);
+    this.minAmount = Math.floor(Math.min(...amounts));
+    this.maxAmount = Math.ceil(Math.max(...amounts));
+    this.currentMinAmount = this.minAmount;
+    this.currentMaxAmount = this.maxAmount;
   }
 
   applyFilters(): void {
@@ -111,7 +154,17 @@ export class ExpensesListComponent implements OnInit {
       const matchesCategory = this.selectedCategory === 'all' || 
         expense.category === this.selectedCategory;
 
-      return matchesSearch && matchesGroup && matchesCategory;
+      const matchesSplitType = this.selectedSplitType === 'all' ||
+        expense.splitType === this.selectedSplitType;
+
+      const matchesAmount = expense.amount >= this.currentMinAmount &&
+        expense.amount <= this.currentMaxAmount;
+
+      const matchesCreator = !this.createdByMe ||
+        expense.paidBy === this.currentUserId;
+
+      return matchesSearch && matchesGroup && matchesCategory && 
+             matchesSplitType && matchesAmount && matchesCreator;
     });
   }
 
@@ -125,6 +178,37 @@ export class ExpensesListComponent implements OnInit {
 
   onCategoryChange(): void {
     this.applyFilters();
+  }
+
+  onSplitTypeChange(): void {
+    this.applyFilters();
+  }
+
+  onAmountRangeChange(): void {
+    this.applyFilters();
+  }
+
+  onCreatedByMeChange(): void {
+    this.applyFilters();
+  }
+
+  clearAllFilters(): void {
+    this.searchQuery = '';
+    this.selectedGroup = 'all';
+    this.selectedCategory = 'all';
+    this.selectedSplitType = 'all';
+    this.currentMinAmount = this.minAmount;
+    this.currentMaxAmount = this.maxAmount;
+    this.createdByMe = false;
+    this.applyFilters();
+  }
+
+  toggleAdvancedFilters(): void {
+    this.showAdvancedFilters = !this.showAdvancedFilters;
+  }
+
+  formatSliderValue(value: number): string {
+    return `$${value}`;
   }
 
   getCategoryIcon(category: ExpenseCategory): string {
@@ -161,7 +245,7 @@ export class ExpensesListComponent implements OnInit {
   }
 
   onExpenseClick(expense: Expense): void {
-    this.router.navigate(['/groups', expense.groupId]);
+    this.router.navigate(['/expenses', expense.id]);
   }
 }
 

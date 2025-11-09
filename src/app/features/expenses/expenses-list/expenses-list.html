@@ -6,6 +6,25 @@
 
   <!-- Filters -->
   <mat-card class="filters-card">
+    <div class="filters-header">
+      <h3>
+        <mat-icon>filter_list</mat-icon>
+        Filters
+        <span *ngIf="activeFiltersCount > 0" class="filter-badge">{{ activeFiltersCount }}</span>
+      </h3>
+      <div class="filter-actions">
+        <button mat-button color="accent" (click)="toggleAdvancedFilters()" class="advanced-toggle">
+          <mat-icon>{{ showAdvancedFilters ? 'expand_less' : 'expand_more' }}</mat-icon>
+          {{ showAdvancedFilters ? 'Hide' : 'Show' }} Advanced
+        </button>
+        <button mat-button color="warn" (click)="clearAllFilters()" *ngIf="activeFiltersCount > 0">
+          <mat-icon>clear</mat-icon>
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Basic Filters -->
     <div class="filters">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search expenses</mat-label>
@@ -36,6 +55,54 @@
         <mat-icon matPrefix>category</mat-icon>
       </mat-form-field>
     </div>
+
+    <!-- Advanced Filters -->
+    <mat-expansion-panel [expanded]="showAdvancedFilters" class="advanced-filters-panel">
+      <div class="advanced-filters">
+        <!-- Split Type Filter -->
+        <mat-form-field appearance="outline">
+          <mat-label>Split Type</mat-label>
+          <mat-select [(ngModel)]="selectedSplitType" (selectionChange)="onSplitTypeChange()">
+            <mat-option value="all">All Split Types</mat-option>
+            @for (splitType of splitTypes; track splitType) {
+              <mat-option [value]="splitType">{{ splitType }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>splitscreen</mat-icon>
+        </mat-form-field>
+
+        <!-- Amount Range Filter -->
+        <div class="amount-range-filter">
+          <label class="filter-label">
+            <mat-icon>attach_money</mat-icon>
+            Amount Range: ${{ currentMinAmount }} - ${{ currentMaxAmount }}
+          </label>
+          <div class="slider-container">
+            <mat-slider
+              [min]="minAmount"
+              [max]="maxAmount"
+              [step]="1"
+              discrete
+              [displayWith]="formatSliderValue">
+              <input matSliderStartThumb [(ngModel)]="currentMinAmount" (input)="onAmountRangeChange()">
+              <input matSliderEndThumb [(ngModel)]="currentMaxAmount" (input)="onAmountRangeChange()">
+            </mat-slider>
+          </div>
+        </div>
+
+        <!-- Created By Me Toggle -->
+        <div class="toggle-filter">
+          <mat-chip-set>
+            <mat-chip
+              [highlighted]="createdByMe"
+              (click)="createdByMe = !createdByMe; onCreatedByMeChange()">
+              <mat-icon>person</mat-icon>
+              Expenses I Created
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </div>
+    </mat-expansion-panel>
   </mat-card>
 
   <!-- Results Count -->

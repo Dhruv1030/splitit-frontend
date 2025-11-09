@@ -1,0 +1,89 @@
+<div class="search-dialog">
+  <!-- Search Header -->
+  <div class="search-header">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      type="text"
+      name="search"
+      class="search-input"
+      placeholder="Search groups, expenses, users..."
+      [(ngModel)]="searchQuery"
+      (input)="onSearchInput(searchQuery)"
+      autocomplete="off"
+    />
+    <button mat-icon-button (click)="close()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Keyboard Shortcuts Help -->
+  <div class="search-hints">
+    <div class="hint">
+      <kbd>↑↓</kbd> Navigate
+    </div>
+    <div class="hint">
+      <kbd>Enter</kbd> Select
+    </div>
+    <div class="hint">
+      <kbd>Esc</kbd> Close
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="32"></mat-spinner>
+    <span>Searching...</span>
+  </div>
+
+  <!-- Results -->
+  <div *ngIf="!loading && results.length > 0" class="search-results">
+    <div
+      *ngFor="let result of results; let i = index"
+      class="search-result"
+      [class.selected]="i === selectedIndex"
+      (click)="selectResult(result)"
+      (mouseenter)="selectedIndex = i"
+    >
+      <div class="result-icon">
+        <mat-icon>{{ result.icon }}</mat-icon>
+      </div>
+      <div class="result-content">
+        <div class="result-title">{{ result.title }}</div>
+        <div class="result-subtitle">{{ result.subtitle }}</div>
+      </div>
+      <div class="result-type">
+        <span class="type-badge" [class]="'type-' + result.type">
+          {{ getTypeLabel(result.type) }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && searchQuery.length > 0 && results.length === 0" class="empty-state">
+    <mat-icon>search_off</mat-icon>
+    <h3>No results found</h3>
+    <p>Try searching with different keywords</p>
+  </div>
+
+  <!-- Initial State -->
+  <div *ngIf="!loading && searchQuery.length === 0" class="initial-state">
+    <mat-icon>search</mat-icon>
+    <h3>Quick Search</h3>
+    <p>Search across groups, expenses, and users</p>
+    <div class="search-tips">
+      <div class="tip">
+        <mat-icon>group</mat-icon>
+        <span>Find groups by name</span>
+      </div>
+      <div class="tip">
+        <mat-icon>receipt</mat-icon>
+        <span>Search expenses by description</span>
+      </div>
+      <div class="tip">
+        <mat-icon>person</mat-icon>
+        <span>Look up users by name or email</span>
+      </div>
+    </div>
+  </div>
+</div>

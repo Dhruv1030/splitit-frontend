@@ -1,5 +1,10 @@
-<mat-toolbar class="navbar" color="primary">
+<mat-toolbar class="navbar">
   <div class="navbar-container">
+    <!-- Mobile Menu Button -->
+    <button mat-icon-button class="menu-button" (click)="onMenuToggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+
     <!-- Logo and Title -->
     <div class="navbar-brand" routerLink="/dashboard">
       <mat-icon class="brand-icon">receipt_long</mat-icon>
@@ -8,6 +13,16 @@
 
     <!-- Spacer -->
     <span class="spacer"></span>
+
+    <!-- Search Button -->
+    <button
+      mat-icon-button
+      class="search-button"
+      (click)="openSearch()"
+      matTooltip="Search (Ctrl+K)"
+      *ngIf="currentUser">
+      <mat-icon>search</mat-icon>
+    </button>
 
     <!-- User Profile Menu -->
     <div class="navbar-actions" *ngIf="currentUser">
