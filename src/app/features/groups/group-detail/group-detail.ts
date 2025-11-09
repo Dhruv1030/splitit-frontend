@@ -20,6 +20,7 @@ import { Group } from '../../../core/models/group.model';
 import { Expense } from '../../../core/models/expense.model';
 import { Settlement } from '../../../core/models/settlement.model';
 import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleton-loader';
+import { ActivityFeedComponent } from '../../activities/activity-feed/activity-feed';
 
 interface GroupMember {
   userId: string;
@@ -59,6 +60,7 @@ interface GroupDetail {
     MatDividerModule,
     MatTooltipModule,
     SkeletonLoaderComponent,
+    ActivityFeedComponent,
   ],
   templateUrl: './group-detail.html',
   styleUrls: ['./group-detail.scss'],
@@ -72,6 +74,7 @@ export class GroupDetailComponent implements OnInit {
   private dialog = inject(MatDialog);
   private toastService = inject(ToastService);
 
+  groupId!: number;
   group: GroupDetail | null = null;
   expenses: Expense[] = [];
   settlements: Settlement[] = [];
@@ -84,6 +87,7 @@ export class GroupDetailComponent implements OnInit {
     this.route.params.subscribe((params) => {
       const groupId = +params['id'];
       if (groupId) {
+        this.groupId = groupId;
         this.loadGroupDetails(groupId);
       }
     });
@@ -276,7 +280,14 @@ export class GroupDetailComponent implements OnInit {
         this.loading = false;
         // Reload group details to show the new member
         this.loadGroupDetails(this.group!.id);
-        this.toastService.success('Member added successfully!');
+        
+        // Check if email notifications are enabled
+        const emailPrefs = this.getEmailPreferences();
+        if (emailPrefs.groupInvitations) {
+          this.toastService.success('Member added successfully! Invitation email sent.');
+        } else {
+          this.toastService.success('Member added successfully!');
+        }
       },
       error: (error) => {
         console.error('Error adding member:', error);
@@ -285,6 +296,22 @@ export class GroupDetailComponent implements OnInit {
         this.toastService.error(errorMessage);
       },
     });
+  }
+
+  private getEmailPreferences(): any {
+    const stored = localStorage.getItem('emailPreferences');
+    if (stored) {
+      return JSON.parse(stored);
+    }
+    // Default preferences
+    return {
+      paymentReminders: true,
+      paymentReceived: true,
+      groupInvitations: true,
+      weeklyDigest: true,
+      newExpenseNotifications: true,
+      settlementReminders: true,
+    };
   }
 
   onRemoveMember(memberId: string): void {

@@ -307,6 +307,17 @@
           </mat-card>
         </div>
       </mat-tab>
+
+      <!-- Activity Tab -->
+      <mat-tab label="Activity">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-content>
+              <app-activity-feed [groupId]="groupId" [maxItems]="50"></app-activity-feed>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
     </mat-tab-group>
   </div>
 

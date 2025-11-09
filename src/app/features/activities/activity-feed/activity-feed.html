@@ -1,0 +1,98 @@
+<div class="activity-feed">
+  <!-- Header with Filter -->
+  <div class="feed-header" *ngIf="showFilters">
+    <h3 class="feed-title">
+      <mat-icon>history</mat-icon>
+      Recent Activity
+    </h3>
+    
+    <div class="feed-actions">
+      <button mat-icon-button (click)="refresh()" [disabled]="loading" matTooltip="Refresh">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      
+      <button mat-icon-button [matMenuTriggerFor]="filterMenu" matTooltip="Filter">
+        <mat-icon>filter_list</mat-icon>
+      </button>
+      
+      <mat-menu #filterMenu="matMenu">
+        <button mat-menu-item (click)="applyFilter('ALL')" [class.active]="selectedFilter === 'ALL'">
+          <mat-icon>list</mat-icon>
+          <span>All Activities</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item *ngFor="let type of activityTypes" (click)="applyFilter(type)" [class.active]="selectedFilter === type">
+          <mat-icon>{{ getActivityIcon(type) }}</mat-icon>
+          <span>{{ getFilterLabel(type) }}</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <!-- Activity List -->
+  <div class="activity-list">
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading && activities.length === 0">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading activities...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && getFilteredActivities().length === 0">
+      <mat-icon>history_toggle_off</mat-icon>
+      <h4>No Activities Yet</h4>
+      <p *ngIf="selectedFilter === 'ALL'">
+        Activity will appear here as things happen in your group.
+      </p>
+      <p *ngIf="selectedFilter !== 'ALL'">
+        No activities of this type found. Try a different filter.
+      </p>
+    </div>
+
+    <!-- Activity Items -->
+    <div class="activity-item" *ngFor="let activity of getFilteredActivities(); trackBy: trackByActivity">
+      <div class="activity-icon" [class]="getActivityColor(activity.activityType)">
+        <mat-icon>{{ getActivityIcon(activity.activityType) }}</mat-icon>
+      </div>
+      
+      <div class="activity-content">
+        <div class="activity-description">
+          <span class="user-name" *ngIf="activity.userName">{{ activity.userName }}</span>
+          <span class="description-text">{{ activity.description }}</span>
+        </div>
+        
+        <div class="activity-meta">
+          <span class="activity-time">
+            <mat-icon>schedule</mat-icon>
+            {{ getRelativeTime(activity.timestamp || activity.createdAt || '') }}
+          </span>
+          
+          <mat-chip class="activity-type-chip" [class]="getActivityColor(activity.activityType)">
+            {{ getFilterLabel(activity.activityType) }}
+          </mat-chip>
+        </div>
+
+        <!-- Metadata (if available) -->
+        <div class="activity-metadata" *ngIf="activity.metadata">
+          <div class="metadata-item" *ngFor="let item of activity.metadata | keyvalue">
+            <span class="metadata-key">{{ item.key }}:</span>
+            <span class="metadata-value">{{ item.value }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load More Button -->
+    <div class="load-more" *ngIf="hasMore && !loading">
+      <button mat-stroked-button color="primary" (click)="loadMore()">
+        <mat-icon>expand_more</mat-icon>
+        Load More
+      </button>
+    </div>
+
+    <!-- Loading More Indicator -->
+    <div class="loading-more" *ngIf="loading && activities.length > 0">
+      <mat-spinner diameter="30"></mat-spinner>
+    </div>
+  </div>
+</div>
