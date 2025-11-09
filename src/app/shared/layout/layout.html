@@ -1,8 +1,18 @@
 <div class="layout-container">
-  <app-navbar></app-navbar>
+  <app-navbar (menuToggle)="toggleSidebar()"></app-navbar>
   
   <div class="layout-content">
-    <app-sidebar></app-sidebar>
+    <app-sidebar 
+      [isOpen]="sidebarOpen" 
+      (closeSidebar)="closeSidebar()">
+    </app-sidebar>
+    
+    <!-- Mobile Overlay -->
+    <div 
+      class="sidebar-overlay" 
+      [class.active]="sidebarOpen" 
+      (click)="closeSidebar()">
+    </div>
     
     <main class="main-content">
       <div class="content-wrapper">
@@ -11,4 +21,7 @@
       </div>
     </main>
   </div>
+  
+  <!-- PWA Install Prompt -->
+  <app-pwa-install-prompt></app-pwa-install-prompt>
 </div>

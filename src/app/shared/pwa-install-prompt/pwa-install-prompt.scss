@@ -1,0 +1,135 @@
+.pwa-install-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  padding: 20px 24px;
+  max-width: 500px;
+  width: calc(100% - 40px);
+  z-index: 9999;
+  animation: slideUp 0.4s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: white;
+
+  @keyframes slideUp {
+    from {
+      transform: translateX(-50%) translateY(100px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .prompt-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    @media (max-width: 600px) {
+      gap: 12px;
+    }
+  }
+
+  .icon-section {
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
+      color: white;
+    }
+  }
+
+  .text-section {
+    flex: 1;
+    min-width: 150px;
+
+    .prompt-title {
+      margin: 0 0 4px 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .prompt-description {
+      margin: 0;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.4;
+    }
+  }
+
+  .action-section {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+
+    @media (max-width: 600px) {
+      width: 100%;
+      justify-content: flex-end;
+    }
+
+    .dismiss-btn {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .install-btn {
+      background-color: white !important;
+      color: #667eea !important;
+      font-weight: 600;
+
+      mat-icon {
+        margin-right: 4px;
+      }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+      }
+    }
+  }
+
+  .close-btn {
+    flex-shrink: 0;
+    color: rgba(255, 255, 255, 0.9);
+    margin-left: 8px;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  // Mobile adjustments
+  @media (max-width: 600px) {
+    padding: 16px 20px;
+    bottom: 10px;
+    width: calc(100% - 20px);
+
+    .prompt-content {
+      .icon-section mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+
+      .text-section {
+        .prompt-title {
+          font-size: 16px;
+        }
+
+        .prompt-description {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}

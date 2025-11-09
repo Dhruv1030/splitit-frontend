@@ -1,0 +1,28 @@
+<div class="pwa-install-prompt" *ngIf="showPrompt">
+  <div class="prompt-content">
+    <div class="icon-section">
+      <mat-icon>install_mobile</mat-icon>
+    </div>
+    
+    <div class="text-section">
+      <h3 class="prompt-title">Install SplitIt</h3>
+      <p class="prompt-description">
+        Add SplitIt to your home screen for quick access and offline support
+      </p>
+    </div>
+
+    <div class="action-section">
+      <button mat-button (click)="dismissPrompt()" class="dismiss-btn">
+        Not now
+      </button>
+      <button mat-raised-button color="primary" (click)="installPwa()" class="install-btn">
+        <mat-icon>download</mat-icon>
+        Install
+      </button>
+    </div>
+  </div>
+
+  <button mat-icon-button (click)="dismissPrompt()" class="close-btn">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
