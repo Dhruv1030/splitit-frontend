@@ -43,6 +43,7 @@ export class SettlementsListComponent implements OnInit {
   allSettlements: Settlement[] = [];
   pendingSettlements: Settlement[] = [];
   completedSettlements: Settlement[] = [];
+  settlementSuggestions: any[] = []; // Who owes whom
   groups: Group[] = [];
   loading = true;
 
@@ -52,6 +53,7 @@ export class SettlementsListComponent implements OnInit {
   ngOnInit(): void {
     this.loadGroups();
     this.loadSettlements();
+    this.loadSettlementSuggestions();
   }
 
   loadGroups(): void {
@@ -100,6 +102,42 @@ export class SettlementsListComponent implements OnInit {
 
     this.pendingSettlements = filtered.filter(s => s.status === SettlementStatus.PENDING);
     this.completedSettlements = filtered.filter(s => s.status === SettlementStatus.COMPLETED);
+  }
+
+  loadSettlementSuggestions(): void {
+    this.groupService.getUserGroups().subscribe({
+      next: (response: any) => {
+        const groupIds = response.data.map((g: any) => g.id);
+        const suggestionRequests = groupIds.map((id: any) => 
+          this.settlementService.getSettlementSuggestions(id)
+        );
+
+        Promise.all(
+          suggestionRequests.map((req: any) => 
+            req.toPromise().catch(() => ({ suggestions: [] }))
+          )
+        ).then((results: any[]) => {
+          // Flatten all suggestions from all groups
+          this.settlementSuggestions = results.flatMap(r => {
+            // Backend returns directly: { suggestions: [...], totalTransactions: 1 }
+            if (r && r.suggestions) {
+              return r.suggestions;
+            } else if (r.data && r.data.suggestions) {
+              return r.data.suggestions;
+            } else if (Array.isArray(r)) {
+              return r;
+            } else if (Array.isArray(r.data)) {
+              return r.data;
+            }
+            return [];
+          });
+          console.log('All settlement suggestions:', this.settlementSuggestions);
+        });
+      },
+      error: (error: any) => {
+        console.error('Error loading settlement suggestions:', error);
+      },
+    });
   }
 
   onGroupChange(): void {

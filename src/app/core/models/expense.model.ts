@@ -6,11 +6,13 @@ export interface Expense {
   groupId: number;
   paidBy: string;
   paidByName?: string;
+  createdBy?: string;  // User ID who recorded the expense
   category: ExpenseCategory;
   splitType: SplitType;
   date?: string;
   createdAt: string;
   updatedAt?: string;
+  groupName?: string;
   participants?: ExpenseParticipant[];
 }
 

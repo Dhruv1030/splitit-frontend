@@ -5,23 +5,24 @@
       <mat-icon>history</mat-icon>
       Recent Activity
     </h3>
-    
+
     <div class="feed-actions">
       <button mat-icon-button (click)="refresh()" [disabled]="loading" matTooltip="Refresh">
         <mat-icon>refresh</mat-icon>
       </button>
-      
+
       <button mat-icon-button [matMenuTriggerFor]="filterMenu" matTooltip="Filter">
         <mat-icon>filter_list</mat-icon>
       </button>
-      
+
       <mat-menu #filterMenu="matMenu">
         <button mat-menu-item (click)="applyFilter('ALL')" [class.active]="selectedFilter === 'ALL'">
           <mat-icon>list</mat-icon>
           <span>All Activities</span>
         </button>
         <mat-divider></mat-divider>
-        <button mat-menu-item *ngFor="let type of activityTypes" (click)="applyFilter(type)" [class.active]="selectedFilter === type">
+        <button mat-menu-item *ngFor="let type of activityTypes" (click)="applyFilter(type)"
+          [class.active]="selectedFilter === type">
           <mat-icon>{{ getActivityIcon(type) }}</mat-icon>
           <span>{{ getFilterLabel(type) }}</span>
         </button>
@@ -38,7 +39,7 @@
     </div>
 
     <!-- Empty State -->
-    <div class="empty-state" *ngIf="!loading && getFilteredActivities().length === 0">
+    <div class="empty-state" *ngIf="!loading && filteredActivities.length === 0">
       <mat-icon>history_toggle_off</mat-icon>
       <h4>No Activities Yet</h4>
       <p *ngIf="selectedFilter === 'ALL'">
@@ -50,23 +51,23 @@
     </div>
 
     <!-- Activity Items -->
-    <div class="activity-item" *ngFor="let activity of getFilteredActivities(); trackBy: trackByActivity">
+    <div class="activity-item" *ngFor="let activity of filteredActivities; trackBy: trackByActivity">
       <div class="activity-icon" [class]="getActivityColor(activity.activityType)">
         <mat-icon>{{ getActivityIcon(activity.activityType) }}</mat-icon>
       </div>
-      
+
       <div class="activity-content">
         <div class="activity-description">
           <span class="user-name" *ngIf="activity.userName">{{ activity.userName }}</span>
           <span class="description-text">{{ activity.description }}</span>
         </div>
-        
+
         <div class="activity-meta">
           <span class="activity-time">
             <mat-icon>schedule</mat-icon>
             {{ getRelativeTime(activity.timestamp || activity.createdAt || '') }}
           </span>
-          
+
           <mat-chip class="activity-type-chip" [class]="getActivityColor(activity.activityType)">
             {{ getFilterLabel(activity.activityType) }}
           </mat-chip>

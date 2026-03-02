@@ -1,11 +1,9 @@
 // Base skeleton styles
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 25%,
-    #e0e0e0 50%,
-    #f0f0f0 75%
-  );
+  background: linear-gradient(90deg,
+      #f0f0f0 25%,
+      #e0e0e0 50%,
+      #f0f0f0 75%);
   background-size: 200% 100%;
   animation: loading 1.5s ease-in-out infinite;
   border-radius: 4px;
@@ -15,6 +13,7 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -106,7 +105,7 @@
 
 .skeleton-table-row {
   border-bottom: 1px solid #f0f0f0;
-  
+
   &:last-child {
     border-bottom: none;
   }
@@ -199,32 +198,103 @@
   border-radius: 10px;
 }
 
+// Dashboard Stats skeleton
+.skeleton-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.skeleton-large-card {
+  height: 200px;
+  width: 100%;
+  border-radius: 16px;
+}
+
+.skeleton-secondary-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.skeleton-small-card {
+  height: 92px;
+  width: 100%;
+  border-radius: 12px;
+}
+
+// Chart skeleton
+.skeleton-chart-container {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-chart-title {
+  height: 24px;
+  width: 40%;
+  margin-bottom: 24px;
+}
+
+.skeleton-chart-content {
+  flex: 1;
+  background: #f9f9f9;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-chart-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(0deg, #f0f0f0 10%, transparent 100%);
+  animation: loading 1.5s ease-in-out infinite;
+}
+
 // Dark mode support
 @media (prefers-color-scheme: dark) {
   .skeleton {
-    background: linear-gradient(
-      90deg,
-      #2a2a2a 25%,
-      #3a3a3a 50%,
-      #2a2a2a 75%
-    );
+    background: linear-gradient(90deg,
+        #2a2a2a 25%,
+        #3a3a3a 50%,
+        #2a2a2a 75%);
     background-size: 200% 100%;
   }
-  
+
   .skeleton-card,
   .skeleton-list-item,
   .skeleton-table,
   .skeleton-expense-card,
-  .skeleton-group-card {
+  .skeleton-group-card,
+  .skeleton-chart-container {
     background: #1e1e1e;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
-  
+
+  .skeleton-chart-content {
+    background: #181818;
+  }
+
+  .skeleton-chart-overlay {
+    background: linear-gradient(0deg, #252525 10%, transparent 100%);
+  }
+
   .skeleton-table-header {
     background: #252525;
     border-bottom-color: #3a3a3a;
   }
-  
+
   .skeleton-table-row {
     border-bottom-color: #2a2a2a;
   }

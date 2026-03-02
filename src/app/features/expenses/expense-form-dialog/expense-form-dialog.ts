@@ -138,9 +138,8 @@ export class ExpenseFormDialogComponent implements OnInit {
     const currentUserId = localStorage.getItem('userId');
     if (currentUserId && !this.isEditMode) {
       this.expenseForm.patchValue({ paidBy: currentUserId });
-      // Disable payer field - users can only create expenses they paid for
-      this.expenseForm.get('paidBy')?.disable();
-      
+      // Leave paidBy enabled — any group member can be set as the payer
+
       // Default: all members participate (only if we have members)
       if (this.data.members && this.data.members.length > 0) {
         this.expenseForm.patchValue({ 
@@ -203,14 +202,12 @@ export class ExpenseFormDialogComponent implements OnInit {
           }));
           console.log('Selected group members with names:', this.selectedGroupMembers);
           
-          // Auto-select current user as payer if they're a member
+          // Default payer to current user if they're a member, but keep field editable
           const currentUserId = localStorage.getItem('userId');
           if (currentUserId) {
             const isMember = this.selectedGroupMembers.some(m => m.userId === currentUserId);
             if (isMember) {
               this.expenseForm.patchValue({ paidBy: currentUserId });
-              // Disable payer field - users can only create expenses they paid for
-              this.expenseForm.get('paidBy')?.disable();
             }
           }
           

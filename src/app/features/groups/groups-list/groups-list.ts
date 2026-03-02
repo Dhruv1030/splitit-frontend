@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -35,11 +36,14 @@ import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleto
   ],
   templateUrl: './groups-list.html',
   styleUrls: ['./groups-list.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GroupsListComponent implements OnInit {
   private groupService = inject(GroupService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   groups: Group[] = [];
   filteredGroups: Group[] = [];
@@ -52,17 +56,20 @@ export class GroupsListComponent implements OnInit {
 
   loadGroups(): void {
     this.loading = true;
-    this.groupService.getUserGroups().subscribe({
-      next: (response) => {
-        this.groups = response.data;
-        this.filteredGroups = [...this.groups];
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading groups:', error);
-        this.loading = false;
-      },
-    });
+    this.groupService.getUserGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.groups = response.data;
+          this.filteredGroups = [...this.groups];
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('Error loading groups:', error);
+          this.loading = false;
+        },
+      });
   }
 
   onSearch(): void {

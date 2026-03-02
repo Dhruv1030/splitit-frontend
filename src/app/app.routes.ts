@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { DashboardComponent } from './features/dashboard/dashboard';
 
 export const routes: Routes = [
   // Default redirect
@@ -41,8 +42,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        loadComponent: () =>
-          import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
+        component: DashboardComponent,
       },
       {
         path: 'groups',

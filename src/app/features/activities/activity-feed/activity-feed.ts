@@ -1,16 +1,18 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, ChangeDetectionStrategy, ChangeDetectorRef, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { ActivityService } from '../../../core/services/activity.service';
 import { Activity, ActivityType } from '../../../core/models/activity.model';
 import { ToastService } from '../../../core/services/toast.service';
-import { Subject, takeUntil } from 'rxjs';
+import { AuthStore } from '../../../core/store/auth.store';
 
 @Component({
   selector: 'app-activity-feed',
@@ -18,123 +20,140 @@ import { Subject, takeUntil } from 'rxjs';
   imports: [
     CommonModule,
     MatCardModule,
-    MatIconModule,
     MatButtonModule,
+    MatIconModule,
     MatProgressSpinnerModule,
     MatChipsModule,
     MatMenuModule,
-    MatDividerModule
+    MatTooltipModule,
+    MatDividerModule,
   ],
   templateUrl: './activity-feed.html',
-  styleUrls: ['./activity-feed.scss']
+  styleUrls: ['./activity-feed.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ActivityFeedComponent implements OnInit, OnDestroy {
+export class ActivityFeedComponent implements OnInit, OnChanges {
+  /** Optional: pass groupId to show activities for a specific group */
   @Input() groupId?: number;
-  @Input() userId?: string;
-  @Input() maxItems = 20;
+  /** Optional: max number of items to show (default: all) */
+  @Input() maxItems?: number;
+  @Input() initialFilter: ActivityType | 'ALL' = 'ALL';
   @Input() showFilters = true;
 
+  private activityService = inject(ActivityService);
+  private toastService = inject(ToastService);
+  protected readonly authStore = inject(AuthStore);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
+
   activities: Activity[] = [];
+  filteredActivities: Activity[] = [];
   loading = false;
-  currentPage = 0;
-  totalPages = 0;
   hasMore = false;
+  pageSize = 20;
+  currentPage = 0;
   selectedFilter: ActivityType | 'ALL' = 'ALL';
-  
-  private destroy$ = new Subject<void>();
 
-  activityTypes = Object.values(ActivityType);
-
-  constructor(
-    private activityService: ActivityService,
-    private toastService: ToastService
-  ) {}
+  activityTypes: ActivityType[] = [
+    ActivityType.EXPENSE_ADDED,
+    ActivityType.EXPENSE_UPDATED,
+    ActivityType.EXPENSE_DELETED,
+    ActivityType.SETTLEMENT_COMPLETED,
+    ActivityType.GROUP_CREATED,
+    ActivityType.MEMBER_ADDED,
+  ];
 
   ngOnInit(): void {
+    this.selectedFilter = this.initialFilter;
     this.loadActivities();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  ngOnChanges(changes: SimpleChanges): void {
+    // Reload if groupId changes after init
+    if (changes['groupId'] && !changes['groupId'].firstChange) {
+      this.loadActivities();
+    }
   }
 
-  loadActivities(append = false): void {
+  loadActivities(loadMore = false): void {
     if (this.loading) return;
 
     this.loading = true;
-    const page = append ? this.currentPage + 1 : 0;
-
-    const request$ = this.groupId
-      ? this.activityService.getGroupActivities(this.groupId, page, this.maxItems)
-      : this.userId
-      ? this.activityService.getUserActivities(this.userId, page, this.maxItems)
-      : null;
-
-    if (!request$) {
-      this.loading = false;
-      this.toastService.error('Either groupId or userId must be provided');
-      return;
+    if (!loadMore) {
+      this.currentPage = 0;
     }
 
-    request$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (response) => {
-        console.log('📊 Activity Feed Response:', response);
-        console.log('📊 First activity:', response.content[0]);
-        
-        if (append) {
-          this.activities = [...this.activities, ...response.content];
-        } else {
-          this.activities = response.content;
+    const size = this.maxItems ?? this.pageSize;
+    const source$ = this.groupId
+      ? this.activityService.getGroupActivities(this.groupId, this.currentPage, size)
+      : (() => {
+        const user = this.authStore.user();
+        if (!user) {
+          this.loading = false;
+          this.cdr.markForCheck();
+          return null;
         }
-        
-        this.currentPage = response.number;
-        this.totalPages = response.totalPages;
-        this.hasMore = !response.last;
-        this.loading = false;
+        return this.activityService.getUserActivities(user.id, this.currentPage, size);
+      })();
 
-        // Apply filter if selected
-        if (this.selectedFilter !== 'ALL') {
-          this.applyFilter(this.selectedFilter);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading activities:', error);
-        this.toastService.error('Failed to load activities');
-        this.loading = false;
-      }
-    });
+    if (!source$) return;
+
+    source$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const content = response?.content || [];
+          if (loadMore) {
+            this.activities = [...this.activities, ...content];
+          } else {
+            this.activities = content;
+          }
+
+          this.hasMore = !this.maxItems && !(response?.last ?? true);
+          this.updateFilteredActivities();
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('[ActivityFeedComponent] Error loading activities:', error);
+          this.toastService.error('Failed to load activities');
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   loadMore(): void {
     if (this.hasMore && !this.loading) {
+      this.currentPage++;
       this.loadActivities(true);
     }
   }
 
   refresh(): void {
-    this.currentPage = 0;
-    this.loadActivities(false);
-    this.toastService.success('Activities refreshed');
+    this.loadActivities();
   }
 
   applyFilter(filter: ActivityType | 'ALL'): void {
+    if (this.selectedFilter === filter) return;
     this.selectedFilter = filter;
-    
-    if (filter === 'ALL') {
-      this.loadActivities(false);
+    this.updateFilteredActivities();
+    this.cdr.markForCheck();
+  }
+
+  private updateFilteredActivities(): void {
+    if (!this.activities || !Array.isArray(this.activities)) {
+      this.filteredActivities = [];
       return;
     }
 
-    // Filter activities locally
-    this.loadActivities(false);
-  }
-
-  getFilteredActivities(): Activity[] {
     if (this.selectedFilter === 'ALL') {
-      return this.activities;
+      this.filteredActivities = [...this.activities];
+    } else {
+      this.filteredActivities = this.activities.filter(
+        (activity) => activity.activityType === this.selectedFilter
+      );
     }
-    return this.activities.filter(activity => activity.activityType === this.selectedFilter);
   }
 
   getActivityIcon(activityType: string): string {
@@ -145,27 +164,20 @@ export class ActivityFeedComponent implements OnInit, OnDestroy {
     return this.activityService.getActivityColor(activityType);
   }
 
-  getRelativeTime(dateString: string): string {
-    return this.activityService.getRelativeTime(dateString);
+  getFilterLabel(type: string): string {
+    return type
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 
-  getFilterLabel(filter: ActivityType | 'ALL'): string {
-    const labels: { [key: string]: string } = {
-      'ALL': 'All Activities',
-      'GROUP_CREATED': 'Group Created',
-      'MEMBER_ADDED': 'Member Added',
-      'MEMBER_REMOVED': 'Member Removed',
-      'EXPENSE_ADDED': 'Expense Added',
-      'EXPENSE_CREATED': 'Expense Created',
-      'EXPENSE_UPDATED': 'Expense Updated',
-      'EXPENSE_DELETED': 'Expense Deleted',
-      'PAYMENT_RECORDED': 'Payment Recorded',
-      'SETTLEMENT_COMPLETED': 'Settlement Completed'
-    };
-    return labels[filter] || filter;
+  getRelativeTime(timestamp: string): string {
+    return this.activityService.getRelativeTime(timestamp);
   }
 
-  trackByActivity(index: number, activity: Activity): number {
-    return activity.id;
+  trackByActivity(index: number, activity: Activity): string {
+    return activity.id?.toString() || index.toString();
   }
 }

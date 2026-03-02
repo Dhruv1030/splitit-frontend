@@ -3,48 +3,85 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-bg-main);
   padding: 24px;
+  position: relative;
+  overflow: hidden;
+
+  // Background ambient glow
+  &::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    left: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+  }
 }
 
 .register-card-wrapper {
   width: 100%;
   max-width: 500px;
-  animation: slideUp 0.5s ease-out;
+  position: relative;
+  z-index: 1;
 }
 
 .register-card {
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 
   mat-card-header {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 32px;
+    text-align: center;
 
     .title {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 28px;
-      font-weight: 600;
-      color: #333;
-      margin: 0;
+      gap: 12px;
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
 
       .title-icon {
-        font-size: 32px;
-        width: 32px;
-        height: 32px;
-        color: #667eea;
+        font-size: 36px;
+        width: 36px;
+        height: 36px;
+        color: var(--color-primary);
+        -webkit-text-fill-color: initial; // Reset for icon
       }
     }
 
     mat-card-subtitle {
-      color: #666;
-      margin-top: 8px;
-      font-size: 14px;
+      font-size: 16px;
+      color: var(--color-text-secondary);
+      font-weight: 400;
     }
   }
 }
@@ -52,7 +89,7 @@
 form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .full-width {
@@ -62,13 +99,15 @@ form {
 .error-banner {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background-color: #fee;
-  color: #c33;
-  border-radius: 8px;
-  margin-bottom: 16px;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  color: #ef4444;
+  margin-bottom: 24px;
   font-size: 14px;
+  animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
 
   mat-icon {
     font-size: 20px;
@@ -79,16 +118,24 @@ form {
 
 .submit-button {
   width: 100%;
-  height: 48px;
+  height: 56px;
   font-size: 16px;
-  font-weight: 500;
-  border-radius: 8px;
-  margin-top: 8px;
+  font-weight: 600;
+  border-radius: 12px;
+  margin-top: 16px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  color: white;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 
   mat-spinner {
@@ -99,18 +146,20 @@ form {
 
 .login-link {
   text-align: center;
-  margin-top: 16px;
-  color: #666;
+  margin-top: 32px;
+  color: var(--color-text-secondary);
   font-size: 14px;
 
   .link {
-    color: #667eea;
+    color: var(--color-primary);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
     margin-left: 4px;
+    transition: color 0.2s;
 
     &:hover {
-      text-decoration: underline;
+      color: var(--color-secondary);
+      text-decoration: none;
     }
   }
 }
@@ -118,11 +167,36 @@ form {
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
   }
 }
 
@@ -133,24 +207,25 @@ form {
   }
 
   .register-card {
-    padding: 16px;
+    padding: 24px;
+    border-radius: 20px;
 
     mat-card-header {
       margin-bottom: 24px;
 
       .title {
-        font-size: 24px;
+        font-size: 28px;
 
         .title-icon {
-          font-size: 28px;
-          width: 28px;
-          height: 28px;
+          font-size: 32px;
+          width: 32px;
+          height: 32px;
         }
       }
     }
   }
 
   form {
-    gap: 12px;
+    gap: 16px;
   }
 }

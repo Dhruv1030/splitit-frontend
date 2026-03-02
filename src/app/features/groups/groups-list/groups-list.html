@@ -2,27 +2,25 @@
   <!-- Header -->
   <div class="header">
     <h1 class="title">My Groups</h1>
-    
+
     <!-- Search Bar -->
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search groups</mat-label>
-      <input
-        matInput
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="onSearch()"
-        placeholder="Search by name or category"
-      />
+      <input matInput [(ngModel)]="searchQuery" (ngModelChange)="onSearch()" placeholder="Search by name or category" />
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="groups-grid">
+  @if (loading) {
+  <div class="groups-grid">
     <app-skeleton-loader type="group-card" [count]="6"></app-skeleton-loader>
   </div>
+  }
 
   <!-- Empty State -->
-  <div *ngIf="!loading && filteredGroups.length === 0 && searchQuery === ''" class="empty-state">
+  @if (!loading && filteredGroups.length === 0 && searchQuery === '') {
+  <div class="empty-state">
     <mat-icon class="empty-icon">groups</mat-icon>
     <h2>No Groups Yet</h2>
     <p>Create your first group to start tracking shared expenses</p>
@@ -31,30 +29,32 @@
       Create Group
     </button>
   </div>
+  }
 
   <!-- No Search Results -->
-  <div *ngIf="!loading && filteredGroups.length === 0 && searchQuery !== ''" class="empty-state">
+  @if (!loading && filteredGroups.length === 0 && searchQuery !== '') {
+  <div class="empty-state">
     <mat-icon class="empty-icon">search_off</mat-icon>
     <h2>No Results Found</h2>
     <p>Try adjusting your search query</p>
   </div>
+  }
 
   <!-- Groups Grid -->
-  <div *ngIf="!loading && filteredGroups.length > 0" class="groups-grid">
-    <mat-card
-      *ngFor="let group of filteredGroups"
-      class="group-card"
-      (click)="onGroupClick(group.id)"
-      matRipple
-    >
+  @if (!loading && filteredGroups.length > 0) {
+  <div class="groups-grid">
+    @for (group of filteredGroups; track group.id) {
+    <mat-card class="group-card" (click)="onGroupClick(group.id)" matRipple>
       <mat-card-header>
         <div class="group-icon" [style.background-color]="getCategoryColor(group.category)">
           <mat-icon>{{ getCategoryIcon(group.category) }}</mat-icon>
         </div>
         <mat-card-title>{{ group.name }}</mat-card-title>
-        <mat-card-subtitle *ngIf="group.description">
+        @if (group.description) {
+        <mat-card-subtitle>
           {{ group.description }}
         </mat-card-subtitle>
+        }
       </mat-card-header>
 
       <mat-card-content>
@@ -82,26 +82,19 @@
       </mat-card-content>
 
       <mat-card-actions align="end">
-        <button
-          mat-button
-          color="primary"
-          (click)="onGroupClick(group.id); $event.stopPropagation()"
-        >
+        <button mat-button color="primary" (click)="onGroupClick(group.id); $event.stopPropagation()">
           View Details
         </button>
       </mat-card-actions>
     </mat-card>
+    }
   </div>
+  }
 
   <!-- Floating Action Button -->
-  <button
-    *ngIf="!loading"
-    mat-fab
-    color="primary"
-    class="fab"
-    (click)="onCreateGroup()"
-    matTooltip="Create Group"
-  >
+  @if (!loading) {
+  <button mat-fab color="primary" class="fab" (click)="onCreateGroup()" matTooltip="Create Group">
     <mat-icon>add</mat-icon>
   </button>
+  }
 </div>

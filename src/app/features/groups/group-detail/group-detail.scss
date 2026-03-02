@@ -12,6 +12,20 @@
   min-height: 400px;
 }
 
+// Skeleton Layout
+.group-detail-loading {
+  .skeleton-header {
+    margin-bottom: 32px;
+  }
+
+  .skeleton-stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+}
+
 .group-content {
   animation: fadeIn 0.3s ease-in;
 }
@@ -21,6 +35,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -34,9 +49,10 @@
   align-items: flex-start;
   margin-bottom: 32px;
   padding: 24px;
-  background: white;
+  background: var(--color-bg-card);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--color-border);
 
   .header-left {
     display: flex;
@@ -47,6 +63,7 @@
 
   .back-button {
     margin-top: 4px;
+    color: var(--color-text-secondary);
   }
 
   .group-info {
@@ -62,38 +79,45 @@
     h1 {
       margin: 0;
       font-size: 28px;
-      font-weight: 600;
+      font-weight: 700;
+      color: var(--color-text-primary);
     }
 
     .category-icon {
       font-size: 32px;
       width: 32px;
       height: 32px;
-      color: #1976d2;
+      color: var(--color-primary);
 
       &.trip {
-        color: #f57c00;
+        color: #f97316;
       }
+
       &.home {
-        color: #388e3c;
+        color: #22c55e;
       }
+
       &.couple {
-        color: #d32f2f;
+        color: #ef4444;
       }
+
       &.other {
-        color: #7b1fa2;
+        color: #a855f7;
       }
     }
 
     .category-chip {
       font-size: 12px;
       height: 24px;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
     }
   }
 
   .group-description {
     margin: 0;
-    color: #666;
+    color: var(--color-text-secondary);
     font-size: 14px;
   }
 
@@ -101,6 +125,12 @@
     display: flex;
     gap: 8px;
     align-items: center;
+
+    button {
+      mat-icon {
+        color: var(--color-text-primary);
+      }
+    }
   }
 }
 
@@ -117,18 +147,22 @@
     gap: 16px;
     padding: 20px;
     transition: transform 0.2s, box-shadow 0.2s;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      border-color: var(--color-primary);
     }
 
     .stat-icon {
       font-size: 48px;
       width: 48px;
       height: 48px;
-      color: #1976d2;
+      color: var(--color-primary);
       opacity: 0.8;
+      filter: drop-shadow(0 0 8px var(--color-primary-glow));
     }
 
     .stat-content {
@@ -136,15 +170,15 @@
 
       .stat-value {
         font-size: 32px;
-        font-weight: 600;
-        color: #1976d2;
+        font-weight: 700;
+        color: var(--color-text-primary);
         line-height: 1;
         margin-bottom: 4px;
       }
 
       .stat-label {
         font-size: 14px;
-        color: #666;
+        color: var(--color-text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
@@ -156,20 +190,37 @@
 .group-tabs {
   ::ng-deep {
     .mat-mdc-tab-header {
-      background: white;
+      background: var(--color-bg-card);
       border-radius: 12px 12px 0 0;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      border-bottom: 1px solid var(--color-border);
+
+      .mat-mdc-tab-label-container {
+        border-bottom: none;
+      }
+
+      .mdc-tab {
+        color: var(--color-text-secondary);
+
+        &.mdc-tab--active {
+          .mdc-tab__text-label {
+            color: var(--color-primary);
+          }
+        }
+      }
+
+      .mdc-tab-indicator__content--underline {
+        border-color: var(--color-primary);
+      }
     }
 
     .mat-mdc-tab-body-wrapper {
-      background: white;
-      border-radius: 0 0 12px 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      background: transparent;
+      margin-top: 16px;
     }
   }
 
   .tab-content {
-    padding: 24px;
+    padding: 0; // Remove padding as cards handle it
     min-height: 400px;
   }
 }
@@ -181,6 +232,9 @@
   gap: 24px;
 
   .overview-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+
     mat-card-header {
       display: flex;
       justify-content: space-between;
@@ -190,6 +244,7 @@
       mat-card-title {
         font-size: 18px;
         font-weight: 600;
+        color: var(--color-text-primary);
       }
     }
 
@@ -197,20 +252,20 @@
       display: flex;
       gap: 16px;
       padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid var(--color-border);
 
       &:last-child {
         border-bottom: none;
       }
 
       mat-icon {
-        color: #1976d2;
+        color: var(--color-primary);
         opacity: 0.7;
       }
 
       .info-label {
         font-size: 12px;
-        color: #999;
+        color: var(--color-text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 4px;
@@ -219,7 +274,7 @@
       .info-value {
         font-size: 14px;
         font-weight: 500;
-        color: #333;
+        color: var(--color-text-primary);
       }
     }
   }
@@ -230,15 +285,26 @@ mat-list-item {
   margin-bottom: 8px;
   border-radius: 8px;
   transition: background-color 0.2s;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
 
   &:hover {
-    background-color: #f5f5f5;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-border);
+  }
+
+  ::ng-deep .mdc-list-item__primary-text {
+    color: var(--color-text-primary) !important;
+  }
+
+  ::ng-deep .mdc-list-item__secondary-text {
+    color: var(--color-text-secondary) !important;
   }
 
   .expense-amount {
     text-align: right;
     font-weight: 600;
-    color: #1976d2;
+    color: var(--color-primary);
     font-size: 16px;
   }
 
@@ -248,17 +314,21 @@ mat-list-item {
     gap: 8px;
 
     .success {
-      color: #388e3c;
+      color: #4ade80;
       font-weight: 600;
     }
 
     .warn {
-      color: #d32f2f;
+      color: #f87171;
       font-weight: 600;
     }
 
     .primary {
-      color: #666;
+      color: var(--color-text-secondary);
+    }
+
+    button {
+      color: var(--color-text-secondary);
     }
   }
 
@@ -266,12 +336,14 @@ mat-list-item {
     font-size: 11px;
     height: 20px;
     min-height: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-text-secondary);
   }
 
   .amount-primary {
     font-size: 16px;
     font-weight: 600;
-    color: #1976d2;
+    color: var(--color-primary);
     margin-bottom: 4px;
   }
 
@@ -279,31 +351,38 @@ mat-list-item {
     font-size: 10px;
     height: 18px;
     min-height: 18px;
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
   }
 
   .settlement-amount {
     font-size: 16px;
     font-weight: 600;
-    color: #388e3c;
+    color: #4ade80;
     margin-left: 8px;
   }
 }
 
 .expense-category-icon {
   &.food {
-    color: #f57c00;
+    color: #fb923c;
   }
+
   &.travel {
-    color: #1976d2;
+    color: #3b82f6;
   }
+
   &.entertainment {
-    color: #7b1fa2;
+    color: #a855f7;
   }
+
   &.shopping {
-    color: #d32f2f;
+    color: #f43f5e;
   }
+
   &.housing {
-    color: #388e3c;
+    color: #22c55e;
   }
 }
 
@@ -320,13 +399,14 @@ mat-list-item {
     font-size: 64px;
     width: 64px;
     height: 64px;
-    color: #ccc;
+    color: var(--color-text-muted);
+    opacity: 0.2;
     margin-bottom: 16px;
   }
 
   p {
     font-size: 16px;
-    color: #999;
+    color: var(--color-text-secondary);
     margin: 0 0 24px 0;
   }
 }
@@ -344,23 +424,23 @@ mat-list-item {
     font-size: 80px;
     width: 80px;
     height: 80px;
-    color: #d32f2f;
+    color: #ef4444;
     margin-bottom: 16px;
   }
 
   h2 {
     font-size: 24px;
-    color: #333;
+    color: var(--color-text-primary);
     margin: 0 0 24px 0;
   }
 }
 
 // Menu Actions
 .delete-option {
-  color: #d32f2f;
+  color: #ef4444 !important;
 
   mat-icon {
-    color: #d32f2f;
+    color: #ef4444 !important;
   }
 }
 
@@ -389,6 +469,6 @@ mat-list-item {
   }
 
   .group-tabs .tab-content {
-    padding: 16px;
+    padding: 16px 0;
   }
 }

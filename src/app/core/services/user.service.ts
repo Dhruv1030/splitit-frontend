@@ -46,7 +46,7 @@ export class UserService {
     return this.http.get<ApiResponse<User[]>>(`${this.apiUrl}/group/${groupId}`);
   }
 
-  getCurrentUserProfile(): Observable<ApiResponse<User>> {
-    return this.http.get<ApiResponse<User>>(`${this.apiUrl}/me`);
+  getCurrentUserProfile(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/me`);
   }
 }

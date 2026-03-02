@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -42,6 +43,7 @@ import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleto
   ],
   templateUrl: './expenses-list.html',
   styleUrls: ['./expenses-list.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExpensesListComponent implements OnInit {
   private expenseService = inject(ExpenseService);
@@ -49,6 +51,8 @@ export class ExpensesListComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private toastService = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   expenses: Expense[] = [];
   filteredExpenses: Expense[] = [];
@@ -92,50 +96,58 @@ export class ExpensesListComponent implements OnInit {
   }
 
   loadGroups(): void {
-    this.groupService.getUserGroups().subscribe({
-      next: (response: any) => {
-        this.groups = response.data;
-      },
-      error: (error: any) => {
-        console.error('Error loading groups:', error);
-        this.toastService.error('Failed to load groups. Please try again.');
-      },
-    });
+    this.groupService.getUserGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: any) => {
+          this.groups = response.data;
+          this.cdr.markForCheck();
+        },
+        error: (error: any) => {
+          console.error('Error loading groups:', error);
+          this.toastService.error('Failed to load groups. Please try again.');
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   loadExpenses(): void {
     this.loading = true;
     // Load expenses from all groups
-    this.groupService.getUserGroups().subscribe({
-      next: (response: any) => {
-        const groupIds = response.data.map((g: any) => g.id);
-        const expenseRequests = groupIds.map((id: any) => 
-          this.expenseService.getGroupExpenses(id)
-        );
+    this.groupService.getUserGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: any) => {
+          const groupIds = response.data.map((g: any) => g.id);
+          const expenseRequests = groupIds.map((id: any) =>
+            this.expenseService.getGroupExpenses(id)
+          );
 
-        // Wait for all expense requests
-        Promise.all(
-          expenseRequests.map((req: any) => 
-            req.toPromise().catch(() => ({ data: [] }))
-          )
-        ).then((results: any[]) => {
-          this.expenses = results.flatMap(r => r?.data || []);
-          this.calculateAmountRange();
-          this.applyFilters();
+          // Wait for all expense requests
+          Promise.all(
+            expenseRequests.map((req: any) =>
+              req.toPromise().catch(() => ({ data: [] }))
+            )
+          ).then((results: any[]) => {
+            this.expenses = results.flatMap(r => r?.data || []);
+            this.calculateAmountRange();
+            this.applyFilters();
+            this.loading = false;
+            this.cdr.markForCheck();
+          });
+        },
+        error: (error: any) => {
+          console.error('Error loading expenses:', error);
+          this.toastService.error('Failed to load expenses. Please try again.');
           this.loading = false;
-        });
-      },
-      error: (error: any) => {
-        console.error('Error loading expenses:', error);
-        this.toastService.error('Failed to load expenses. Please try again.');
-        this.loading = false;
-      },
-    });
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   calculateAmountRange(): void {
     if (this.expenses.length === 0) return;
-    
+
     const amounts = this.expenses.map(e => e.amount);
     this.minAmount = Math.floor(Math.min(...amounts));
     this.maxAmount = Math.ceil(Math.max(...amounts));
@@ -145,13 +157,13 @@ export class ExpensesListComponent implements OnInit {
 
   applyFilters(): void {
     this.filteredExpenses = this.expenses.filter(expense => {
-      const matchesSearch = !this.searchQuery || 
+      const matchesSearch = !this.searchQuery ||
         expense.description.toLowerCase().includes(this.searchQuery.toLowerCase());
-      
-      const matchesGroup = this.selectedGroup === 'all' || 
+
+      const matchesGroup = this.selectedGroup === 'all' ||
         expense.groupId === this.selectedGroup;
-      
-      const matchesCategory = this.selectedCategory === 'all' || 
+
+      const matchesCategory = this.selectedCategory === 'all' ||
         expense.category === this.selectedCategory;
 
       const matchesSplitType = this.selectedSplitType === 'all' ||
@@ -161,10 +173,10 @@ export class ExpensesListComponent implements OnInit {
         expense.amount <= this.currentMaxAmount;
 
       const matchesCreator = !this.createdByMe ||
-        expense.paidBy === this.currentUserId;
+        expense.createdBy === this.currentUserId;
 
-      return matchesSearch && matchesGroup && matchesCategory && 
-             matchesSplitType && matchesAmount && matchesCreator;
+      return matchesSearch && matchesGroup && matchesCategory &&
+        matchesSplitType && matchesAmount && matchesCreator;
     });
   }
 

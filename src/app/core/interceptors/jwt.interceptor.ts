@@ -6,15 +6,33 @@ import { catchError, throwError } from 'rxjs';
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const token = localStorage.getItem('jwt_token');
+  const currentUser = localStorage.getItem('current_user');
 
   // Clone request and add Authorization header if token exists
   if (token) {
-    req = req.clone({
-      setHeaders: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    console.log('[JWT Interceptor] Adding token to request:', req.url);
+    console.log('[JWT Interceptor] Token:', token.substring(0, 20) + '...');
+    
+    const headers: any = {
+      'Authorization': `Bearer ${token}`
+    };
+
+    // Add X-User-Id header if user is logged in
+    if (currentUser) {
+      try {
+        const user = JSON.parse(currentUser);
+        if (user.id) {
+          headers['X-User-Id'] = user.id;
+          console.log('[JWT Interceptor] Adding X-User-Id:', user.id);
+        }
+      } catch (e) {
+        console.error('Error parsing current_user from localStorage:', e);
       }
-    });
+    }
+
+    req = req.clone({ setHeaders: headers });
+  } else {
+    console.warn('[JWT Interceptor] No token found for request:', req.url);
   }
 
   // Handle response and errors

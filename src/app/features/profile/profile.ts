@@ -109,49 +109,25 @@ export class ProfileComponent implements OnInit {
   }
 
   loadUserProfile(): void {
-    const currentUserStr = localStorage.getItem('current_user');
-    if (!currentUserStr) {
-      console.log('[Profile] No current_user in localStorage, redirecting to login');
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    try {
-      const currentUser = JSON.parse(currentUserStr);
-      const userId = currentUser.id || currentUser.userId;
-      
-      console.log('[Profile] Current user from localStorage:', currentUser);
-      console.log('[Profile] User ID:', userId);
-      
-      if (!userId) {
-        console.error('[Profile] No userId found in current_user, redirecting to login');
-        this.router.navigate(['/login']);
-        return;
-      }
-
-      this.loading = true;
-      this.userService.getUserById(userId).subscribe({
-        next: (user) => {
-          console.log('[Profile] User profile loaded:', user);
-          this.currentUser = user;
-          this.profileForm.patchValue({
-            name: user.name,
-            email: user.email,
-            phone: user.phone || '',
-            defaultCurrency: user.defaultCurrency || 'USD',
-          });
-          this.loading = false;
-        },
-        error: (error: any) => {
-          console.error('[Profile] Error loading profile:', error);
-          this.loading = false;
-          this.snackBar.open('Failed to load profile', 'Close', { duration: 3000 });
-        },
-      });
-    } catch (error) {
-      console.error('[Profile] Error parsing current_user from localStorage:', error);
-      this.router.navigate(['/login']);
-    }
+    this.loading = true;
+    this.userService.getCurrentUserProfile().subscribe({
+      next: (user) => {
+        console.log('[Profile] User profile loaded:', user);
+        this.currentUser = user;
+        this.profileForm.patchValue({
+          name: user.name,
+          email: user.email,
+          phone: user.phone || '',
+          defaultCurrency: user.defaultCurrency || 'USD',
+        });
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error('[Profile] Error loading profile:', error);
+        this.loading = false;
+        this.snackBar.open('Failed to load profile', 'Close', { duration: 3000 });
+      },
+    });
   }
 
   loadFriends(): void {
@@ -242,8 +218,9 @@ export class ProfileComponent implements OnInit {
 
     this.searching = true;
     this.userService.searchUsers(query).subscribe({
-      next: (response) => {
-        this.searchResults = response.data.filter(user =>
+      next: (users) => {
+        // Backend returns array directly, not wrapped in ApiResponse
+        this.searchResults = users.filter(user =>
           user.id !== this.currentUser?.id &&
           !this.friends.some(friend => friend.id === user.id)
         );

@@ -27,7 +27,19 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   token: string;
-  userId: string;
-  email: string;
-  name: string;
+  user?: {
+    id: string;
+    userId?: string;
+    email: string;
+    name: string;
+    phone?: string;
+    phoneNumber?: string;
+    defaultCurrency?: string;
+    friendIds?: string[];
+    createdAt?: string;
+    emailVerified?: boolean;
+  };
+  userId?: string;
+  email?: string;
+  name?: string;
 }

@@ -1,65 +1,49 @@
-import { Injectable } from '@angular/core';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { Injectable, inject } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ToastService {
-  constructor(private snackBar: MatSnackBar) {}
+  private toastr = inject(ToastrService);
 
-  private defaultConfig: MatSnackBarConfig = {
-    duration: 3000,
-    horizontalPosition: 'right',
-    verticalPosition: 'top',
-  };
-
-  success(message: string, action?: string): void {
-    this.snackBar.open(message, action || 'Close', {
-      ...this.defaultConfig,
-      panelClass: ['toast-success'],
-      duration: 3000,
+  success(message: string, title?: string): void {
+    this.toastr.success(message, title || 'Success', {
+      timeOut: 3000,
+      progressBar: true,
+      closeButton: true,
     });
   }
 
-  error(message: string, action?: string): void {
-    this.snackBar.open(message, action || 'Close', {
-      ...this.defaultConfig,
-      panelClass: ['toast-error'],
-      duration: 5000,
+  error(message: string, title?: string): void {
+    this.toastr.error(message, title || 'Error', {
+      timeOut: 5000,
+      progressBar: true,
+      closeButton: true,
     });
   }
 
-  warning(message: string, action?: string): void {
-    this.snackBar.open(message, action || 'Close', {
-      ...this.defaultConfig,
-      panelClass: ['toast-warning'],
-      duration: 4000,
+  warning(message: string, title?: string): void {
+    this.toastr.warning(message, title || 'Warning', {
+      timeOut: 4000,
+      progressBar: true,
+      closeButton: true,
     });
   }
 
-  info(message: string, action?: string): void {
-    this.snackBar.open(message, action || 'Close', {
-      ...this.defaultConfig,
-      panelClass: ['toast-info'],
-      duration: 3000,
+  info(message: string, title?: string): void {
+    this.toastr.info(message, title || 'Info', {
+      timeOut: 3000,
+      progressBar: true,
+      closeButton: true,
     });
   }
 
-  show(message: string, action?: string, config?: MatSnackBarConfig): void {
-    this.snackBar.open(message, action || 'Close', {
-      ...this.defaultConfig,
-      ...config,
-    });
-  }
-
-  showWithAction(message: string, action: string, callback: () => void, duration = 5000): void {
-    const snackBarRef = this.snackBar.open(message, action, {
-      ...this.defaultConfig,
-      duration,
-    });
-
-    snackBarRef.onAction().subscribe(() => {
-      callback();
+  show(message: string, title?: string): void {
+    this.toastr.show(message, title, {
+      timeOut: 3000,
+      progressBar: true,
+      closeButton: true,
     });
   }
 }

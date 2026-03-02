@@ -31,36 +31,36 @@
     {
       "name": "api-groups",
       "urls": [
-        "http://localhost:8080/api/groups/**"
+        "/api/groups/**"
       ],
       "cacheConfig": {
         "maxSize": 100,
         "maxAge": "1h",
-        "timeout": "10s",
-        "strategy": "freshness"
+        "timeout": "5s",
+        "strategy": "performance"
       }
     },
     {
       "name": "api-expenses",
       "urls": [
-        "http://localhost:8080/api/expenses/**"
+        "/api/expenses/**"
       ],
       "cacheConfig": {
         "maxSize": 100,
         "maxAge": "30m",
-        "timeout": "10s",
-        "strategy": "freshness"
+        "timeout": "5s",
+        "strategy": "performance"
       }
     },
     {
       "name": "api-settlements",
       "urls": [
-        "http://localhost:8080/api/settlements/**"
+        "/api/settlements/**"
       ],
       "cacheConfig": {
         "maxSize": 50,
         "maxAge": "15m",
-        "timeout": "10s",
+        "timeout": "5s",
         "strategy": "freshness"
       }
     }

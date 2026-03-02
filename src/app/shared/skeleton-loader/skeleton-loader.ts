@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type SkeletonType = 'text' | 'card' | 'list' | 'table' | 'expense-card' | 'group-card';
+export type SkeletonType = 'text' | 'card' | 'list' | 'table' | 'expense-card' | 'group-card' | 'dashboard-stats' | 'chart';
 
 @Component({
   selector: 'app-skeleton-loader',

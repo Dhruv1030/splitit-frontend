@@ -1,0 +1,53 @@
+<div class="error-container">
+  <div class="error-content">
+    <!-- Animated 403 Icon -->
+    <div class="error-icon-wrapper">
+      <div class="error-icon">
+        <mat-icon>block</mat-icon>
+      </div>
+      <div class="error-code">403</div>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message">
+      <h1>Access Forbidden</h1>
+      <p class="error-description">
+        You don't have permission to access this page or resource.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="error-actions">
+      <button mat-raised-button color="primary" (click)="goHome()" class="primary-action">
+        <mat-icon>home</mat-icon>
+        Go to Dashboard
+      </button>
+      <button mat-stroked-button (click)="goBack()" class="secondary-action">
+        <mat-icon>arrow_back</mat-icon>
+        Go Back
+      </button>
+      <button mat-stroked-button (click)="logout()" class="logout-action">
+        <mat-icon>logout</mat-icon>
+        Logout
+      </button>
+    </div>
+
+    <!-- Helpful Information -->
+    <div class="helpful-info">
+      <p>Possible reasons:</p>
+      <ul>
+        <li>You're not logged in or your session has expired</li>
+        <li>You don't have the required permissions</li>
+        <li>This resource is restricted to certain users</li>
+        <li>Your account may need verification</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Decorative Background -->
+  <div class="background-decoration">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+  </div>
+</div>

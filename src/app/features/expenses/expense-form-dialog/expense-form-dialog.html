@@ -6,6 +6,23 @@
 
   <mat-dialog-content>
     <form [formGroup]="expenseForm" class="expense-form">
+      <!-- Group Selection (Dashboard Mode Only) -->
+      <div *ngIf="isDashboardMode" class="form-section">
+        <h3 class="section-title">Select Group</h3>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Group</mat-label>
+          <mat-select formControlName="groupId">
+            <mat-option *ngFor="let group of availableGroups" [value]="group.id">
+              {{ group.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="expenseForm.get('groupId')?.hasError('required')">
+            Please select a group
+          </mat-error>
+        </mat-form-field>
+      </div>
+
       <!-- Basic Information -->
       <div class="form-section">
         <h3 class="section-title">Basic Information</h3>
@@ -61,7 +78,7 @@
           <mat-form-field appearance="outline">
             <mat-label>Paid By</mat-label>
             <mat-select formControlName="paidBy">
-              <mat-option *ngFor="let member of data.members" [value]="member.userId">
+              <mat-option *ngFor="let member of (isDashboardMode ? selectedGroupMembers : data.members)" [value]="member.userId">
                 {{ member.name }}
               </mat-option>
             </mat-select>
@@ -100,7 +117,7 @@
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Select Participants</mat-label>
               <mat-select formControlName="participants" multiple>
-                <mat-option *ngFor="let member of data.members" [value]="member.userId">
+                <mat-option *ngFor="let member of (isDashboardMode ? selectedGroupMembers : data.members)" [value]="member.userId">
                   {{ member.name }}
                 </mat-option>
               </mat-select>

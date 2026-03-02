@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="dashboard.welcome" datatype="html">
+        <source>Welcome back,</source>
+        <target>Bienvenido de nuevo,</target>
+      </trans-unit>
+      <trans-unit id="dashboard.addExpense" datatype="html">
+        <source>Add Expense</source>
+        <target>Añadir Gasto</target>
+      </trans-unit>
+      <trans-unit id="dashboard.subtitle" datatype="html">
+        <source>Here's what's happening with your shared expenses.</source>
+        <target>Esto es lo que está pasando con tus gastos compartidos.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

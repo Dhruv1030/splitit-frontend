@@ -7,8 +7,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { AuthService } from '../../core/services/auth.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { AuthStore } from '../../core/store/auth.store';
 import { User } from '../../core/models/user.model';
+import { OfflineSyncService } from '../../core/services/offline-sync.service';
 
 @Component({
   selector: 'app-navbar',
@@ -22,6 +24,7 @@ import { User } from '../../core/models/user.model';
     MatMenuModule,
     MatDividerModule,
     MatDialogModule,
+    MatTooltipModule,
   ],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss'],
@@ -29,17 +32,10 @@ import { User } from '../../core/models/user.model';
 export class NavbarComponent {
   @Output() menuToggle = new EventEmitter<void>();
 
-  private authService = inject(AuthService);
+  protected readonly authStore = inject(AuthStore);
+  protected readonly offlineSync = inject(OfflineSyncService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
-
-  currentUser: User | null = null;
-
-  constructor() {
-    this.authService.currentUser$.subscribe((user) => {
-      this.currentUser = user;
-    });
-  }
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardShortcut(event: KeyboardEvent): void {
@@ -75,10 +71,22 @@ export class NavbarComponent {
   }
 
   onLogout(): void {
-    this.authService.logout();
+    this.authStore.logout();
   }
 
   navigateToProfile(): void {
     this.router.navigate(['/profile']);
+  }
+
+  switchLanguage(locale: string): void {
+    const currentPath = window.location.pathname;
+    // Simple redirect logic for dev/prod build-time i18n
+    // In a real prod env, this would be handled by the server (e.g. Nginx)
+    // Here we'll just try to replace the locale segment if it exists
+    if (locale === 'en-US') {
+      window.location.href = '/';
+    } else {
+      window.location.href = `/${locale}/`;
+    }
   }
 }

@@ -1,13 +1,83 @@
-
 // Include theming for Angular Material with `mat.theme()`.
 @use '@angular/material' as mat;
+@use 'sass:color';
+@use 'ngx-toastr/toastr';
 
 // Include Angular Material core styles (needed for overlays like dropdowns)
 @include mat.core();
 
 // ============================================================================
-// DESIGN SYSTEM - Senior Frontend Engineer Standards
+// DESIGN SYSTEM - Premium Dark Mode
 // ============================================================================
+
+:root {
+  // Core Palette - Dark Mode Base
+  --color-bg-main: #0f172a; // Slate 900
+  --color-bg-card: #1e293b; // Slate 800
+  --color-bg-card-hover: #334155; // Slate 700
+  --color-bg-input: #0f172a;
+
+  // Accents - Neon Vibes
+  --color-primary: #3b82f6; // Blue 500
+  --color-primary-glow: rgba(59, 130, 246, 0.5);
+  --color-secondary: #8b5cf6; // Violet 500
+  --color-secondary-glow: rgba(139, 92, 246, 0.5);
+  --color-accent: #10b981; // Emerald 500
+  --color-accent-glow: rgba(16, 185, 129, 0.5);
+  --color-danger: #ef4444; // Red 500
+  --color-warning: #f59e0b; // Amber 500
+
+  // Text
+  --color-text-primary: #f8fafc; // Slate 50
+  --color-text-secondary: #94a3b8; // Slate 400
+  --color-text-muted: #64748b; // Slate 500
+
+  // Borders & Dividers
+  --color-border: #334155; // Slate 700
+
+  // Glassmorphism
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --backdrop-blur: blur(12px);
+
+  // ── Typography Scale (Inter) ──────────────────────────────────────────────
+  --font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  // Sizes
+  --text-display: 3rem; // 48px  — hero numbers, big stats
+  --text-h1: 2rem; // 32px  — page titles
+  --text-h2: 1.5rem; // 24px  — section headings
+  --text-h3: 1.25rem; // 20px  — card titles
+  --text-h4: 1.0625rem; // 17px  — widget titles
+  --text-body-lg: 1rem; // 16px  — main body
+  --text-body: 0.9375rem; // 15px  — default body
+  --text-body-sm: 0.875rem; // 14px  — dense body
+  --text-caption: 0.8125rem; // 13px  — labels, badges
+  --text-xs: 0.75rem; // 12px  — metadata, timestamps
+
+  // Weights
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  // Line heights
+  --lh-tight: 1.2;
+  --lh-snug: 1.4;
+  --lh-normal: 1.6;
+  --lh-relaxed: 1.75;
+
+  // Letter spacing
+  --ls-tight: -0.03em;
+  --ls-snug: -0.02em;
+  --ls-normal: 0;
+  --ls-wide: 0.02em;
+  --ls-wider: 0.05em;
+  --ls-widest: 0.1em;
+}
 
 // Spacing Scale (8px base unit)
 $spacing-xs: 4px;
@@ -27,49 +97,71 @@ $breakpoint-xl: 1280px;
 $breakpoint-2xl: 1536px;
 
 // Border Radius Scale
-$radius-sm: 4px;
-$radius-md: 8px;
-$radius-lg: 12px;
-$radius-xl: 16px;
+$radius-sm: 6px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 24px;
 $radius-full: 9999px;
 
 // Shadow Scale
-$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+$shadow-glow: 0 0 15px var(--color-primary-glow);
 
 // ============================================================================
 // THEME SETUP
 // ============================================================================
 
 html {
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+  @include mat.theme((color: (primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+        theme-type: dark),
+      typography: Roboto,
+      density: 0,
+    ));
 }
 
 body {
-  color-scheme: light;
-  background-color: #f5f7fa;
-  color: var(--mat-sys-on-surface);
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
+  color-scheme: dark;
+  background-color: var(--color-bg-main);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  line-height: var(--lh-normal);
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+  background-attachment: fixed;
 }
 
-html, body { 
-  height: 100%; 
+html,
+body {
+  height: 100%;
   overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: $radius-full;
+
+  &:hover {
+    background: var(--color-text-muted);
+  }
 }
 
 * {
@@ -85,38 +177,52 @@ html, body {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 $spacing-md;
-  
+
   @media (min-width: $breakpoint-md) {
     padding: 0 $spacing-lg;
   }
-  
+
   @media (min-width: $breakpoint-xl) {
     padding: 0 $spacing-xl;
   }
 }
 
 // ============================================================================
-// MATERIAL COMPONENT OVERRIDES
+// MATERIAL COMPONENT OVERRIDES - PREMIUM DARK
 // ============================================================================
 
 /* Material Card Enhancements */
 .mat-mdc-card {
-  border-radius: $radius-lg !important;
-  box-shadow: $shadow-sm !important;
-  transition: all 0.2s ease-in-out;
-  
+  background-color: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: $radius-xl !important;
+  box-shadow: var(--glass-shadow) !important;
+  backdrop-filter: var(--backdrop-blur);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--color-text-primary) !important;
+
   &:hover {
-    box-shadow: $shadow-md !important;
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.4), 0 0 20px var(--color-primary-glow) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
   }
 }
 
 .mat-mdc-card-header {
   padding: $spacing-lg !important;
-  
+
   .mat-mdc-card-title {
-    font-size: 20px !important;
-    font-weight: 600 !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
     margin-bottom: 0 !important;
+    background: linear-gradient(to right, #fff, #cbd5e1);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .mat-mdc-card-subtitle {
+    color: var(--color-text-secondary) !important;
   }
 }
 
@@ -127,309 +233,324 @@ html, body {
 /* Material Button Enhancements */
 .mat-mdc-button,
 .mat-mdc-raised-button,
-.mat-mdc-outlined-button {
+.mat-mdc-outlined-button,
+.mat-mdc-flat-button {
   border-radius: $radius-md !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.02em !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
   transition: all 0.2s ease-in-out !important;
+  text-transform: uppercase;
+  font-size: 13px !important;
+  padding: 0 24px !important;
+  height: 42px !important;
+
+  &:active {
+    transform: scale(0.96) !important;
+  }
+}
+
+.mat-mdc-raised-button.mat-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, color.adjust(#3b82f6, $lightness: -10%) 100%) !important;
+  box-shadow: 0 4px 15px var(--color-primary-glow) !important;
+
+  &:hover {
+    box-shadow: 0 6px 20px var(--color-primary-glow) !important;
+    transform: translateY(-1px);
+  }
+}
+
+.mat-mdc-raised-button.mat-accent {
+  background: linear-gradient(135deg, var(--color-secondary) 0%, color.adjust(#8b5cf6, $lightness: -10%) 100%) !important;
+  box-shadow: 0 4px 15px var(--color-secondary-glow) !important;
 }
 
 /* Material Form Field Enhancements */
 .mat-mdc-form-field {
   width: 100%;
-  
+
   .mat-mdc-text-field-wrapper {
+    background-color: rgba(255, 255, 255, 0.03) !important;
     border-radius: $radius-md !important;
   }
-  
-  &.mat-form-field-appearance-outline {
-    .mat-mdc-text-field-wrapper {
-      .mat-mdc-form-field-flex {
-        .mat-mdc-notched-outline {
-          .mat-mdc-notched-outline-leading {
-            border-radius: $radius-md 0 0 $radius-md !important;
-          }
-          
-          .mat-mdc-notched-outline-trailing {
-            border-radius: 0 $radius-md $radius-md 0 !important;
-          }
-        }
-      }
+
+  .mat-mdc-form-field-focus-overlay {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
+    border-color: var(--color-border) !important;
+  }
+
+  &.mat-focused {
+
+    .mdc-text-field--outlined .mdc-notched-outline__leading,
+    .mdc-text-field--outlined .mdc-notched-outline__notch,
+    .mdc-text-field--outlined .mdc-notched-outline__trailing {
+      border-color: var(--color-primary) !important;
+      border-width: 2px !important;
+    }
+
+    .mat-mdc-form-field-icon-prefix,
+    .mat-mdc-form-field-icon-suffix {
+      color: var(--color-primary) !important;
     }
   }
 }
 
-// Additional Material form field styling
-.mat-form-field-appearance-outline {
-  .mat-form-field-outline {
-    border-radius: $radius-md !important;
-  }
-  
-  .mat-form-field-outline-start {
-    border-radius: $radius-md 0 0 $radius-md !important;
-  }
-  
-  .mat-form-field-outline-end {
-    border-radius: 0 $radius-md $radius-md 0 !important;
-  }
+.mat-mdc-input-element {
+  color: var(--color-text-primary) !important;
+  caret-color: var(--color-primary) !important;
+}
+
+.mat-mdc-form-field-label {
+  color: var(--color-text-muted) !important;
 }
 
 /* Material Dialog Enhancements */
 .mat-mdc-dialog-container,
 .mat-dialog-container {
+  --mdc-dialog-container-color: var(--color-bg-card) !important;
   border-radius: $radius-xl !important;
-  box-shadow: $shadow-xl !important;
-  max-width: 95vw !important;
-  overflow: hidden !important;
-  
-  @media (min-width: $breakpoint-md) {
-    max-width: 90vw !important;
-  }
-  
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+
   .mdc-dialog__surface {
     border-radius: $radius-xl !important;
-    overflow: hidden !important;
-  }
-  
-  .mat-mdc-dialog-surface {
-    border-radius: $radius-xl !important;
-    overflow: hidden !important;
+    background-color: var(--color-bg-card) !important;
   }
 }
 
-.cdk-overlay-pane {
-  .mat-mdc-dialog-container {
-    border-radius: $radius-xl !important;
-    overflow: hidden !important;
-  }
+.mat-mdc-dialog-title {
+  color: var(--color-text-primary) !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  border-bottom: 1px solid var(--color-border);
+  padding: 24px !important;
 }
 
-.mat-mdc-dialog-title,
-.mat-dialog-title {
-  padding: 20px 16px 14px !important;
-  margin: 0 !important;
-  
-  @media (min-width: $breakpoint-sm) {
-    padding: 24px 24px 16px !important;
-  }
+.mat-mdc-dialog-content {
+  padding: 24px !important;
+  color: var(--color-text-secondary) !important;
 }
 
-.mat-mdc-dialog-content,
-.mat-dialog-content {
-  padding: 0 16px 20px !important;
-  
-  @media (min-width: $breakpoint-sm) {
-    padding: 0 24px 24px !important;
-  }
+.mat-mdc-dialog-actions {
+  padding: 16px 24px !important;
+  border-top: 1px solid var(--color-border);
+  gap: 12px;
 }
 
-.mat-mdc-dialog-actions,
-.mat-dialog-actions {
-  padding: 14px 16px !important;
-  
-  @media (min-width: $breakpoint-sm) {
-    padding: 16px 24px !important;
-  }
+/* Material Icon Enhancements */
+.mat-icon {
+  vertical-align: middle;
 }
 
-/* Material Chip Enhancements */
-.mat-mdc-chip {
-  border-radius: $radius-full !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-}
-
-// ============================================================================
-// CDK OVERLAY FIXES
-// ============================================================================
-
-.cdk-overlay-container {
-  z-index: 1000;
-  position: fixed;
-}
-
-.cdk-overlay-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-  backdrop-filter: blur(2px);
-}
-
-.cdk-overlay-pane {
-  position: absolute;
-  pointer-events: auto;
-  box-sizing: border-box;
-  z-index: 1000;
-}
-
-.mat-mdc-select-panel {
-  max-height: 256px !important;
-  min-width: 100% !important;
-  z-index: 1001 !important;
+/* Material List Enhancements */
+.mat-mdc-list-item {
+  color: var(--color-text-primary) !important;
   border-radius: $radius-md !important;
-  box-shadow: $shadow-lg !important;
+  margin-bottom: 4px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
 }
 
 // ============================================================================
 // UTILITY CLASSES
 // ============================================================================
 
+/* Text Colors */
+.text-primary {
+  color: var(--color-primary) !important;
+}
+
+.text-secondary {
+  color: var(--color-secondary) !important;
+}
+
+.text-accent {
+  color: var(--color-accent) !important;
+}
+
+.text-danger {
+  color: var(--color-danger) !important;
+}
+
+.text-muted {
+  color: var(--color-text-muted) !important;
+}
+
+.text-white {
+  color: #fff !important;
+}
+
+/* Backgrounds */
+.bg-card {
+  background-color: var(--color-bg-card) !important;
+}
+
+.bg-main {
+  background-color: var(--color-bg-main) !important;
+}
+
 /* Spacing Utilities */
-.p-xs { padding: $spacing-xs !important; }
-.p-sm { padding: $spacing-sm !important; }
-.p-md { padding: $spacing-md !important; }
-.p-lg { padding: $spacing-lg !important; }
-.p-xl { padding: $spacing-xl !important; }
-
-.m-xs { margin: $spacing-xs !important; }
-.m-sm { margin: $spacing-sm !important; }
-.m-md { margin: $spacing-md !important; }
-.m-lg { margin: $spacing-lg !important; }
-.m-xl { margin: $spacing-xl !important; }
-
-.mt-xs { margin-top: $spacing-xs !important; }
-.mt-sm { margin-top: $spacing-sm !important; }
-.mt-md { margin-top: $spacing-md !important; }
-.mt-lg { margin-top: $spacing-lg !important; }
-.mt-xl { margin-top: $spacing-xl !important; }
-
-.mb-xs { margin-bottom: $spacing-xs !important; }
-.mb-sm { margin-bottom: $spacing-sm !important; }
-.mb-md { margin-bottom: $spacing-md !important; }
-.mb-lg { margin-bottom: $spacing-lg !important; }
-.mb-xl { margin-bottom: $spacing-xl !important; }
-
-/* Display Utilities */
-.hidden-xs { 
-  @media (max-width: $breakpoint-xs) { display: none !important; } 
-}
-.hidden-sm { 
-  @media (max-width: $breakpoint-sm) { display: none !important; } 
-}
-.hidden-md { 
-  @media (max-width: $breakpoint-md) { display: none !important; } 
+.p-xs {
+  padding: $spacing-xs !important;
 }
 
-/* Text Utilities */
-.text-center { text-align: center !important; }
-.text-left { text-align: left !important; }
-.text-right { text-align: right !important; }
+.p-sm {
+  padding: $spacing-sm !important;
+}
 
-.font-bold { font-weight: 700 !important; }
-.font-semibold { font-weight: 600 !important; }
-.font-medium { font-weight: 500 !important; }
+.p-md {
+  padding: $spacing-md !important;
+}
+
+.p-lg {
+  padding: $spacing-lg !important;
+}
+
+.p-xl {
+  padding: $spacing-xl !important;
+}
+
+.m-xs {
+  margin: $spacing-xs !important;
+}
+
+.m-sm {
+  margin: $spacing-sm !important;
+}
+
+.m-md {
+  margin: $spacing-md !important;
+}
+
+.m-lg {
+  margin: $spacing-lg !important;
+}
+
+.m-xl {
+  margin: $spacing-xl !important;
+}
+
+.mt-md {
+  margin-top: $spacing-md !important;
+}
+
+.mb-md {
+  margin-bottom: $spacing-md !important;
+}
+
+.mb-lg {
+  margin-bottom: $spacing-lg !important;
+}
 
 /* Flexbox Utilities */
-.flex { display: flex !important; }
-.flex-col { flex-direction: column !important; }
-.items-center { align-items: center !important; }
-.justify-center { justify-content: center !important; }
-.justify-between { justify-content: space-between !important; }
-.gap-xs { gap: $spacing-xs !important; }
-.gap-sm { gap: $spacing-sm !important; }
-.gap-md { gap: $spacing-md !important; }
-.gap-lg { gap: $spacing-lg !important; }
+.flex {
+  display: flex !important;
+}
+
+.flex-col {
+  flex-direction: column !important;
+}
+
+.flex-row {
+  flex-direction: row !important;
+}
+
+.items-center {
+  align-items: center !important;
+}
+
+.justify-center {
+  justify-content: center !important;
+}
+
+.justify-between {
+  justify-content: space-between !important;
+}
+
+.justify-end {
+  justify-content: flex-end !important;
+}
+
+.gap-sm {
+  gap: $spacing-sm !important;
+}
+
+.gap-md {
+  gap: $spacing-md !important;
+}
+
+.gap-lg {
+  gap: $spacing-lg !important;
+}
+
+/* Grid Utilities */
+.grid {
+  display: grid !important;
+}
+
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+@media (min-width: $breakpoint-md) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .md\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: $breakpoint-lg) {
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
 
 /* Width Utilities */
-.w-full { width: 100% !important; }
-.max-w-screen-sm { max-width: $breakpoint-sm !important; }
-.max-w-screen-md { max-width: $breakpoint-md !important; }
-.max-w-screen-lg { max-width: $breakpoint-lg !important; }
-.max-w-screen-xl { max-width: $breakpoint-xl !important; }
-
-// ============================================================================
-// COMMON PATTERNS
-// ============================================================================
-
-/* Empty State */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-3xl $spacing-lg;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.54);
-  
-  mat-icon {
-    font-size: 64px;
-    width: 64px;
-    height: 64px;
-    margin-bottom: $spacing-lg;
-    opacity: 0.3;
-  }
-  
-  h2 {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 $spacing-sm 0;
-    color: rgba(0, 0, 0, 0.87);
-  }
-  
-  p {
-    font-size: 14px;
-    margin: 0 0 $spacing-md 0;
-  }
-  
-  small {
-    font-size: 12px;
-    opacity: 0.7;
-  }
+.w-full {
+  width: 100% !important;
 }
 
-/* Loading State */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-3xl;
-  
-  p {
-    margin-top: $spacing-md;
-    color: rgba(0, 0, 0, 0.54);
-  }
+/* Typography */
+.font-bold {
+  font-weight: 700 !important;
 }
 
-/* Responsive Grid */
-.responsive-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: $spacing-md;
-  
-  @media (min-width: $breakpoint-sm) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (min-width: $breakpoint-lg) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.font-semibold {
+  font-weight: 600 !important;
 }
 
-// ============================================================================
-// SCROLLBAR STYLING
-// ============================================================================
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.text-center {
+  text-align: center !important;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: $radius-sm;
+.text-right {
+  text-align: right !important;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: $radius-sm;
-  
-  &:hover {
-    background: #a8a8a8;
-  }
+.uppercase {
+  text-transform: uppercase !important;
 }
 
 // ============================================================================
@@ -441,6 +562,7 @@ html, body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -448,83 +570,210 @@ html, body {
 }
 
 .fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
-// ============================================================================
-// TOAST NOTIFICATION STYLES
-// ============================================================================
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
 
-// Toast success
-.toast-success {
-  .mdc-snackbar__surface {
-    background-color: #10b981 !important;
-    color: white !important;
-  }
-  
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-  }
-  
-  .mat-mdc-button {
-    color: white !important;
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-// Toast error
-.toast-error {
-  .mdc-snackbar__surface {
-    background-color: #ef4444 !important;
-    color: white !important;
+.slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+/* Page Transition Wrapper */
+.page-transition-wrapper {
+  animation: pageSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-  }
-  
-  .mat-mdc-button {
-    color: white !important;
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-// Toast warning
-.toast-warning {
-  .mdc-snackbar__surface {
-    background-color: #f59e0b !important;
-    color: white !important;
-  }
-  
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-  }
-  
-  .mat-mdc-button {
-    color: white !important;
+/* Micro-interactions */
+.hover-glow {
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 0 20px var(--color-primary-glow) !important;
+    border-color: var(--color-primary) !important;
   }
 }
 
-// Toast info
-.toast-info {
-  .mdc-snackbar__surface {
-    background-color: #3b82f6 !important;
-    color: white !important;
-  }
-  
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-  }
-  
-  .mat-mdc-button {
-    color: white !important;
+.click-scale {
+  transition: transform 0.1s ease;
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 
 // ============================================================================
-// PRINT STYLES
+// CUSTOM COMPONENT STYLES
 // ============================================================================
 
-@media print {
-  .no-print {
-    display: none !important;
+/* Stats Card */
+.stats-card {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  }
+
+  .stats-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin: 8px 0;
+    letter-spacing: -0.02em;
+  }
+
+  .stats-label {
+    color: var(--color-text-muted);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .stats-icon {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    opacity: 0.1;
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: var(--color-text-primary);
+  }
+}
+
+/* Activity Feed Item */
+.activity-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+  }
+
+  .activity-content {
+    flex: 1;
+
+    .activity-title {
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .activity-date {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+  }
+
+  .activity-amount {
+    font-weight: 700;
+
+    &.positive {
+      color: var(--color-accent);
+    }
+
+    &.negative {
+      color: var(--color-danger);
+    }
+  }
+}
+
+// ============================================================================
+// TOAST NOTIFICATION STYLES - DARK MODE
+// ============================================================================
+
+.toast-container .ngx-toastr {
+  background-color: var(--color-bg-card) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  border-radius: $radius-md !important;
+
+  &.toast-success {
+    border-left: 4px solid var(--color-accent) !important;
+  }
+
+  &.toast-error {
+    border-left: 4px solid var(--color-danger) !important;
+  }
+
+  &.toast-warning {
+    border-left: 4px solid #f59e0b !important;
+  }
+
+  &.toast-info {
+    border-left: 4px solid var(--color-primary) !important;
+  }
+}
+
+// ============================================================================
+// NAVBAR USER BUTTON — Global MDC fix
+// Angular Material renders mat-button internals outside component shadow scope,
+// so ::ng-deep in navbar.scss doesn't reach them. Apply globally here.
+// ============================================================================
+
+.user-menu-button.mat-mdc-button,
+.user-menu-button.mdc-button,
+button.user-menu-button {
+  height: 42px !important;
+  max-height: 42px !important;
+  min-height: 42px !important;
+  line-height: 42px !important;
+  padding: 0 10px 0 4px !important;
+  border-radius: 24px !important;
+  vertical-align: middle;
+
+  // The MDC label wrapper MUST be flex so children stay in a row
+  .mdc-button__label {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    height: 100% !important;
+    line-height: 1 !important;
+    overflow: hidden;
   }
 }

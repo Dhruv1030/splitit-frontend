@@ -1,0 +1,198 @@
+<div class="expense-detail-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading expense details...</p>
+  </div>
+
+  <!-- Expense Details -->
+  <div *ngIf="!loading && expense" class="expense-content">
+    <!-- Header with Back Button -->
+    <div class="expense-header">
+      <button mat-icon-button (click)="onBack()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="expense-title">{{ expense.description }}</h1>
+      <div class="header-actions">
+        <button mat-icon-button [matMenuTriggerFor]="menu" *ngIf="canEditOrDelete()">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="onEdit()">
+            <mat-icon>edit</mat-icon>
+            <span>Edit Expense</span>
+          </button>
+          <button mat-menu-item (click)="onDelete()" class="delete-action">
+            <mat-icon>delete</mat-icon>
+            <span>Delete Expense</span>
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+
+    <!-- Main Info Card -->
+    <mat-card class="info-card">
+      <mat-card-content>
+        <div class="info-grid">
+          <!-- Amount -->
+          <div class="info-item featured">
+            <div class="info-icon">
+              <mat-icon>payments</mat-icon>
+            </div>
+            <div class="info-content">
+              <div class="info-label">Total Amount</div>
+              <div class="info-value amount">
+                {{ expense.amount | currency:'CAD':'symbol-narrow':'1.2-2' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Category -->
+          <div class="info-item">
+            <div class="info-icon">
+              <mat-icon>{{ getCategoryIcon(expense.category) }}</mat-icon>
+            </div>
+            <div class="info-content">
+              <div class="info-label">Category</div>
+              <div class="info-value">{{ expense.category }}</div>
+            </div>
+          </div>
+
+          <!-- Date -->
+          <div class="info-item">
+            <div class="info-icon">
+              <mat-icon>calendar_today</mat-icon>
+            </div>
+            <div class="info-content">
+              <div class="info-label">Date</div>
+              <div class="info-value">
+                {{ (expense.date || expense.createdAt) | date: 'MMM d, y' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Group -->
+          <div class="info-item" *ngIf="group">
+            <div class="info-icon">
+              <mat-icon>group</mat-icon>
+            </div>
+            <div class="info-content">
+              <div class="info-label">Group</div>
+              <div class="info-value">{{ group.name }}</div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Paid By Card -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>account_circle</mat-icon>
+        <mat-card-title>Paid By</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="paid-by-info">
+          <div class="user-chip">
+            <mat-icon>person</mat-icon>
+            <span>{{ expense.paidByName || expense.paidBy }}</span>
+          </div>
+          <mat-chip class="split-type-chip">
+            {{ getSplitTypeLabel(expense.splitType) }}
+          </mat-chip>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Split Breakdown Card -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>call_split</mat-icon>
+        <mat-card-title>Split Breakdown</mat-card-title>
+        <div class="header-subtitle">
+          {{ expense.participants?.length || 0 }} participants
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="expense.participants && expense.participants.length > 0" class="participants-list">
+          <div *ngFor="let participant of expense.participants" class="participant-item">
+            <div class="participant-info">
+              <mat-icon class="participant-icon">person_outline</mat-icon>
+              <div class="participant-details">
+                <div class="participant-name">
+                  {{ getParticipantName(participant.userId) }}
+                </div>
+                <div class="participant-status" [class.paid]="participant.paid">
+                  <mat-icon>{{ participant.paid ? 'check_circle' : 'schedule' }}</mat-icon>
+                  <span>{{ participant.paid ? 'Settled' : 'Pending' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="participant-amount">
+              {{ expense.currency }} {{ participant.amount.toFixed(2) }}
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <!-- Total Verification -->
+          <div class="total-row">
+            <div class="total-label">
+              <strong>Total Split</strong>
+            </div>
+            <div class="total-amount">
+              <strong>{{ getTotalParticipantsAmount() | currency:'CAD':'symbol-narrow':'1.2-2' }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!expense.participants || expense.participants.length === 0" class="empty-state">
+          <mat-icon>info</mat-icon>
+          <p>No split information available</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Who Owes Whom Card -->
+    <mat-card class="section-card owes-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>swap_horiz</mat-icon>
+        <mat-card-title>Who Owes Whom</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="expense.participants && expense.participants.length > 0" class="owes-list">
+          <div *ngFor="let participant of expense.participants" class="owes-item">
+            <div *ngIf="participant.userId !== expense.paidBy" class="owes-info">
+              <mat-icon class="owes-icon">trending_flat</mat-icon>
+              <span class="owes-text">
+                <strong>{{ getParticipantName(participant.userId) }}</strong>
+                owes
+                <strong>{{ expense.paidByName || expense.paidBy }}</strong>
+              </span>
+              <span class="owes-amount">
+                {{ participant.amount | currency:'CAD':'symbol-narrow':'1.2-2' }}
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="expense.paidBy === currentUserId" class="note-box">
+            <mat-icon>info</mat-icon>
+            <span>You paid this expense and are owed by the participants above.</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Action Buttons (Bottom) -->
+    <div class="action-buttons" *ngIf="canEditOrDelete()">
+      <button mat-raised-button color="primary" (click)="onEdit()">
+        <mat-icon>edit</mat-icon>
+        Edit Expense
+      </button>
+      <button mat-raised-button color="warn" (click)="onDelete()">
+        <mat-icon>delete</mat-icon>
+        Delete Expense
+      </button>
+    </div>
+  </div>
+</div>

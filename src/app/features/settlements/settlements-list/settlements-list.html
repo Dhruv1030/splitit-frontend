@@ -33,10 +33,10 @@
       <mat-tab>
         <ng-template mat-tab-label>
           <mat-icon class="tab-icon">schedule</mat-icon>
-          Pending ({{ pendingSettlements.length }})
+          Pending ({{ settlementSuggestions.length }})
         </ng-template>
 
-        @if (pendingSettlements.length === 0) {
+        @if (settlementSuggestions.length === 0) {
           <mat-card class="empty-state">
             <mat-icon>check_circle</mat-icon>
             <h2>No pending settlements</h2>
@@ -44,42 +44,32 @@
           </mat-card>
         } @else {
           <div class="settlements-list">
-            @for (settlement of pendingSettlements; track settlement.id) {
-              <mat-card class="settlement-card pending" (click)="onSettlementClick(settlement)">
+            @for (suggestion of settlementSuggestions; track $index) {
+              <mat-card class="settlement-card pending">
                 <div class="settlement-header">
                   <div class="settlement-icon">
-                    <mat-icon>payments</mat-icon>
+                    <mat-icon>arrow_forward</mat-icon>
                   </div>
                   <div class="settlement-info">
                     <div class="settlement-title">
-                      {{ settlement.payerName || settlement.payerId }}
+                      {{ suggestion.payerName }}
                       <mat-icon class="arrow-icon">arrow_forward</mat-icon>
-                      {{ settlement.payeeName || settlement.payeeId }}
+                      {{ suggestion.payeeName }}
                     </div>
                     <div class="settlement-subtitle">
-                      <mat-icon class="small-icon">group</mat-icon>
-                      {{ getGroupName(settlement.groupId) }}
+                      <span>Needs to pay</span>
                     </div>
                   </div>
                   <div class="settlement-amount">
-                    {{ formatCurrency(settlement.amount, settlement.currency) }}
+                    {{ formatCurrency(suggestion.amount, suggestion.currency) }}
                   </div>
                 </div>
 
                 <div class="settlement-details">
                   <div class="detail-row">
-                    <mat-icon class="small-icon">calendar_today</mat-icon>
-                    <span>Created {{ formatDate(settlement.createdAt) }}</span>
+                    <mat-icon class="small-icon">info</mat-icon>
+                    <span>Click "Settle Up" in the group to record this payment</span>
                   </div>
-                  @if (settlement.notes) {
-                    <div class="detail-row">
-                      <mat-icon class="small-icon">note</mat-icon>
-                      <span>{{ settlement.notes }}</span>
-                    </div>
-                  }
-                  <mat-chip [color]="getStatusColor(settlement.status)">
-                    {{ settlement.status }}
-                  </mat-chip>
                 </div>
               </mat-card>
             }

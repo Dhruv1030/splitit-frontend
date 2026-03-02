@@ -40,3 +40,13 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Sensitive environment files - DO NOT commit production secrets
+src/environments/environment.prod.ts
+
+# Secret/credential files
+.env
+.env.*
+*.key
+*.pem
+secrets.json

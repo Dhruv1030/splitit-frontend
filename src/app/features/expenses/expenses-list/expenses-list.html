@@ -10,17 +10,21 @@
       <h3>
         <mat-icon>filter_list</mat-icon>
         Filters
-        <span *ngIf="activeFiltersCount > 0" class="filter-badge">{{ activeFiltersCount }}</span>
+        @if (activeFiltersCount > 0) {
+        <span class="filter-badge">{{ activeFiltersCount }}</span>
+        }
       </h3>
       <div class="filter-actions">
         <button mat-button color="accent" (click)="toggleAdvancedFilters()" class="advanced-toggle">
           <mat-icon>{{ showAdvancedFilters ? 'expand_less' : 'expand_more' }}</mat-icon>
           {{ showAdvancedFilters ? 'Hide' : 'Show' }} Advanced
         </button>
-        <button mat-button color="warn" (click)="clearAllFilters()" *ngIf="activeFiltersCount > 0">
+        @if (activeFiltersCount > 0) {
+        <button mat-button color="warn" (click)="clearAllFilters()">
           <mat-icon>clear</mat-icon>
           Clear All
         </button>
+        }
       </div>
     </div>
 
@@ -28,8 +32,7 @@
     <div class="filters">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search expenses</mat-label>
-        <input matInput [(ngModel)]="searchQuery" (input)="onSearchChange()" 
-               placeholder="Search by description">
+        <input matInput [(ngModel)]="searchQuery" (input)="onSearchChange()" placeholder="Search by description">
         <mat-icon matPrefix>search</mat-icon>
       </mat-form-field>
 
@@ -38,7 +41,7 @@
         <mat-select [(ngModel)]="selectedGroup" (selectionChange)="onGroupChange()">
           <mat-option value="all">All Groups</mat-option>
           @for (group of groups; track group.id) {
-            <mat-option [value]="group.id">{{ group.name }}</mat-option>
+          <mat-option [value]="group.id">{{ group.name }}</mat-option>
           }
         </mat-select>
         <mat-icon matPrefix>group</mat-icon>
@@ -49,7 +52,7 @@
         <mat-select [(ngModel)]="selectedCategory" (selectionChange)="onCategoryChange()">
           <mat-option value="all">All Categories</mat-option>
           @for (category of categories; track category) {
-            <mat-option [value]="category">{{ category }}</mat-option>
+          <mat-option [value]="category">{{ category }}</mat-option>
           }
         </mat-select>
         <mat-icon matPrefix>category</mat-icon>
@@ -65,7 +68,7 @@
           <mat-select [(ngModel)]="selectedSplitType" (selectionChange)="onSplitTypeChange()">
             <mat-option value="all">All Split Types</mat-option>
             @for (splitType of splitTypes; track splitType) {
-              <mat-option [value]="splitType">{{ splitType }}</mat-option>
+            <mat-option [value]="splitType">{{ splitType }}</mat-option>
             }
           </mat-select>
           <mat-icon matPrefix>splitscreen</mat-icon>
@@ -78,12 +81,7 @@
             Amount Range: ${{ currentMinAmount }} - ${{ currentMaxAmount }}
           </label>
           <div class="slider-container">
-            <mat-slider
-              [min]="minAmount"
-              [max]="maxAmount"
-              [step]="1"
-              discrete
-              [displayWith]="formatSliderValue">
+            <mat-slider [min]="minAmount" [max]="maxAmount" [step]="1" discrete [displayWith]="formatSliderValue">
               <input matSliderStartThumb [(ngModel)]="currentMinAmount" (input)="onAmountRangeChange()">
               <input matSliderEndThumb [(ngModel)]="currentMaxAmount" (input)="onAmountRangeChange()">
             </mat-slider>
@@ -93,9 +91,7 @@
         <!-- Created By Me Toggle -->
         <div class="toggle-filter">
           <mat-chip-set>
-            <mat-chip
-              [highlighted]="createdByMe"
-              (click)="createdByMe = !createdByMe; onCreatedByMeChange()">
+            <mat-chip [highlighted]="createdByMe" (click)="createdByMe = !createdByMe; onCreatedByMeChange()">
               <mat-icon>person</mat-icon>
               Expenses I Created
             </mat-chip>
@@ -112,61 +108,61 @@
 
   <!-- Loading State -->
   @if (loading) {
-    <div class="expenses-grid">
-      <app-skeleton-loader type="expense-card" [count]="6"></app-skeleton-loader>
-    </div>
+  <div class="expenses-grid">
+    <app-skeleton-loader type="expense-card" [count]="6"></app-skeleton-loader>
+  </div>
   }
 
   <!-- Empty State -->
   @else if (filteredExpenses.length === 0) {
-    <mat-card class="empty-state">
-      <mat-icon>receipt_long</mat-icon>
-      <h2>No expenses found</h2>
-      <p>{{ searchQuery || selectedGroup !== 'all' || selectedCategory !== 'all' 
-          ? 'Try adjusting your filters' 
-          : 'Start by creating an expense in a group' }}</p>
-    </mat-card>
+  <mat-card class="empty-state">
+    <mat-icon>receipt_long</mat-icon>
+    <h2>No expenses found</h2>
+    <p>{{ searchQuery || selectedGroup !== 'all' || selectedCategory !== 'all'
+      ? 'Try adjusting your filters'
+      : 'Start by creating an expense in a group' }}</p>
+  </mat-card>
   }
 
   <!-- Expenses List -->
   @else {
-    <div class="expenses-grid">
-      @for (expense of filteredExpenses; track expense.id) {
-        <mat-card class="expense-card" (click)="onExpenseClick(expense)">
-          <mat-card-header>
-            <div class="expense-icon" [class]="'category-' + expense.category.toLowerCase()">
-              <mat-icon>{{ getCategoryIcon(expense.category) }}</mat-icon>
-            </div>
-            <div class="expense-header-content">
-              <mat-card-title>{{ expense.description }}</mat-card-title>
-              <mat-card-subtitle>
-                <mat-icon class="small-icon">group</mat-icon>
-                {{ getGroupName(expense.groupId) }}
-              </mat-card-subtitle>
-            </div>
-            <div class="expense-amount">
-              {{ formatCurrency(expense.amount, expense.currency) }}
-            </div>
-          </mat-card-header>
+  <div class="expenses-grid">
+    @for (expense of filteredExpenses; track expense.id) {
+    <mat-card class="expense-card" (click)="onExpenseClick(expense)">
+      <mat-card-header>
+        <div class="expense-icon" [class]="'category-' + expense.category.toLowerCase()">
+          <mat-icon>{{ getCategoryIcon(expense.category) }}</mat-icon>
+        </div>
+        <div class="expense-header-content">
+          <mat-card-title>{{ expense.description }}</mat-card-title>
+          <mat-card-subtitle>
+            <mat-icon class="small-icon">group</mat-icon>
+            {{ getGroupName(expense.groupId) }}
+          </mat-card-subtitle>
+        </div>
+        <div class="expense-amount">
+          {{ formatCurrency(expense.amount, expense.currency) }}
+        </div>
+      </mat-card-header>
 
-          <mat-card-content>
-            <div class="expense-details">
-              <div class="detail-item">
-                <mat-icon class="small-icon">person</mat-icon>
-                <span>Paid by {{ expense.paidByName || expense.paidBy }}</span>
-              </div>
-              <div class="detail-item">
-                <mat-icon class="small-icon">calendar_today</mat-icon>
-                <span>{{ formatDate(expense.createdAt) }}</span>
-              </div>
-              <div class="detail-item">
-                <mat-chip class="split-chip">{{ expense.splitType }}</mat-chip>
-                <mat-chip class="category-chip">{{ expense.category }}</mat-chip>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      }
-    </div>
+      <mat-card-content>
+        <div class="expense-details">
+          <div class="detail-item">
+            <mat-icon class="small-icon">person</mat-icon>
+            <span>Paid by {{ expense.paidByName || expense.paidBy }}</span>
+          </div>
+          <div class="detail-item">
+            <mat-icon class="small-icon">calendar_today</mat-icon>
+            <span>{{ formatDate(expense.createdAt) }}</span>
+          </div>
+          <div class="detail-item">
+            <mat-chip class="split-chip">{{ expense.splitType }}</mat-chip>
+            <mat-chip class="category-chip">{{ expense.category }}</mat-chip>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    }
+  </div>
   }
 </div>

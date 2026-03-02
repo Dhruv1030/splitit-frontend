@@ -1,5 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, DestroyRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,13 +9,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { GroupService } from '../../core/services/group.service';
 import { ExpenseService } from '../../core/services/expense.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthStore } from '../../core/store/auth.store';
 import { ToastService } from '../../core/services/toast.service';
-import { ActivityService } from '../../core/services/activity.service';
 import { Group } from '../../core/models/group.model';
 import { Expense } from '../../core/models/expense.model';
-import { Activity } from '../../core/models/activity.model';
+import { ExpenseChartComponent } from './expense-chart/expense-chart.component';
+import { ExpenseDonutComponent } from './expense-donut/expense-donut.component';
 import { ActivityFeedComponent } from '../activities/activity-feed/activity-feed';
+import { SkeletonLoaderComponent } from '../../shared/skeleton-loader/skeleton-loader';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 
 interface DashboardStats {
   totalGroups: number;
@@ -36,24 +39,31 @@ interface DashboardStats {
     MatProgressSpinnerModule,
     MatDialogModule,
     ActivityFeedComponent,
+    ExpenseChartComponent,
+    ExpenseDonutComponent,
+    SkeletonLoaderComponent,
+    EmptyStateComponent,
+    CurrencyPipe,
+    DatePipe,
+    NgClass,
   ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit {
   private groupService = inject(GroupService);
   private expenseService = inject(ExpenseService);
-  private authService = inject(AuthService);
-  private activityService = inject(ActivityService);
+  protected readonly authStore = inject(AuthStore);
   private dialog = inject(MatDialog);
   private toastService = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   // Expose Math to template
   Math = Math;
 
   loading = true;
-  userName = '';
-  userId = '';
   stats: DashboardStats = {
     totalGroups: 0,
     totalExpenses: 0,
@@ -62,72 +72,76 @@ export class DashboardComponent implements OnInit {
     netBalance: 0,
   };
   recentExpenses: Expense[] = [];
+  expenses: Expense[] = [];
   groups: Group[] = [];
+  private loadCounter = 0;
 
   ngOnInit(): void {
-    const currentUser = this.authService.getCurrentUserValue();
-    this.userName = currentUser?.name || 'User';
-    this.userId = currentUser?.id || '';
     this.loadDashboardData();
   }
 
   loadDashboardData(): void {
     this.loading = true;
+    this.loadCounter = 0;
+    this.cdr.markForCheck();
 
     // Load groups
-    this.groupService.getUserGroups().subscribe({
-      next: (response) => {
-        this.groups = response.data;
-        this.stats.totalGroups = this.groups.length;
-        this.checkLoadingComplete();
-      },
-      error: (error) => {
-        console.error('Error loading groups:', error);
-        this.checkLoadingComplete();
-      },
-    });
+    this.groupService.getUserGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.groups = response?.data || [];
+          this.stats = { ...this.stats, totalGroups: this.groups.length };
+          this.checkLoadingComplete();
+        },
+        error: () => {
+          this.groups = [];
+          this.checkLoadingComplete();
+        },
+      });
 
-    // Load expenses using the working /my-expenses endpoint
-    this.expenseService.getUserExpenses().subscribe({
-      next: (response) => {
-        const expenses = response.data;
-        this.stats.totalExpenses = expenses.length;
-        // Get last 5 expenses
-        this.recentExpenses = expenses.slice(0, 5);
-        this.checkLoadingComplete();
-      },
-      error: (error) => {
-        console.error('Error loading expenses:', error);
-        this.checkLoadingComplete();
-      },
-    });
+    // Load expenses
+    this.expenseService.getUserExpenses()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.expenses = response?.data || [];
+          this.recentExpenses = this.expenses.slice(0, 5);
+          this.stats = { ...this.stats, totalExpenses: this.expenses.length };
+          this.checkLoadingComplete();
+        },
+        error: () => {
+          this.expenses = [];
+          this.checkLoadingComplete();
+        },
+      });
 
     // Load balance
-    this.expenseService.getOverallBalance().subscribe({
-      next: (response) => {
-        const balance = response.data;
-        this.stats.amountOwed = balance.totalOwed || 0;
-        this.stats.amountOwing = balance.totalOwing || 0;
-        // Calculate net balance (positive = you're owed, negative = you owe)
-        this.stats.netBalance = this.stats.amountOwing - this.stats.amountOwed;
-        this.checkLoadingComplete();
-      },
-      error: (error) => {
-        console.error('Error loading balance:', error);
-        // Set default values on error (e.g., network issues)
-        this.stats.amountOwed = 0;
-        this.stats.amountOwing = 0;
-        this.stats.netBalance = 0;
-        this.checkLoadingComplete();
-      },
-    });
+    this.expenseService.getOverallBalance()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const balance = response?.data || { totalOwed: 0, totalOwing: 0, netBalance: 0 };
+          this.stats = {
+            ...this.stats,
+            amountOwed: balance.totalOwed || 0,
+            amountOwing: balance.totalOwing || 0,
+            netBalance: (balance.totalOwing || 0) - (balance.totalOwed || 0),
+          };
+          this.checkLoadingComplete();
+        },
+        error: () => {
+          this.stats = { ...this.stats, amountOwed: 0, amountOwing: 0, netBalance: 0 };
+          this.checkLoadingComplete();
+        },
+      });
   }
 
-  private loadCounter = 0;
   private checkLoadingComplete(): void {
     this.loadCounter++;
     if (this.loadCounter >= 3) {
       this.loading = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -152,7 +166,6 @@ export class DashboardComponent implements OnInit {
   }
 
   onAddExpense(): void {
-    // Check if user has at least one group
     if (this.groups.length === 0) {
       this.toastService.info('Please create a group first before adding expenses.');
       return;
@@ -164,14 +177,11 @@ export class DashboardComponent implements OnInit {
         maxWidth: '700px',
         disableClose: false,
         panelClass: 'expense-form-dialog-container',
-        data: {
-          groups: this.groups, // Pass available groups
-        },
+        data: { groups: this.groups },
       });
 
       dialogRef.afterClosed().subscribe((result) => {
         if (result) {
-          // Reload dashboard data after expense creation
           this.loadDashboardData();
         }
       });
@@ -187,7 +197,6 @@ export class DashboardComponent implements OnInit {
 
       dialogRef.afterClosed().subscribe((result) => {
         if (result) {
-          // Reload dashboard data after group creation
           this.loadDashboardData();
         }
       });

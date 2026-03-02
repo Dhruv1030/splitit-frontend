@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Settlement, RecordSettlementRequest } from '../models/settlement.model';
 import { ApiResponse } from '../models/api-response.model';
+import { SettlementSuggestionsResponse, PendingSettlement } from '../models/settlement-suggestion.model';
 
 @Injectable({
   providedIn: 'root',
@@ -36,8 +37,8 @@ export class SettlementService {
   /**
    * Get settlement suggestions for a group (optimized debt settlements)
    */
-  getSettlementSuggestions(groupId: number): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/group/${groupId}/suggestions`);
+  getSettlementSuggestions(groupId: number): Observable<ApiResponse<SettlementSuggestionsResponse>> {
+    return this.http.get<ApiResponse<SettlementSuggestionsResponse>>(`${this.apiUrl}/group/${groupId}/suggestions`);
   }
 
   /**
@@ -58,10 +59,10 @@ export class SettlementService {
   /**
    * Get pending settlements (amounts still owed)
    */
-  getPendingSettlements(groupId?: number): Observable<ApiResponse<any[]>> {
-    const url = groupId 
-      ? `${this.apiUrl}/pending?groupId=${groupId}` 
+  getPendingSettlements(groupId?: number): Observable<ApiResponse<PendingSettlement[]>> {
+    const url = groupId
+      ? `${this.apiUrl}/pending?groupId=${groupId}`
       : `${this.apiUrl}/pending`;
-    return this.http.get<ApiResponse<any[]>>(url);
+    return this.http.get<ApiResponse<PendingSettlement[]>>(url);
   }
 }

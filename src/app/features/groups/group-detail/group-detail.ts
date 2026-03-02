@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -64,6 +65,7 @@ interface GroupDetail {
   ],
   templateUrl: './group-detail.html',
   styleUrls: ['./group-detail.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GroupDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -73,113 +75,131 @@ export class GroupDetailComponent implements OnInit {
   private settlementService = inject(SettlementService);
   private dialog = inject(MatDialog);
   private toastService = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   groupId!: number;
   group: GroupDetail | null = null;
   expenses: Expense[] = [];
   settlements: Settlement[] = [];
-  settlementSuggestions: any[] = []; // Settlement suggestions from backend
+  settlementSuggestions: any[] = [];
   groupBalances: { [userId: string]: number } = {};
   loading = true;
   activeTab = 0;
 
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
-      const groupId = +params['id'];
-      if (groupId) {
-        this.groupId = groupId;
-        this.loadGroupDetails(groupId);
-      }
-    });
+    this.route.params
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const groupId = +params['id'];
+        if (groupId) {
+          this.groupId = groupId;
+          this.loadGroupDetails(groupId);
+        }
+      });
   }
 
   loadGroupDetails(groupId: number): void {
     this.loading = true;
-    this.groupService.getGroup(groupId).subscribe({
-      next: (response) => {
-        this.group = response.data as any;
-        this.loadExpenses(groupId);
-        this.loadGroupBalances(groupId);
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error('Error loading group:', error);
-        this.loading = false;
-      },
-    });
+    this.cdr.markForCheck();
+    this.groupService.getGroup(groupId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.group = response.data as any;
+          this.loadExpenses(groupId);
+          this.loadGroupBalances(groupId);
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+        error: (error: any) => {
+          console.error('Error loading group:', error);
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   loadExpenses(groupId: number): void {
-    this.expenseService.getGroupExpenses(groupId).subscribe({
-      next: (response) => {
-        this.expenses = response.data || [];
-      },
-      error: (error: any) => {
-        console.error('Error loading expenses:', error);
-        this.expenses = [];
-      },
-    });
+    this.expenseService.getGroupExpenses(groupId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.expenses = response.data || [];
+          this.cdr.markForCheck();
+        },
+        error: (error: any) => {
+          console.error('Error loading expenses:', error);
+          this.expenses = [];
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   loadGroupBalances(groupId: number): void {
-    this.expenseService.getGroupBalances(groupId).subscribe({
-      next: (balances: { [userId: string]: number }) => {
-        this.groupBalances = balances;
-      },
-      error: (error: any) => {
-        console.error('Error loading balances:', error);
-      },
-    });
+    this.expenseService.getGroupBalances(groupId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (balances: { [userId: string]: number }) => {
+          this.groupBalances = balances;
+          this.cdr.markForCheck();
+        },
+        error: (error: any) => {
+          console.error('Error loading balances:', error);
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   loadSettlements(groupId: number): void {
-    this.settlementService.getGroupSettlements(groupId).subscribe({
-      next: (response) => {
-        this.settlements = response.data || [];
-      },
-      error: (error: any) => {
-        console.error('Error loading settlements:', error);
-        this.settlements = [];
-      },
-    });
+    this.settlementService.getGroupSettlements(groupId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.settlements = response.data || [];
+          this.cdr.markForCheck();
+        },
+        error: (error: any) => {
+          console.error('Error loading settlements:', error);
+          this.settlements = [];
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   loadSettlementSuggestions(groupId: number): void {
-    this.settlementService.getSettlementSuggestions(groupId).subscribe({
-      next: (response) => {
-        console.log('Raw settlement response:', response);
-        
-        // Backend returns directly without ApiResponse wrapper:
-        // { suggestions: [...], totalTransactions: 1, groupId: 14 }
-        if ((response as any).suggestions) {
-          this.settlementSuggestions = (response as any).suggestions;
-        } else if (response.data && (response.data as any).suggestions) {
-          // Fallback: if wrapped in ApiResponse
-          this.settlementSuggestions = (response.data as any).suggestions;
-        } else if (Array.isArray(response)) {
-          this.settlementSuggestions = response;
-        } else if (Array.isArray(response.data)) {
-          this.settlementSuggestions = response.data;
-        } else {
+    this.settlementService.getSettlementSuggestions(groupId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if ((response as any).suggestions) {
+            this.settlementSuggestions = (response as any).suggestions;
+          } else if (response.data && (response.data as any).suggestions) {
+            this.settlementSuggestions = (response.data as any).suggestions;
+          } else if (Array.isArray(response)) {
+            this.settlementSuggestions = response;
+          } else if (Array.isArray(response.data)) {
+            this.settlementSuggestions = response.data;
+          } else {
+            this.settlementSuggestions = [];
+          }
+          this.cdr.markForCheck();
+        },
+        error: (error: any) => {
+          console.error('Error loading settlement suggestions:', error);
           this.settlementSuggestions = [];
-        }
-        
-        console.log('Settlement suggestions:', this.settlementSuggestions);
-      },
-      error: (error: any) => {
-        console.error('Error loading settlement suggestions:', error);
-        this.settlementSuggestions = [];
-      },
-    });
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   onTabChange(index: number): void {
     this.activeTab = index;
     if (index === 3 && this.group) {
-      // Settlements tab - load both suggestions and history
       this.loadSettlements(this.group.id);
       this.loadSettlementSuggestions(this.group.id);
     }
+    this.cdr.markForCheck();
   }
 
   onAddExpense(): void {
@@ -197,76 +217,81 @@ export class GroupDetailComponent implements OnInit {
         },
       });
 
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result && this.group) {
-          this.loadExpenses(this.group.id);
-          this.loadGroupBalances(this.group.id);
-          this.loadGroupDetails(this.group.id);
-        }
-      });
+      dialogRef.afterClosed()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((result) => {
+          if (result && this.group) {
+            this.loadExpenses(this.group.id);
+            this.loadGroupBalances(this.group.id);
+            this.loadGroupDetails(this.group.id);
+          }
+        });
     });
   }
 
   onEditGroup(): void {
     if (!this.group) return;
-    
+
     import('../group-form-dialog/group-form-dialog').then((m) => {
       const dialogRef = this.dialog.open(m.GroupFormDialogComponent, {
         width: '600px',
         data: { group: this.group },
       });
 
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result && this.group) {
-          this.loadGroupDetails(this.group.id);
-        }
-      });
+      dialogRef.afterClosed()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((result) => {
+          if (result && this.group) {
+            this.loadGroupDetails(this.group.id);
+          }
+        });
     });
   }
 
   onDeleteGroup(): void {
     if (!this.group) return;
-    
+
     if (confirm(`Are you sure you want to delete "${this.group.name}"? This action cannot be undone.`)) {
-      this.groupService.deleteGroup(this.group.id).subscribe({
-        next: () => {
-          this.toastService.success('Group deleted successfully');
-          this.router.navigate(['/groups']);
-        },
-        error: (error) => {
-          console.error('Error deleting group:', error);
-          this.toastService.error('Failed to delete group. Please try again.');
-        },
-      });
+      this.groupService.deleteGroup(this.group.id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.toastService.success('Group deleted successfully');
+            this.router.navigate(['/groups']);
+          },
+          error: (error) => {
+            console.error('Error deleting group:', error);
+            this.toastService.error('Failed to delete group. Please try again.');
+          },
+        });
     }
   }
 
   onAddMember(): void {
     if (!this.group) return;
 
-    // Dynamically import the add member dialog
     import('../add-member-dialog/add-member-dialog').then((m) => {
       const dialogRef = this.dialog.open(m.AddMemberDialogComponent, {
         width: '600px',
         disableClose: false,
       });
 
-      dialogRef.afterClosed().subscribe((selectedUser) => {
-        if (selectedUser && this.group) {
-          // Check if user is already a member
-          const isAlreadyMember = this.group.members.some(
-            (member) => member.userId === selectedUser.id
-          );
+      dialogRef.afterClosed()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((selectedUser) => {
+          if (selectedUser && this.group) {
+            const isAlreadyMember = this.group.members.some(
+              (member) => member.userId === selectedUser.id
+            );
 
-          if (isAlreadyMember) {
-            this.toastService.warning('This user is already a member of the group');
-            return;
+            if (isAlreadyMember) {
+              this.toastService.warning('This user is already a member of the group');
+              return;
+            }
+
+            this.addMemberToGroup(selectedUser.id);
           }
-
-          // Add the member
-          this.addMemberToGroup(selectedUser.id);
-        }
-      });
+        });
     });
   }
 
@@ -274,70 +299,51 @@ export class GroupDetailComponent implements OnInit {
     if (!this.group) return;
 
     this.loading = true;
+    this.cdr.markForCheck();
 
-    this.groupService.addMember(this.group.id, userId).subscribe({
-      next: (response) => {
-        this.loading = false;
-        // Reload group details to show the new member
-        this.loadGroupDetails(this.group!.id);
-        
-        // Check if email notifications are enabled
-        const emailPrefs = this.getEmailPreferences();
-        if (emailPrefs.groupInvitations) {
-          this.toastService.success('Member added successfully! Invitation email sent.');
-        } else {
+    this.groupService.addMember(this.group.id, userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          this.loadGroupDetails(this.group!.id);
           this.toastService.success('Member added successfully!');
-        }
-      },
-      error: (error) => {
-        console.error('Error adding member:', error);
-        this.loading = false;
-        const errorMessage = error.error?.message || 'Failed to add member';
-        this.toastService.error(errorMessage);
-      },
-    });
-  }
-
-  private getEmailPreferences(): any {
-    const stored = localStorage.getItem('emailPreferences');
-    if (stored) {
-      return JSON.parse(stored);
-    }
-    // Default preferences
-    return {
-      paymentReminders: true,
-      paymentReceived: true,
-      groupInvitations: true,
-      weeklyDigest: true,
-      newExpenseNotifications: true,
-      settlementReminders: true,
-    };
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('Error adding member:', error);
+          this.loading = false;
+          const errorMessage = error.error?.message || 'Failed to add member';
+          this.toastService.error(errorMessage);
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   onRemoveMember(memberId: string): void {
     if (!this.group) return;
-    
+
     if (confirm('Are you sure you want to remove this member?')) {
-      // Note: Backend expects userId as string, but we need to check the actual API
-      // For now, treating memberId as string
       const memberIdNum = parseInt(memberId, 10);
       if (isNaN(memberIdNum)) {
         console.error('Invalid member ID');
         return;
       }
-      
-      this.groupService.removeMember(this.group.id, memberIdNum).subscribe({
-        next: () => {
-          if (this.group) {
-            this.loadGroupDetails(this.group.id);
-            this.toastService.success('Member removed successfully');
-          }
-        },
-        error: (error: any) => {
-          console.error('Error removing member:', error);
-          this.toastService.error('Failed to remove member. Please try again.');
-        },
-      });
+
+      this.groupService.removeMember(this.group.id, memberIdNum)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            if (this.group) {
+              this.loadGroupDetails(this.group.id);
+              this.toastService.success('Member removed successfully');
+            }
+          },
+          error: (error: any) => {
+            console.error('Error removing member:', error);
+            this.toastService.error('Failed to remove member. Please try again.');
+          },
+        });
     }
   }
 
@@ -355,14 +361,15 @@ export class GroupDetailComponent implements OnInit {
         },
       });
 
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result && this.group) {
-          // Refresh group data after settlements
-          this.loadGroupDetails(this.group.id);
-          this.loadGroupBalances(this.group.id);
-          this.loadSettlements(this.group.id);
-        }
-      });
+      dialogRef.afterClosed()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((result) => {
+          if (result && this.group) {
+            this.loadGroupDetails(this.group.id);
+            this.loadGroupBalances(this.group.id);
+            this.loadSettlements(this.group.id);
+          }
+        });
     });
   }
 

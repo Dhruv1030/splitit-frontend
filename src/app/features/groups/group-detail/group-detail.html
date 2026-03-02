@@ -1,12 +1,22 @@
 <div class="group-detail-container">
   <!-- Loading State -->
-  <div *ngIf="loading" class="loading-skeleton">
-    <div class="skeleton-header">
-      <app-skeleton-loader type="text" [count]="1" height="40px" width="60%"></app-skeleton-loader>
-      <app-skeleton-loader type="text" [count]="1" height="20px" width="40%"></app-skeleton-loader>
+  <div *ngIf="loading" class="group-detail-loading fade-in">
+    <div class="skeleton-header mb-lg">
+      <div class="flex items-center gap-md">
+        <app-skeleton-loader type="text" height="40px" width="40px" style="border-radius: 50%"></app-skeleton-loader>
+        <app-skeleton-loader type="text" height="32px" width="250px"></app-skeleton-loader>
+      </div>
+      <app-skeleton-loader type="text" height="16px" width="400px" class="mt-sm"></app-skeleton-loader>
     </div>
+
+    <div class="skeleton-stats-row mb-lg">
+      <app-skeleton-loader type="text" height="100px" width="100%"></app-skeleton-loader>
+      <app-skeleton-loader type="text" height="100px" width="100%"></app-skeleton-loader>
+      <app-skeleton-loader type="text" height="100px" width="100%"></app-skeleton-loader>
+    </div>
+
     <div class="skeleton-tabs">
-      <app-skeleton-loader type="card" [count]="3"></app-skeleton-loader>
+      <app-skeleton-loader type="card" [count]="2"></app-skeleton-loader>
     </div>
   </div>
 
@@ -29,7 +39,7 @@
           <p class="group-description" *ngIf="group.description">{{ group.description }}</p>
         </div>
       </div>
-      
+
       <div class="header-actions">
         <button mat-raised-button color="primary" (click)="onAddExpense()">
           <mat-icon>add</mat-icon>
@@ -97,7 +107,8 @@
               <mat-card-content>
                 <mat-list *ngIf="expenses.length > 0; else noExpenses">
                   <mat-list-item *ngFor="let expense of expenses.slice(0, 5)">
-                    <mat-icon matListItemIcon>{{ expense.category.toLowerCase() === 'food' ? 'restaurant' : 'receipt' }}</mat-icon>
+                    <mat-icon matListItemIcon>{{ expense.category.toLowerCase() === 'food' ? 'restaurant' : 'receipt'
+                      }}</mat-icon>
                     <div matListItemTitle>{{ expense.description }}</div>
                     <div matListItemLine>{{ formatDate(expense.createdAt) }}</div>
                     <div matListItemMeta class="expense-amount">{{ formatCurrency(expense.amount) }}</div>
@@ -244,7 +255,8 @@
           <mat-card class="suggestions-card">
             <mat-card-header>
               <mat-card-title>Who Owes Whom</mat-card-title>
-              <button mat-raised-button color="accent" (click)="onSettleUp()" [disabled]="settlementSuggestions.length === 0">
+              <button mat-raised-button color="accent" (click)="onSettleUp()"
+                [disabled]="settlementSuggestions.length === 0">
                 <mat-icon>account_balance</mat-icon>
                 Settle Up
               </button>
