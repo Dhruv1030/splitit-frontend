@@ -2,8 +2,15 @@
     "navigationFallback": {
         "rewrite": "/index.html",
         "exclude": [
-            "/assets/**",
-            "/*.{css,js,png,jpg,ico,svg,woff,woff2}"
+            "/assets/*",
+            "/*.css",
+            "/*.js",
+            "/*.png",
+            "/*.jpg",
+            "/*.ico",
+            "/*.svg",
+            "/*.woff",
+            "/*.woff2"
         ]
     },
     "globalHeaders": {
