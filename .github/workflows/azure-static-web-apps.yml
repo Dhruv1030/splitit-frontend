@@ -31,11 +31,14 @@ jobs:
       - name: Build Angular app
         run: npx ng build --configuration production
 
-      # Copy build output to root-level 'deploy' folder so it's at a predictable path
+      - name: Debug - list dist output
+        run: find dist -name "index.html" && ls dist/splitit-frontend/browser/ | head -10
+
       - name: Prepare deploy folder
         run: |
           mkdir -p deploy
           cp -r dist/splitit-frontend/browser/. deploy/
+          echo "=== deploy/ contents ===" && ls deploy/ | head -10
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
