@@ -5,12 +5,6 @@
   "projects": {
     "splitit-frontend": {
       "projectType": "application",
-      "i18n": {
-        "sourceLocale": "en-US",
-        "locales": {
-          "es": "src/locale/messages.es.xlf"
-        }
-      },
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss"
@@ -37,9 +31,6 @@
             ],
             "styles": [
               "src/styles.scss"
-            ],
-            "localize": [
-              "es"
             ]
           },
           "configurations": {

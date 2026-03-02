@@ -31,22 +31,13 @@ jobs:
       - name: Build Angular app
         run: npx ng build --configuration production
 
-      - name: Debug - list dist output
-        run: find dist -name "index.html" && ls dist/splitit-frontend/browser/ | head -10
-
-      - name: Prepare deploy folder
-        run: |
-          mkdir -p deploy
-          cp -r dist/splitit-frontend/browser/. deploy/
-          echo "=== deploy/ contents ===" && ls deploy/ | head -10
-
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: 'upload'
-          app_location: 'deploy'
+          app_location: 'dist/splitit-frontend/browser'
           skip_app_build: true
           skip_api_build: true
 
