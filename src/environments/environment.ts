@@ -10,7 +10,7 @@ export const environment = {
   production: false,
 
   // API URL - points to Azure API Gateway
-  apiUrl: 'https://api-gateway.delightfulfield-e71e7e6d.eastus.azurecontainerapps.io',
+  apiUrl: 'https://api-gateway.delightfulfield-e71e7e6d.eastus.azurecontainerapps.io/api',
 
   // API timeout in milliseconds
   apiTimeout: 30000,

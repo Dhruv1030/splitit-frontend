@@ -18,7 +18,7 @@ export const environment = {
   // Backend API URL - MUST BE UPDATED before deployment
   // Example: 'https://api.splitit.com' or 'https://your-backend.herokuapp.com'
   // You can also set this via build-time replacement in angular.json
-  apiUrl: 'https://api-gateway.delightfulfield-e71e7e6d.eastus.azurecontainerapps.io',
+  apiUrl: 'https://api-gateway.delightfulfield-e71e7e6d.eastus.azurecontainerapps.io/api',
 
   // API timeout in milliseconds
   apiTimeout: 30000,
