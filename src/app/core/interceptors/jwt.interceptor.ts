@@ -3,8 +3,22 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
+// Public endpoints that should never receive auth headers
+const PUBLIC_ENDPOINTS = ['/users/register', '/users/login'];
+
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
+
+  // Skip auth headers for public endpoints (register, login)
+  const isPublicEndpoint = PUBLIC_ENDPOINTS.some(endpoint => req.url.includes(endpoint));
+  if (isPublicEndpoint) {
+    return next(req).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
+
   const token = localStorage.getItem('jwt_token');
   const currentUser = localStorage.getItem('current_user');
 
