@@ -9,9 +9,8 @@ export const environment = {
   // Development flag
   production: false,
 
-  // API URL - proxied through proxy.conf.json
-  // Requests to /api/* are forwarded to http://localhost:8080/api/*
-  apiUrl: '/api',
+  // API URL - points to Azure API Gateway
+  apiUrl: 'https://api-gateway.delightfulfield-e71e7e6d.eastus.azurecontainerapps.io',
 
   // API timeout in milliseconds
   apiTimeout: 30000,
