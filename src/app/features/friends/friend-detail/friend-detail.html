@@ -1,0 +1,154 @@
+<div class="friend-detail-container">
+
+  <!-- Back Button -->
+  <button mat-button routerLink="/friends" class="back-btn">
+    <mat-icon>arrow_back</mat-icon>
+    Back to Friends
+  </button>
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading-section">
+      <app-skeleton-loader type="card" [count]="1"></app-skeleton-loader>
+      <app-skeleton-loader type="card" [count]="2"></app-skeleton-loader>
+    </div>
+  }
+
+  @if (!loading && friend) {
+    <!-- Friend Header -->
+    <div class="friend-header">
+      <div class="friend-profile">
+        <div class="friend-avatar-xl">{{ friend.name.charAt(0).toUpperCase() }}</div>
+        <div class="friend-profile-info">
+          <h1 class="friend-name">{{ friend.name }}</h1>
+          <p class="friend-email">{{ friend.email }}</p>
+          @if (friend.phone || friend.phoneNumber) {
+            <p class="friend-phone">{{ friend.phone || friend.phoneNumber }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="balance-card" [class.positive]="netBalance > 0" [class.negative]="netBalance < 0">
+        <div class="balance-label">
+          @if (netBalance > 0) {
+            Owes you
+          } @else if (netBalance < 0) {
+            You owe
+          } @else {
+            Settled up
+          }
+        </div>
+        <div class="balance-amount">
+          @if (netBalance !== 0) {
+            {{ (netBalance > 0 ? netBalance : netBalance * -1) | currency:'CAD':'symbol-narrow':'1.2-2' }}
+          } @else {
+            $0.00
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group class="detail-tabs" animationDuration="200ms">
+
+      <!-- Shared Expenses Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>receipt_long</mat-icon>
+          <span class="tab-label">Shared Expenses ({{ sharedExpenses.length }})</span>
+        </ng-template>
+
+        <div class="tab-content">
+          @if (sharedExpenses.length === 0) {
+            <app-empty-state
+              icon="receipt_long"
+              title="No shared expenses"
+              subtitle="You don't have any shared expenses with this friend yet."
+              [compact]="true">
+            </app-empty-state>
+          } @else {
+            <div class="expense-list">
+              @for (expense of sharedExpenses; track expense.id) {
+                <mat-card class="expense-card" [routerLink]="['/expenses', expense.id]">
+                  <div class="expense-row">
+                    <div class="expense-icon" [class]="'cat-' + (expense.category || 'OTHER').toLowerCase()">
+                      <mat-icon>{{ getCategoryIcon(expense.category || 'OTHER') }}</mat-icon>
+                    </div>
+                    <div class="expense-info">
+                      <div class="expense-description">{{ expense.description }}</div>
+                      <div class="expense-meta">
+                        <span>{{ expense.createdAt | date:'MMM d, yyyy' }}</span>
+                        @if (expense.groupName) {
+                          <span class="dot">·</span>
+                          <span>{{ expense.groupName }}</span>
+                        }
+                        <span class="dot">·</span>
+                        <span>Paid by {{ expense.paidBy === authStore.user()?.id ? 'you' : (expense.paidByName || friend.name) }}</span>
+                      </div>
+                    </div>
+                    <div class="expense-amount">{{ expense.amount | currency:'CAD':'symbol-narrow':'1.2-2' }}</div>
+                  </div>
+                </mat-card>
+              }
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Settlements Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>payments</mat-icon>
+          <span class="tab-label">Settlements ({{ settlements.length }})</span>
+        </ng-template>
+
+        <div class="tab-content">
+          @if (settlements.length === 0) {
+            <app-empty-state
+              icon="payments"
+              title="No settlements"
+              subtitle="No settlement records with this friend yet."
+              [compact]="true">
+            </app-empty-state>
+          } @else {
+            <div class="settlement-list">
+              @for (settlement of settlements; track settlement.id) {
+                <mat-card class="settlement-card">
+                  <div class="settlement-row">
+                    <div class="settlement-icon" [class]="getSettlementStatusClass(settlement.status)">
+                      <mat-icon>
+                        @if (settlement.status === 'COMPLETED') { check_circle }
+                        @else if (settlement.status === 'PENDING') { schedule }
+                        @else { cancel }
+                      </mat-icon>
+                    </div>
+                    <div class="settlement-info">
+                      <div class="settlement-description">
+                        @if (settlement.payerId === authStore.user()?.id) {
+                          You paid {{ friend.name }}
+                        } @else {
+                          {{ friend.name }} paid you
+                        }
+                      </div>
+                      <div class="settlement-meta">
+                        <span>{{ settlement.createdAt | date:'MMM d, yyyy' }}</span>
+                        <span class="dot">·</span>
+                        <mat-chip [class]="getSettlementStatusClass(settlement.status)">
+                          {{ settlement.status }}
+                        </mat-chip>
+                      </div>
+                    </div>
+                    <div class="settlement-amount" [class.positive]="settlement.payerId !== authStore.user()?.id" [class.negative]="settlement.payerId === authStore.user()?.id">
+                      {{ settlement.amount | currency:'CAD':'symbol-narrow':'1.2-2' }}
+                    </div>
+                  </div>
+                </mat-card>
+              }
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  }
+</div>

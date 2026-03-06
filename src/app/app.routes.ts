@@ -80,6 +80,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'friends',
+        loadComponent: () =>
+          import('./features/friends/friends-list/friends-list').then(
+            (m) => m.FriendsListComponent
+          ),
+      },
+      {
+        path: 'friends/:id',
+        loadComponent: () =>
+          import('./features/friends/friend-detail/friend-detail').then(
+            (m) => m.FriendDetailComponent
+          ),
+      },
+      {
         path: 'profile',
         loadComponent: () =>
           import('./features/profile/profile').then((m) => m.ProfileComponent),

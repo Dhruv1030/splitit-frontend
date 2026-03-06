@@ -27,6 +27,7 @@ export class SidebarComponent {
     { label: 'Groups', icon: 'group', route: '/groups' },
     { label: 'Expenses', icon: 'receipt', route: '/expenses' },
     { label: 'Settlements', icon: 'account_balance_wallet', route: '/settlements' },
+    { label: 'Friends', icon: 'people', route: '/friends' },
   ];
 
   accountNavItems: NavItem[] = [

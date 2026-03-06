@@ -1,0 +1,124 @@
+<div class="friends-container">
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">Friends</h1>
+
+    <!-- Add Friend Search -->
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Add friend by name or email</mat-label>
+      <input matInput
+             [(ngModel)]="searchQuery"
+             (input)="searchUsers()"
+             placeholder="Search by name or email"
+             autocomplete="off" />
+      <mat-icon matPrefix>person_add</mat-icon>
+      @if (searching) {
+        <mat-spinner matSuffix diameter="18"></mat-spinner>
+      }
+    </mat-form-field>
+  </div>
+
+  <!-- Search Results (Add Friend) -->
+  @if (searchResults.length > 0) {
+    <div class="search-results-section">
+      <h3 class="section-label">Search Results</h3>
+      <div class="search-results-list">
+        @for (user of searchResults; track user.id) {
+          <div class="search-result-item">
+            <div class="user-avatar">{{ user.name.charAt(0).toUpperCase() }}</div>
+            <div class="user-info">
+              <div class="user-name">{{ user.name }}</div>
+              <div class="user-email">{{ user.email }}</div>
+            </div>
+            <button mat-raised-button color="primary" (click)="addFriend(user.id)" class="add-btn">
+              <mat-icon>person_add</mat-icon>
+              Add
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Filter existing friends -->
+  @if (!loading && friends.length > 0) {
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Filter friends</mat-label>
+      <input matInput [(ngModel)]="filterQuery" (ngModelChange)="onFilter()" placeholder="Filter by name or email" />
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+  }
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="friends-grid">
+      <app-skeleton-loader type="group-card" [count]="6"></app-skeleton-loader>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading && friends.length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">people_outline</mat-icon>
+      <h2>No Friends Yet</h2>
+      <p>Search for users above to add your first friend and start tracking shared expenses.</p>
+    </div>
+  }
+
+  <!-- No Filter Results -->
+  @if (!loading && friends.length > 0 && filteredFriends.length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">search_off</mat-icon>
+      <h2>No Results Found</h2>
+      <p>Try adjusting your filter query</p>
+    </div>
+  }
+
+  <!-- Friends Grid -->
+  @if (!loading && filteredFriends.length > 0) {
+    <div class="friends-grid">
+      @for (friend of filteredFriends; track friend.user.id) {
+        <mat-card class="friend-card" [routerLink]="['/friends', friend.user.id]" matRipple>
+          <mat-card-header>
+            <div class="friend-avatar-large">{{ friend.user.name.charAt(0).toUpperCase() }}</div>
+            <div class="friend-header-info">
+              <mat-card-title>{{ friend.user.name }}</mat-card-title>
+              <mat-card-subtitle>{{ friend.user.email }}</mat-card-subtitle>
+            </div>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="friend-stats">
+              <div class="stat-item">
+                <mat-icon class="stat-icon">receipt_long</mat-icon>
+                <span>{{ friend.sharedExpenseCount }} shared expense{{ friend.sharedExpenseCount === 1 ? '' : 's' }}</span>
+              </div>
+              <div class="stat-item" [class.positive]="friend.netBalance > 0" [class.negative]="friend.netBalance < 0">
+                <mat-icon class="stat-icon">{{ friend.netBalance >= 0 ? 'arrow_downward' : 'arrow_outward' }}</mat-icon>
+                <span>
+                  @if (friend.netBalance > 0) {
+                    Owes you {{ friend.netBalance | currency:'CAD':'symbol-narrow':'1.2-2' }}
+                  } @else if (friend.netBalance < 0) {
+                    You owe {{ (friend.netBalance * -1) | currency:'CAD':'symbol-narrow':'1.2-2' }}
+                  } @else {
+                    Settled up
+                  }
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-button color="warn" (click)="removeFriend(friend.user.id, $event)" matTooltip="Remove friend">
+              <mat-icon>person_remove</mat-icon>
+              Remove
+            </button>
+            <button mat-button color="primary" (click)="$event.stopPropagation()" [routerLink]="['/friends', friend.user.id]">
+              View Details
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

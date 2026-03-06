@@ -325,7 +325,7 @@
         <div class="widget fade-in" style="animation-delay: 0.4s">
           <div class="widget-header">
             <h3 class="widget-title">Friends</h3>
-            <button mat-button routerLink="/profile" class="view-all-btn" aria-label="Manage friends">
+            <button mat-button routerLink="/friends" class="view-all-btn" aria-label="Manage friends">
               Manage <mat-icon>arrow_forward</mat-icon>
             </button>
           </div>
@@ -384,7 +384,7 @@
                 </div>
               }
               @if (friends.length > 5) {
-                <button mat-button routerLink="/profile" class="show-more-btn">
+                <button mat-button routerLink="/friends" class="show-more-btn">
                   +{{ friends.length - 5 }} more friends
                 </button>
               }

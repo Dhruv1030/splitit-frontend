@@ -1,0 +1,276 @@
+.friend-detail-container {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: calc(100vh - 64px);
+}
+
+.back-btn {
+  margin-bottom: 16px;
+  color: var(--color-text-secondary);
+
+  mat-icon {
+    margin-right: 4px;
+  }
+}
+
+.loading-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Friend header
+.friend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding: 24px;
+  background-color: var(--color-bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+}
+
+.friend-profile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.friend-avatar-xl {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 28px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.friend-profile-info {
+  .friend-name {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-text-primary);
+  }
+
+  .friend-email {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 4px 0 0;
+  }
+
+  .friend-phone {
+    font-size: 13px;
+    color: var(--color-text-muted);
+    margin: 2px 0 0;
+  }
+}
+
+.balance-card {
+  text-align: right;
+  padding: 16px 24px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border);
+
+  &.positive {
+    border-color: #4caf50;
+    .balance-amount { color: #4caf50; }
+  }
+
+  &.negative {
+    border-color: #f44336;
+    .balance-amount { color: #f44336; }
+  }
+
+  .balance-label {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .balance-amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+}
+
+// Tabs
+.detail-tabs {
+  .tab-label {
+    margin-left: 8px;
+  }
+}
+
+.tab-content {
+  padding: 24px 0;
+}
+
+// Expense list
+.expense-list,
+.settlement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.expense-card,
+.settlement-card {
+  cursor: pointer;
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.expense-row,
+.settlement-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.expense-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--color-text-secondary);
+  }
+
+  &.cat-food { background: rgba(255, 152, 0, 0.15); mat-icon { color: #ff9800; } }
+  &.cat-transport { background: rgba(33, 150, 243, 0.15); mat-icon { color: #2196f3; } }
+  &.cat-accommodation { background: rgba(156, 39, 176, 0.15); mat-icon { color: #9c27b0; } }
+  &.cat-entertainment { background: rgba(233, 30, 99, 0.15); mat-icon { color: #e91e63; } }
+  &.cat-utilities { background: rgba(255, 235, 59, 0.15); mat-icon { color: #fdd835; } }
+  &.cat-shopping { background: rgba(76, 175, 80, 0.15); mat-icon { color: #4caf50; } }
+  &.cat-other { background: rgba(158, 158, 158, 0.15); mat-icon { color: #9e9e9e; } }
+}
+
+.settlement-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.status-completed {
+    background: rgba(76, 175, 80, 0.15);
+    mat-icon { color: #4caf50; }
+  }
+  &.status-pending {
+    background: rgba(255, 152, 0, 0.15);
+    mat-icon { color: #ff9800; }
+  }
+  &.status-cancelled {
+    background: rgba(158, 158, 158, 0.15);
+    mat-icon { color: #9e9e9e; }
+  }
+}
+
+.expense-info,
+.settlement-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.expense-description,
+.settlement-description {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expense-meta,
+.settlement-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+
+  .dot {
+    opacity: 0.5;
+  }
+
+  mat-chip {
+    font-size: 11px;
+    min-height: 20px;
+    padding: 0 8px;
+
+    &.status-completed { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+    &.status-pending { background: rgba(255, 152, 0, 0.2); color: #ff9800; }
+    &.status-cancelled { background: rgba(158, 158, 158, 0.2); color: #9e9e9e; }
+  }
+}
+
+.expense-amount {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+}
+
+.settlement-amount {
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+
+  &.positive { color: #4caf50; }
+  &.negative { color: #f44336; }
+}
+
+@media (max-width: 768px) {
+  .friend-detail-container {
+    padding: 16px;
+  }
+
+  .friend-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .balance-card {
+    text-align: left;
+    width: 100%;
+  }
+
+  .friend-profile-info .friend-name {
+    font-size: 22px;
+  }
+
+  .balance-card .balance-amount {
+    font-size: 22px;
+  }
+}
