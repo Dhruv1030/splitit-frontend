@@ -7,12 +7,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { GroupService } from '../../core/services/group.service';
 import { ExpenseService } from '../../core/services/expense.service';
+import { UserService } from '../../core/services/user.service';
 import { AuthStore } from '../../core/store/auth.store';
 import { ToastService } from '../../core/services/toast.service';
 import { Group } from '../../core/models/group.model';
 import { Expense } from '../../core/models/expense.model';
+import { User } from '../../core/models/user.model';
 import { ExpenseChartComponent } from './expense-chart/expense-chart.component';
 import { ExpenseDonutComponent } from './expense-donut/expense-donut.component';
 import { ActivityFeedComponent } from '../activities/activity-feed/activity-feed';
@@ -33,11 +38,14 @@ interface DashboardStats {
   imports: [
     CommonModule,
     RouterModule,
+    FormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
     ActivityFeedComponent,
     ExpenseChartComponent,
     ExpenseDonutComponent,
@@ -54,6 +62,7 @@ interface DashboardStats {
 export class DashboardComponent implements OnInit {
   private groupService = inject(GroupService);
   private expenseService = inject(ExpenseService);
+  private userService = inject(UserService);
   protected readonly authStore = inject(AuthStore);
   private dialog = inject(MatDialog);
   private toastService = inject(ToastService);
@@ -76,6 +85,12 @@ export class DashboardComponent implements OnInit {
   groups: Group[] = [];
   private loadCounter = 0;
 
+  // Friends widget
+  friends: User[] = [];
+  friendSearchResults: User[] = [];
+  friendSearchQuery = '';
+  searchingFriends = false;
+
   ngOnInit(): void {
     this.loadDashboardData();
   }
@@ -84,6 +99,9 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     this.loadCounter = 0;
     this.cdr.markForCheck();
+
+    // Load friends
+    this.loadFriends();
 
     // Load groups
     this.groupService.getUserGroups()
@@ -201,5 +219,91 @@ export class DashboardComponent implements OnInit {
         }
       });
     });
+  }
+
+  // --- Friends Widget ---
+
+  loadFriends(): void {
+    const userId = this.authStore.user()?.id;
+    if (!userId) return;
+
+    this.userService.getUserFriends(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (friends) => {
+          this.friends = friends || [];
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.friends = [];
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  searchFriends(): void {
+    const query = this.friendSearchQuery.trim();
+    if (query.length < 2) {
+      this.friendSearchResults = [];
+      return;
+    }
+
+    this.searchingFriends = true;
+    this.cdr.markForCheck();
+
+    const userId = this.authStore.user()?.id;
+    const friendIds = this.friends.map(f => f.id);
+
+    this.userService.searchUsers(query)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (users) => {
+          this.friendSearchResults = users.filter(
+            u => u.id !== userId && !friendIds.includes(u.id)
+          );
+          this.searchingFriends = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.friendSearchResults = [];
+          this.searchingFriends = false;
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  addFriend(friendId: string): void {
+    const userId = this.authStore.user()?.id;
+    if (!userId) return;
+
+    this.userService.addFriend(userId, friendId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.success('Friend added!');
+          this.friendSearchResults = this.friendSearchResults.filter(u => u.id !== friendId);
+          this.loadFriends();
+        },
+        error: () => {
+          this.toastService.error('Failed to add friend.');
+        },
+      });
+  }
+
+  removeFriend(friendId: string): void {
+    const userId = this.authStore.user()?.id;
+    if (!userId) return;
+
+    this.userService.removeFriend(userId, friendId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.success('Friend removed.');
+          this.loadFriends();
+        },
+        error: () => {
+          this.toastService.error('Failed to remove friend.');
+        },
+      });
   }
 }

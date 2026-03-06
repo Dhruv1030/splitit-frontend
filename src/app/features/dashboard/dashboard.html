@@ -321,6 +321,77 @@
           }
         </div>
 
+        <!-- Friends Widget -->
+        <div class="widget fade-in" style="animation-delay: 0.4s">
+          <div class="widget-header">
+            <h3 class="widget-title">Friends</h3>
+            <button mat-button routerLink="/profile" class="view-all-btn" aria-label="Manage friends">
+              Manage <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+
+          <!-- Search -->
+          <div class="friend-search">
+            <mat-form-field appearance="outline" class="friend-search-field">
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput
+                     placeholder="Search by name or email"
+                     [(ngModel)]="friendSearchQuery"
+                     (input)="searchFriends()"
+                     autocomplete="off">
+              @if (searchingFriends) {
+                <mat-spinner matSuffix diameter="18"></mat-spinner>
+              }
+            </mat-form-field>
+          </div>
+
+          <!-- Search Results -->
+          @if (friendSearchResults.length > 0) {
+            <div class="friend-search-results">
+              @for (user of friendSearchResults; track user.id) {
+                <div class="friend-item">
+                  <div class="friend-avatar">{{ user.name.charAt(0).toUpperCase() }}</div>
+                  <div class="friend-info">
+                    <div class="friend-name">{{ user.name }}</div>
+                    <div class="friend-email">{{ user.email }}</div>
+                  </div>
+                  <button mat-icon-button color="primary" (click)="addFriend(user.id)" aria-label="Add friend">
+                    <mat-icon>person_add</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Friends List -->
+          @if (friends.length === 0) {
+            <div class="friends-empty">
+              <mat-icon>people_outline</mat-icon>
+              <span>No friends yet — search above to add.</span>
+            </div>
+          } @else {
+            <div class="friends-list">
+              @for (friend of friends.slice(0, 5); track friend.id) {
+                <div class="friend-item">
+                  <div class="friend-avatar">{{ friend.name.charAt(0).toUpperCase() }}</div>
+                  <div class="friend-info">
+                    <div class="friend-name">{{ friend.name }}</div>
+                    <div class="friend-email">{{ friend.email }}</div>
+                  </div>
+                  <button mat-icon-button class="friend-remove-btn" (click)="removeFriend(friend.id)" aria-label="Remove friend">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              }
+              @if (friends.length > 5) {
+                <button mat-button routerLink="/profile" class="show-more-btn">
+                  +{{ friends.length - 5 }} more friends
+                </button>
+              }
+            </div>
+          }
+        </div>
+
         <!-- Activity Feed Widget -->
         <div class="widget fade-in" style="animation-delay: 0.5s">
           <div class="widget-header">
