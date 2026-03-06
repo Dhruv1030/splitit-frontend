@@ -12,6 +12,23 @@ export interface User {
   emailVerified: boolean;
 }
 
+export interface FriendRequest {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderEmail: string;
+  receiverId: string;
+  receiverName: string;
+  receiverEmail: string;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
+  createdAt: string;
+}
+
+export interface SendFriendRequest {
+  receiverEmail?: string;
+  receiverId?: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;

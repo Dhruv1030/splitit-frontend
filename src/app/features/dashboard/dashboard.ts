@@ -17,7 +17,7 @@ import { AuthStore } from '../../core/store/auth.store';
 import { ToastService } from '../../core/services/toast.service';
 import { Group } from '../../core/models/group.model';
 import { Expense } from '../../core/models/expense.model';
-import { User } from '../../core/models/user.model';
+import { User, FriendRequest } from '../../core/models/user.model';
 import { ExpenseChartComponent } from './expense-chart/expense-chart.component';
 import { ExpenseDonutComponent } from './expense-donut/expense-donut.component';
 import { ActivityFeedComponent } from '../activities/activity-feed/activity-feed';
@@ -90,6 +90,7 @@ export class DashboardComponent implements OnInit {
   friendSearchResults: User[] = [];
   friendSearchQuery = '';
   searchingFriends = false;
+  pendingFriendRequests: FriendRequest[] = [];
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -100,8 +101,9 @@ export class DashboardComponent implements OnInit {
     this.loadCounter = 0;
     this.cdr.markForCheck();
 
-    // Load friends
+    // Load friends & pending requests
     this.loadFriends();
+    this.loadPendingRequests();
 
     // Load groups
     this.groupService.getUserGroups()
@@ -272,20 +274,62 @@ export class DashboardComponent implements OnInit {
       });
   }
 
-  addFriend(friendId: string): void {
-    const userId = this.authStore.user()?.id;
-    if (!userId) return;
+  loadPendingRequests(): void {
+    this.userService.getPendingFriendRequests()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (requests) => {
+          this.pendingFriendRequests = requests || [];
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.pendingFriendRequests = [];
+          this.cdr.markForCheck();
+        },
+      });
+  }
 
-    this.userService.addFriend(userId, friendId)
+  sendFriendRequest(user: User): void {
+    this.userService.sendFriendRequest({ receiverId: user.id })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.toastService.success('Friend added!');
-          this.friendSearchResults = this.friendSearchResults.filter(u => u.id !== friendId);
+          this.toastService.success(`Friend request sent to ${user.name}!`);
+          this.friendSearchResults = this.friendSearchResults.filter(u => u.id !== user.id);
+          this.friendSearchQuery = '';
+        },
+        error: (err) => {
+          const message = err?.error?.message || 'Failed to send friend request.';
+          this.toastService.error(message);
+        },
+      });
+  }
+
+  acceptFriendRequest(requestId: string): void {
+    this.userService.acceptFriendRequest(requestId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.success('Friend request accepted!');
           this.loadFriends();
+          this.loadPendingRequests();
         },
         error: () => {
-          this.toastService.error('Failed to add friend.');
+          this.toastService.error('Failed to accept request.');
+        },
+      });
+  }
+
+  declineFriendRequest(requestId: string): void {
+    this.userService.declineFriendRequest(requestId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.success('Friend request declined.');
+          this.loadPendingRequests();
+        },
+        error: () => {
+          this.toastService.error('Failed to decline request.');
         },
       });
   }

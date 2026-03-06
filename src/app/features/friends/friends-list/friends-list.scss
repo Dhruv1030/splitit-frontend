@@ -107,6 +107,103 @@
   }
 }
 
+// Pending & Sent requests sections
+.pending-requests-section,
+.sent-requests-section {
+  margin-bottom: 24px;
+  background-color: var(--color-bg-card);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+
+  .section-label {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.pending-requests-section {
+  border-color: #ff9800;
+
+  .section-label {
+    color: #ff9800;
+  }
+
+  .badge {
+    background-color: #ff9800;
+    color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+  }
+}
+
+.sent-requests-section {
+  .section-label {
+    color: var(--color-text-secondary);
+  }
+}
+
+.requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.request-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &.sent {
+    opacity: 0.8;
+  }
+}
+
+.request-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+
+  .accept-btn, .decline-btn {
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+.pending-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
 // Empty state
 .empty-state {
   display: flex;

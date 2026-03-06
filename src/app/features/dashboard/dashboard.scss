@@ -1036,6 +1036,38 @@
   }
 }
 
+.pending-requests-widget {
+  margin-bottom: 12px;
+  padding: 12px;
+  background-color: rgba(255, 152, 0, 0.08);
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  border-radius: 8px;
+
+  .pending-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ff9800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.request-actions-compact {
+  display: flex;
+  gap: 0;
+  flex-shrink: 0;
+}
+
 .friends-empty {
   display: flex;
   flex-direction: column;

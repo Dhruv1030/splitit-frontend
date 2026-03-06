@@ -355,16 +355,48 @@
                     <div class="friend-name">{{ user.name }}</div>
                     <div class="friend-email">{{ user.email }}</div>
                   </div>
-                  <button mat-icon-button color="primary" (click)="addFriend(user.id)" aria-label="Add friend">
-                    <mat-icon>person_add</mat-icon>
+                  <button mat-icon-button color="primary" (click)="sendFriendRequest(user)" aria-label="Send friend request">
+                    <mat-icon>send</mat-icon>
                   </button>
                 </div>
               }
             </div>
           }
 
+          <!-- Pending Friend Requests -->
+          @if (pendingFriendRequests.length > 0) {
+            <div class="pending-requests-widget">
+              <div class="pending-label">
+                <mat-icon>mail</mat-icon>
+                <span>Pending Requests ({{ pendingFriendRequests.length }})</span>
+              </div>
+              @for (request of pendingFriendRequests.slice(0, 3); track request.id) {
+                <div class="friend-item">
+                  <div class="friend-avatar">{{ request.senderName.charAt(0).toUpperCase() }}</div>
+                  <div class="friend-info">
+                    <div class="friend-name">{{ request.senderName }}</div>
+                    <div class="friend-email">{{ request.senderEmail }}</div>
+                  </div>
+                  <div class="request-actions-compact">
+                    <button mat-icon-button color="primary" (click)="acceptFriendRequest(request.id)" aria-label="Accept">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="declineFriendRequest(request.id)" aria-label="Decline">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+              @if (pendingFriendRequests.length > 3) {
+                <button mat-button routerLink="/friends" class="show-more-btn">
+                  +{{ pendingFriendRequests.length - 3 }} more requests
+                </button>
+              }
+            </div>
+          }
+
           <!-- Friends List -->
-          @if (friends.length === 0) {
+          @if (friends.length === 0 && pendingFriendRequests.length === 0) {
             <div class="friends-empty">
               <mat-icon>people_outline</mat-icon>
               <span>No friends yet — search above to add.</span>

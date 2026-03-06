@@ -18,7 +18,7 @@
     </mat-form-field>
   </div>
 
-  <!-- Search Results (Add Friend) -->
+  <!-- Search Results (Send Friend Request) -->
   @if (searchResults.length > 0) {
     <div class="search-results-section">
       <h3 class="section-label">Search Results</h3>
@@ -30,10 +30,64 @@
               <div class="user-name">{{ user.name }}</div>
               <div class="user-email">{{ user.email }}</div>
             </div>
-            <button mat-raised-button color="primary" (click)="addFriend(user.id)" class="add-btn">
-              <mat-icon>person_add</mat-icon>
-              Add
+            <button mat-raised-button color="primary" (click)="sendFriendRequest(user)" class="add-btn">
+              <mat-icon>send</mat-icon>
+              Send Request
             </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Pending Friend Requests (Incoming) -->
+  @if (pendingRequests.length > 0) {
+    <div class="pending-requests-section">
+      <h3 class="section-label">
+        <mat-icon>mail</mat-icon>
+        Pending Requests
+        <span class="badge">{{ pendingRequests.length }}</span>
+      </h3>
+      <div class="requests-list">
+        @for (request of pendingRequests; track request.id) {
+          <div class="request-item">
+            <div class="user-avatar">{{ request.senderName.charAt(0).toUpperCase() }}</div>
+            <div class="user-info">
+              <div class="user-name">{{ request.senderName }}</div>
+              <div class="user-email">{{ request.senderEmail }}</div>
+            </div>
+            <div class="request-actions">
+              <button mat-raised-button color="primary" (click)="acceptRequest(request.id)" class="accept-btn">
+                <mat-icon>check</mat-icon>
+                Accept
+              </button>
+              <button mat-stroked-button color="warn" (click)="declineRequest(request.id)" class="decline-btn">
+                <mat-icon>close</mat-icon>
+                Decline
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Sent Friend Requests -->
+  @if (sentRequests.length > 0) {
+    <div class="sent-requests-section">
+      <h3 class="section-label">
+        <mat-icon>send</mat-icon>
+        Sent Requests
+      </h3>
+      <div class="requests-list">
+        @for (request of sentRequests; track request.id) {
+          <div class="request-item sent">
+            <div class="user-avatar">{{ request.receiverName.charAt(0).toUpperCase() }}</div>
+            <div class="user-info">
+              <div class="user-name">{{ request.receiverName }}</div>
+              <div class="user-email">{{ request.receiverEmail }}</div>
+            </div>
+            <span class="pending-badge">Pending</span>
           </div>
         }
       </div>
@@ -57,11 +111,11 @@
   }
 
   <!-- Empty State -->
-  @if (!loading && friends.length === 0) {
+  @if (!loading && friends.length === 0 && pendingRequests.length === 0) {
     <div class="empty-state">
       <mat-icon class="empty-icon">people_outline</mat-icon>
       <h2>No Friends Yet</h2>
-      <p>Search for users above to add your first friend and start tracking shared expenses.</p>
+      <p>Search for users above to send a friend request and start tracking shared expenses.</p>
     </div>
   }
 

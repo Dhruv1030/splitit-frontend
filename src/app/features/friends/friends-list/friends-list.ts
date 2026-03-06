@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, DestroyRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -10,12 +10,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
 import { UserService } from '../../../core/services/user.service';
 import { ExpenseService } from '../../../core/services/expense.service';
 import { SettlementService } from '../../../core/services/settlement.service';
 import { AuthStore } from '../../../core/store/auth.store';
 import { ToastService } from '../../../core/services/toast.service';
-import { User } from '../../../core/models/user.model';
+import { User, FriendRequest } from '../../../core/models/user.model';
 import { Expense } from '../../../core/models/expense.model';
 import { Settlement } from '../../../core/models/settlement.model';
 import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleton-loader';
@@ -41,6 +42,7 @@ interface FriendSummary {
     MatFormFieldModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatBadgeModule,
     SkeletonLoaderComponent,
     CurrencyPipe,
   ],
@@ -67,11 +69,16 @@ export class FriendsListComponent implements OnInit {
   searchResults: User[] = [];
   searching = false;
 
+  // Friend requests
+  pendingRequests: FriendRequest[] = [];
+  sentRequests: FriendRequest[] = [];
+
   private expenses: Expense[] = [];
   private settlements: Settlement[] = [];
 
   ngOnInit(): void {
     this.loadData();
+    this.loadFriendRequests();
   }
 
   loadData(): void {
@@ -105,35 +112,60 @@ export class FriendsListComponent implements OnInit {
       });
   }
 
+  loadFriendRequests(): void {
+    this.userService.getPendingFriendRequests()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (requests) => {
+          this.pendingRequests = requests || [];
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.pendingRequests = [];
+          this.cdr.markForCheck();
+        },
+      });
+
+    this.userService.getSentFriendRequests()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (requests) => {
+          this.sentRequests = requests || [];
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.sentRequests = [];
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
   private buildFriendSummary(friend: User, userId: string): FriendSummary {
-    // Count shared expenses where friend is a participant
     const sharedExpenses = this.expenses.filter(
       (e) =>
         e.participants?.some((p) => p.userId === friend.id) ||
         e.paidBy === friend.id
     );
 
-    // Calculate net balance from settlements
     let netBalance = 0;
     for (const s of this.settlements) {
       if (s.payerId === userId && s.payeeId === friend.id) {
-        netBalance -= s.amount; // I paid them
+        netBalance -= s.amount;
       } else if (s.payerId === friend.id && s.payeeId === userId) {
-        netBalance += s.amount; // They paid me
+        netBalance += s.amount;
       }
     }
 
-    // Factor in expenses where friend owes me or I owe friend
     for (const e of sharedExpenses) {
       if (e.paidBy === userId) {
         const friendShare = e.participants?.find((p) => p.userId === friend.id);
         if (friendShare) {
-          netBalance += friendShare.amount; // Friend owes me
+          netBalance += friendShare.amount;
         }
       } else if (e.paidBy === friend.id) {
         const myShare = e.participants?.find((p) => p.userId === userId);
         if (myShare) {
-          netBalance -= myShare.amount; // I owe friend
+          netBalance -= myShare.amount;
         }
       }
     }
@@ -170,6 +202,7 @@ export class FriendsListComponent implements OnInit {
 
     const userId = this.authStore.user()?.id;
     const friendIds = this.friends.map((f) => f.user.id);
+    const sentRequestIds = this.sentRequests.map((r) => r.receiverId);
 
     this.userService
       .searchUsers(query)
@@ -177,7 +210,7 @@ export class FriendsListComponent implements OnInit {
       .subscribe({
         next: (users) => {
           this.searchResults = users.filter(
-            (u) => u.id !== userId && !friendIds.includes(u.id)
+            (u) => u.id !== userId && !friendIds.includes(u.id) && !sentRequestIds.includes(u.id)
           );
           this.searching = false;
           this.cdr.markForCheck();
@@ -190,22 +223,51 @@ export class FriendsListComponent implements OnInit {
       });
   }
 
-  addFriend(friendId: string): void {
-    const userId = this.authStore.user()?.id;
-    if (!userId) return;
-
+  sendFriendRequest(user: User): void {
     this.userService
-      .addFriend(userId, friendId)
+      .sendFriendRequest({ receiverId: user.id })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.toastService.success('Friend added!');
-          this.searchResults = this.searchResults.filter((u) => u.id !== friendId);
+          this.toastService.success(`Friend request sent to ${user.name}!`);
+          this.searchResults = this.searchResults.filter((u) => u.id !== user.id);
           this.searchQuery = '';
+          this.loadFriendRequests();
+        },
+        error: (err) => {
+          const message = err?.error?.message || 'Failed to send friend request.';
+          this.toastService.error(message);
+        },
+      });
+  }
+
+  acceptRequest(requestId: string): void {
+    this.userService
+      .acceptFriendRequest(requestId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.success('Friend request accepted!');
           this.loadData();
+          this.loadFriendRequests();
         },
         error: () => {
-          this.toastService.error('Failed to add friend.');
+          this.toastService.error('Failed to accept request.');
+        },
+      });
+  }
+
+  declineRequest(requestId: string): void {
+    this.userService
+      .declineFriendRequest(requestId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.success('Friend request declined.');
+          this.loadFriendRequests();
+        },
+        error: () => {
+          this.toastService.error('Failed to decline request.');
         },
       });
   }
