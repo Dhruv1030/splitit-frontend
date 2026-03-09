@@ -112,7 +112,6 @@ export class ProfileComponent implements OnInit {
     this.loading = true;
     this.userService.getCurrentUserProfile().subscribe({
       next: (user) => {
-        console.log('[Profile] User profile loaded:', user);
         this.currentUser = user;
         this.profileForm.patchValue({
           name: user.name,
@@ -123,7 +122,6 @@ export class ProfileComponent implements OnInit {
         this.loading = false;
       },
       error: (error: any) => {
-        console.error('[Profile] Error loading profile:', error);
         this.loading = false;
         this.snackBar.open('Failed to load profile', 'Close', { duration: 3000 });
       },
@@ -143,7 +141,6 @@ export class ProfileComponent implements OnInit {
         this.friends = friends;
       },
       error: (error: any) => {
-        console.error('Error loading friends:', error);
       },
     });
   }
@@ -164,7 +161,6 @@ export class ProfileComponent implements OnInit {
         });
       },
       error: (error: any) => {
-        console.error('Error updating profile:', error);
         this.savingProfile = false;
         this.snackBar.open('Failed to update profile', 'Close', { duration: 3000 });
       },
@@ -201,7 +197,6 @@ export class ProfileComponent implements OnInit {
           });
         },
         error: (error: any) => {
-          console.error('Error changing password:', error);
           this.savingPassword = false;
           this.snackBar.open('Failed to change password', 'Close', { duration: 3000 });
         },
@@ -227,7 +222,6 @@ export class ProfileComponent implements OnInit {
         this.searching = false;
       },
       error: (error) => {
-        console.error('Error searching users:', error);
         this.snackBar.open('Failed to search users', 'Close', { duration: 3000 });
         this.searching = false;
       }
@@ -247,7 +241,6 @@ export class ProfileComponent implements OnInit {
         });
       },
       error: (error: any) => {
-        console.error('Error adding friend:', error);
         this.snackBar.open('Failed to add friend', 'Close', { duration: 3000 });
       },
     });
@@ -263,7 +256,6 @@ export class ProfileComponent implements OnInit {
           this.loadFriends();
         },
         error: (error) => {
-          console.error('Error removing friend:', error);
           this.snackBar.open('Failed to remove friend', 'Close', { duration: 3000 });
         }
       });

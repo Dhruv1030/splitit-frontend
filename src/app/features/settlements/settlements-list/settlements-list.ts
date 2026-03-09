@@ -62,7 +62,6 @@ export class SettlementsListComponent implements OnInit {
         this.groups = response.data;
       },
       error: (error: any) => {
-        console.error('Error loading groups:', error);
       },
     });
   }
@@ -87,7 +86,6 @@ export class SettlementsListComponent implements OnInit {
         });
       },
       error: (error: any) => {
-        console.error('Error loading settlements:', error);
         this.loading = false;
       },
     });
@@ -131,11 +129,9 @@ export class SettlementsListComponent implements OnInit {
             }
             return [];
           });
-          console.log('All settlement suggestions:', this.settlementSuggestions);
         });
       },
       error: (error: any) => {
-        console.error('Error loading settlement suggestions:', error);
       },
     });
   }

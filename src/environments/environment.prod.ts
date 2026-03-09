@@ -29,6 +29,10 @@ export const environment = {
   // Enable error reporting (if integrated with Sentry, etc.)
   enableErrorReporting: true,
 
+  // Sentry DSN — set this to your real Sentry project DSN before deploying
+  // Get it from: https://sentry.io → Project Settings → Client Keys (DSN)
+  sentryDsn: '',
+
   // Feature flags for production
   features: {
     enablePWA: false,

@@ -87,7 +87,6 @@ export class SettlementDialogComponent implements OnInit {
         this.loading = false;
       },
       error: (err: any) => {
-        console.error('Error loading settlement suggestions:', err);
         this.error = true;
         this.loading = false;
       },

@@ -116,7 +116,7 @@ export class SearchDialogComponent implements OnInit {
         allResults.push(...groupResults);
         this.updateResults(allResults);
       },
-      error: (err) => console.error('Error searching groups:', err),
+      error: () => {},
     });
 
     // Search Expenses
@@ -141,7 +141,7 @@ export class SearchDialogComponent implements OnInit {
         allResults.push(...expenseResults);
         this.updateResults(allResults);
       },
-      error: (err) => console.error('Error searching expenses:', err),
+      error: () => {},
     });
 
     // Search Users
@@ -161,7 +161,7 @@ export class SearchDialogComponent implements OnInit {
         allResults.push(...userResults);
         this.updateResults(allResults);
       },
-      error: (err) => console.error('Error searching users:', err),
+      error: () => {},
     });
   }
 
@@ -226,8 +226,6 @@ export class SearchDialogComponent implements OnInit {
         }
         break;
       case 'user':
-        // Could navigate to user profile or show user details
-        console.log('User selected:', result.data);
         break;
     }
   }

@@ -103,7 +103,6 @@ export class OfflineSyncService {
                 await this.processAction(action);
                 await this.removeFromIndexedDB(action.id);
             } catch (error) {
-                console.error(`Failed to sync action ${action.id}:`, error);
                 // If it's a 4xx error (validation/logic), we might want to discard or flag it
                 // For now, we'll stop sync to avoid ordered execution issues
                 break;

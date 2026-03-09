@@ -113,7 +113,6 @@ export class GroupDetailComponent implements OnInit {
           this.cdr.markForCheck();
         },
         error: (error: any) => {
-          console.error('Error loading group:', error);
           this.loading = false;
           this.cdr.markForCheck();
         },
@@ -129,7 +128,6 @@ export class GroupDetailComponent implements OnInit {
           this.cdr.markForCheck();
         },
         error: (error: any) => {
-          console.error('Error loading expenses:', error);
           this.expenses = [];
           this.cdr.markForCheck();
         },
@@ -145,7 +143,6 @@ export class GroupDetailComponent implements OnInit {
           this.cdr.markForCheck();
         },
         error: (error: any) => {
-          console.error('Error loading balances:', error);
           this.cdr.markForCheck();
         },
       });
@@ -160,7 +157,6 @@ export class GroupDetailComponent implements OnInit {
           this.cdr.markForCheck();
         },
         error: (error: any) => {
-          console.error('Error loading settlements:', error);
           this.settlements = [];
           this.cdr.markForCheck();
         },
@@ -186,7 +182,6 @@ export class GroupDetailComponent implements OnInit {
           this.cdr.markForCheck();
         },
         error: (error: any) => {
-          console.error('Error loading settlement suggestions:', error);
           this.settlementSuggestions = [];
           this.cdr.markForCheck();
         },
@@ -260,7 +255,6 @@ export class GroupDetailComponent implements OnInit {
             this.router.navigate(['/groups']);
           },
           error: (error) => {
-            console.error('Error deleting group:', error);
             this.toastService.error('Failed to delete group. Please try again.');
           },
         });
@@ -311,7 +305,6 @@ export class GroupDetailComponent implements OnInit {
           this.cdr.markForCheck();
         },
         error: (error) => {
-          console.error('Error adding member:', error);
           this.loading = false;
           const errorMessage = error.error?.message || 'Failed to add member';
           this.toastService.error(errorMessage);
@@ -326,7 +319,6 @@ export class GroupDetailComponent implements OnInit {
     if (confirm('Are you sure you want to remove this member?')) {
       const memberIdNum = parseInt(memberId, 10);
       if (isNaN(memberIdNum)) {
-        console.error('Invalid member ID');
         return;
       }
 
@@ -340,7 +332,6 @@ export class GroupDetailComponent implements OnInit {
             }
           },
           error: (error: any) => {
-            console.error('Error removing member:', error);
             this.toastService.error('Failed to remove member. Please try again.');
           },
         });

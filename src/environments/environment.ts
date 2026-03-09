@@ -21,6 +21,9 @@ export const environment = {
   // Enable error reporting in development (usually disabled)
   enableErrorReporting: false,
 
+  // Sentry DSN — leave empty to disable Sentry
+  sentryDsn: '',
+
   // Feature flags for development
   features: {
     enablePWA: false,

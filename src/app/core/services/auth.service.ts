@@ -43,6 +43,17 @@ export class AuthService {
   }
 
   /**
+   * Refresh the JWT token using the current token
+   */
+  refreshToken(): Observable<AuthResponse> {
+    const currentToken = localStorage.getItem('jwt_token');
+    return this.http.post<AuthResponse>(`${this.apiUrl}/users/refresh-token`, { token: currentToken })
+      .pipe(
+        tap(response => this.handleAuthResponse(response))
+      );
+  }
+
+  /**
    * Logout user - clear tokens and navigate to login
    */
   logout(): void {
@@ -82,21 +93,15 @@ export class AuthService {
    * Handle successful authentication response
    */
   private handleAuthResponse(response: any): void {
-    console.log('[AuthService] Handling auth response:', response);
-    
     if (!response.token) {
-      console.error('[AuthService] No token in response!');
       return;
     }
-    
+
     localStorage.setItem('jwt_token', response.token);
-    console.log('[AuthService] JWT token saved to localStorage');
-    
+
     // Backend returns user data in a 'user' object
     const userData = response.user || {};
-    console.log('[AuthService] User data from response:', userData);
-    
-    // Create a user object from the auth response
+
     const user: User = {
       id: userData.id || userData.userId,
       email: userData.email,
@@ -107,22 +112,9 @@ export class AuthService {
       createdAt: userData.createdAt || new Date().toISOString(),
       emailVerified: userData.emailVerified !== undefined ? userData.emailVerified : true
     };
-    
-    console.log('[AuthService] User object created:', user);
-    
-    if (!user.id || !user.email || !user.name) {
-      console.error('[AuthService] Warning: User object has missing fields!', {
-        hasId: !!user.id,
-        hasEmail: !!user.email,
-        hasName: !!user.name,
-        originalResponse: response,
-        userData: userData
-      });
-    }
-    
+
     localStorage.setItem('current_user', JSON.stringify(user));
-    console.log('[AuthService] Current user saved to localStorage');
-    
+
     this.currentUserSubject.next(user);
   }
 
@@ -135,8 +127,7 @@ export class AuthService {
       try {
         const user = JSON.parse(userStr) as User;
         this.currentUserSubject.next(user);
-      } catch (error) {
-        console.error('Error parsing current user:', error);
+      } catch {
         this.currentUserSubject.next(null);
       }
     }

@@ -72,7 +72,6 @@ export class EmailPreferencesComponent implements OnInit {
         this.preferences = JSON.parse(saved);
         this.initialPreferences = { ...this.preferences };
       } catch (error) {
-        console.error('Error loading preferences:', error);
       }
     }
     
@@ -92,7 +91,6 @@ export class EmailPreferencesComponent implements OnInit {
         this.initialPreferences = { ...this.preferences };
         this.toastService.success('Email preferences saved successfully');
       } catch (error) {
-        console.error('Error saving preferences:', error);
         this.toastService.error('Failed to save preferences');
       }
       this.saving = false;

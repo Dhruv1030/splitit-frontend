@@ -115,7 +115,6 @@ export class ActivityFeedComponent implements OnInit, OnChanges {
           this.cdr.markForCheck();
         },
         error: (error) => {
-          console.error('[ActivityFeedComponent] Error loading activities:', error);
           this.toastService.error('Failed to load activities');
           this.loading = false;
           this.cdr.markForCheck();

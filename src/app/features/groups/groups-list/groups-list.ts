@@ -66,7 +66,6 @@ export class GroupsListComponent implements OnInit {
           this.cdr.markForCheck();
         },
         error: (error) => {
-          console.error('Error loading groups:', error);
           this.loading = false;
         },
       });

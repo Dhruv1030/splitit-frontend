@@ -104,7 +104,6 @@ export class ExpensesListComponent implements OnInit {
           this.cdr.markForCheck();
         },
         error: (error: any) => {
-          console.error('Error loading groups:', error);
           this.toastService.error('Failed to load groups. Please try again.');
           this.cdr.markForCheck();
         },
@@ -137,7 +136,6 @@ export class ExpensesListComponent implements OnInit {
           });
         },
         error: (error: any) => {
-          console.error('Error loading expenses:', error);
           this.toastService.error('Failed to load expenses. Please try again.');
           this.loading = false;
           this.cdr.markForCheck();

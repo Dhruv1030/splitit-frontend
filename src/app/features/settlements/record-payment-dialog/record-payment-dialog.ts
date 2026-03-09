@@ -115,7 +115,6 @@ export class RecordPaymentDialogComponent implements OnInit {
         this.dialogRef.close(true);
       },
       error: (error: any) => {
-        console.error('Error recording settlement:', error);
         this.loading = false;
         this.toastService.error('Failed to record payment. Please try again.');
       },

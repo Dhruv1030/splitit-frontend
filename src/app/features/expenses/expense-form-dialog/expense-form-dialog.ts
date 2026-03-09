@@ -128,12 +128,6 @@ export class ExpenseFormDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Debug: Check if members data is being passed correctly
-    console.log('ExpenseFormDialog - data.members:', this.data.members);
-    console.log('ExpenseFormDialog - groupId:', this.data.groupId);
-    console.log('ExpenseFormDialog - isDashboardMode:', this.isDashboardMode);
-    console.log('ExpenseFormDialog - availableGroups:', this.availableGroups);
-    
     // Set default payer to current user if available
     const currentUserId = localStorage.getItem('userId');
     if (currentUserId && !this.isEditMode) {
@@ -191,8 +185,6 @@ export class ExpenseFormDialogComponent implements OnInit {
         this.loading = false;
         const groupDetail = response.data as any;
         
-        console.log('Fetched group details:', groupDetail);
-        
         // Backend now returns members with userId, name, email, and role
         if (groupDetail.members && Array.isArray(groupDetail.members)) {
           this.selectedGroupMembers = groupDetail.members.map((m: any) => ({
@@ -200,8 +192,6 @@ export class ExpenseFormDialogComponent implements OnInit {
             name: m.name || m.email || m.userId, // Use name, fallback to email or userId
             role: m.role || 'MEMBER'
           }));
-          console.log('Selected group members with names:', this.selectedGroupMembers);
-          
           // Default payer to current user if they're a member, but keep field editable
           const currentUserId = localStorage.getItem('userId');
           if (currentUserId) {
@@ -218,7 +208,6 @@ export class ExpenseFormDialogComponent implements OnInit {
       },
       error: (error) => {
         this.loading = false;
-        console.error('Error fetching group details:', error);
         this.toastService.error('Failed to load group members');
       }
     });
@@ -384,14 +373,8 @@ export class ExpenseFormDialogComponent implements OnInit {
       return;
     }
 
-    // Debug: Log the complete request being sent
-    console.log('🚀 Creating expense with request:', JSON.stringify(request, null, 2));
-    console.log('🚀 Group ID:', groupId);
-    console.log('🚀 Participants:', formValue.participants);
-
     if (this.isEditMode) {
       // TODO: Implement update expense
-      console.log('Update expense:', request);
       this.dialogRef.close(true);
     } else {
       this.expenseService.createExpense(groupId, request).subscribe({
@@ -411,7 +394,6 @@ export class ExpenseFormDialogComponent implements OnInit {
           this.dialogRef.close(true);
         },
         error: (error: any) => {
-          console.error('Error creating expense:', error);
           this.loading = false;
           this.toastService.error('Failed to create expense. Please try again.');
         },

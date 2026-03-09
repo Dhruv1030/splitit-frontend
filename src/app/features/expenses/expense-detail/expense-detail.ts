@@ -90,7 +90,6 @@ export class ExpenseDetailComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error loading expense:', error);
         this.loading = false;
         this.snackBar.open('Failed to load expense details', 'Close', {
           duration: 3000,
@@ -106,7 +105,6 @@ export class ExpenseDetailComponent implements OnInit {
         this.group = response.data as any;
       },
       error: (error) => {
-        console.error('Error loading group:', error);
       },
     });
   }
@@ -178,7 +176,6 @@ export class ExpenseDetailComponent implements OnInit {
           this.router.navigate(['/expenses']);
         },
         error: (error) => {
-          console.error('Error deleting expense:', error);
           this.snackBar.open('Failed to delete expense', 'Close', {
             duration: 3000,
           });

@@ -64,7 +64,6 @@ export class AddMemberDialogComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error searching users:', error);
         this.searching = false;
         this.snackBar.open('Failed to search users', 'Close', { duration: 3000 });
       },
