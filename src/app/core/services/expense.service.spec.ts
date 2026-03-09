@@ -9,7 +9,7 @@ import { Expense } from '../models/expense.model';
 
 // Stub out OfflineSyncService so its SwUpdate/Toastr dependency chain is never constructed
 const offlineSyncStub = {
-    isOnline: { value: true },
+    isOnline: () => true,       // Angular Signal is a callable function
     cacheData: () => Promise.resolve(),
     getCachedData: () => Promise.resolve(null),
     queueAction: () => Promise.resolve(),
