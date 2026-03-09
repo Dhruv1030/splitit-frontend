@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { ServiceWorkerModule } from '@angular/service-worker';
 import { ExpenseService } from './expense.service';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
@@ -11,8 +13,14 @@ describe('ExpenseService', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule],
-            providers: [ExpenseService]
+            imports: [
+                ServiceWorkerModule.register('', { enabled: false }),
+            ],
+            providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                ExpenseService,
+            ]
         });
 
         service = TestBed.inject(ExpenseService);
