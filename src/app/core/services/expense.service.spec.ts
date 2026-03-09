@@ -1,11 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { ServiceWorkerModule } from '@angular/service-worker';
 import { ExpenseService } from './expense.service';
+import { OfflineSyncService } from './offline-sync.service';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
 import { Expense } from '../models/expense.model';
+
+// Stub out OfflineSyncService so its SwUpdate/Toastr dependency chain is never constructed
+const offlineSyncStub = {
+    isOnline: { value: true },
+    cacheData: () => Promise.resolve(),
+    getCachedData: () => Promise.resolve(null),
+    queueAction: () => Promise.resolve(),
+};
 
 describe('ExpenseService', () => {
     let service: ExpenseService;
@@ -13,13 +21,11 @@ describe('ExpenseService', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [
-                ServiceWorkerModule.register('', { enabled: false }),
-            ],
             providers: [
                 provideHttpClient(),
                 provideHttpClientTesting(),
                 ExpenseService,
+                { provide: OfflineSyncService, useValue: offlineSyncStub },
             ]
         });
 
