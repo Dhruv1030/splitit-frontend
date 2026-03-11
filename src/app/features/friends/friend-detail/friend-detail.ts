@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { UserService } from '../../../core/services/user.service';
 import { ExpenseService } from '../../../core/services/expense.service';
 import { SettlementService } from '../../../core/services/settlement.service';
@@ -14,9 +15,11 @@ import { AuthStore } from '../../../core/store/auth.store';
 import { ToastService } from '../../../core/services/toast.service';
 import { User } from '../../../core/models/user.model';
 import { Expense } from '../../../core/models/expense.model';
-import { Settlement } from '../../../core/models/settlement.model';
+import { Settlement, FriendSettlementSuggestion } from '../../../core/models/settlement.model';
 import { SkeletonLoaderComponent } from '../../../shared/skeleton-loader/skeleton-loader';
 import { EmptyStateComponent } from '../../../shared/empty-state/empty-state.component';
+import { ExpenseFormDialogComponent } from '../../expenses/expense-form-dialog/expense-form-dialog';
+import { RecordPaymentDialogComponent } from '../../settlements/record-payment-dialog/record-payment-dialog';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -30,6 +33,7 @@ import { forkJoin } from 'rxjs';
     MatIconModule,
     MatTabsModule,
     MatChipsModule,
+    MatDialogModule,
     SkeletonLoaderComponent,
     EmptyStateComponent,
     CurrencyPipe,
@@ -48,17 +52,20 @@ export class FriendDetailComponent implements OnInit {
   private toastService = inject(ToastService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private dialog = inject(MatDialog);
 
   loading = true;
   friend: User | null = null;
+  friendId = '';
   sharedExpenses: Expense[] = [];
   settlements: Settlement[] = [];
   netBalance = 0;
+  settlementSuggestion: FriendSettlementSuggestion | null = null;
 
   ngOnInit(): void {
-    const friendId = this.route.snapshot.paramMap.get('id');
-    if (friendId) {
-      this.loadFriendData(friendId);
+    this.friendId = this.route.snapshot.paramMap.get('id') || '';
+    if (this.friendId) {
+      this.loadFriendData(this.friendId);
     }
   }
 
@@ -68,33 +75,19 @@ export class FriendDetailComponent implements OnInit {
 
     forkJoin({
       friend: this.userService.getUserById(friendId),
-      expenses: this.expenseService.getUserExpenses(),
-      settlements: this.settlementService.getUserSettlements(),
+      expenses: this.expenseService.getFriendExpenses(friendId),
+      netBalance: this.expenseService.getFriendNetBalance(friendId),
+      settlements: this.settlementService.getFriendSettlements(friendId),
+      suggestion: this.settlementService.getFriendSettlementSuggestion(friendId),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ friend, expenses, settlements }) => {
+        next: ({ friend, expenses, netBalance, settlements, suggestion }) => {
           this.friend = friend;
-          const allExpenses = expenses?.data || [];
-          const allSettlements = settlements?.data || [];
-
-          // Filter shared expenses
-          this.sharedExpenses = allExpenses.filter(
-            (e) =>
-              e.participants?.some((p) => p.userId === friendId) ||
-              e.paidBy === friendId
-          );
-
-          // Filter settlements between current user and friend
-          const userId = this.authStore.user()?.id;
-          this.settlements = allSettlements.filter(
-            (s) =>
-              (s.payerId === userId && s.payeeId === friendId) ||
-              (s.payerId === friendId && s.payeeId === userId)
-          );
-
-          // Calculate net balance
-          this.calculateNetBalance(friendId, userId!);
+          this.sharedExpenses = expenses?.data || [];
+          this.settlements = settlements || [];
+          this.netBalance = netBalance || 0;
+          this.settlementSuggestion = suggestion;
 
           this.loading = false;
           this.cdr.markForCheck();
@@ -106,34 +99,46 @@ export class FriendDetailComponent implements OnInit {
       });
   }
 
-  private calculateNetBalance(friendId: string, userId: string): void {
-    let balance = 0;
+  addExpense(): void {
+    if (!this.friend) return;
 
-    // From settlements
-    for (const s of this.settlements) {
-      if (s.payerId === userId && s.payeeId === friendId) {
-        balance -= s.amount;
-      } else if (s.payerId === friendId && s.payeeId === userId) {
-        balance += s.amount;
+    const userId = this.authStore.user()?.id;
+    const dialogRef = this.dialog.open(ExpenseFormDialogComponent, {
+      width: '500px',
+      data: {
+        friendMode: true,
+        friendId: this.friendId,
+        friendName: this.friend.name,
+        members: [
+          { userId: userId, name: 'You', role: 'MEMBER' },
+          { userId: this.friendId, name: this.friend.name, role: 'MEMBER' },
+        ],
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadFriendData(this.friendId);
       }
-    }
+    });
+  }
 
-    // From shared expenses
-    for (const e of this.sharedExpenses) {
-      if (e.paidBy === userId) {
-        const friendShare = e.participants?.find((p) => p.userId === friendId);
-        if (friendShare) {
-          balance += friendShare.amount;
-        }
-      } else if (e.paidBy === friendId) {
-        const myShare = e.participants?.find((p) => p.userId === userId);
-        if (myShare) {
-          balance -= myShare.amount;
-        }
+  settleUp(): void {
+    if (!this.settlementSuggestion || !this.friend) return;
+
+    const dialogRef = this.dialog.open(RecordPaymentDialogComponent, {
+      width: '450px',
+      data: {
+        groupId: null,
+        suggestion: this.settlementSuggestion,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadFriendData(this.friendId);
       }
-    }
-
-    this.netBalance = balance;
+    });
   }
 
   removeFriend(): void {

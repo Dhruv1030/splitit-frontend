@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of, from, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { OfflineSyncService } from './offline-sync.service';
@@ -31,6 +31,22 @@ export class ExpenseService {
     }
 
     return this.http.post<ApiResponse<Expense>>(this.apiUrl, requestBody);
+  }
+
+  /**
+   * Create a direct friend expense (no group)
+   */
+  createFriendExpense(request: CreateExpenseRequest): Observable<ApiResponse<Expense>> {
+    if (!this.offlineSync.isOnline()) {
+      this.offlineSync.queueAction('CREATE_EXPENSE', request);
+      return of({
+        success: true,
+        message: 'Expense saved offline and will sync when you are back online.',
+        data: { ...request, id: 0 } as any
+      });
+    }
+
+    return this.http.post<ApiResponse<Expense>>(this.apiUrl, request);
   }
 
   /**
@@ -110,5 +126,20 @@ export class ExpenseService {
    */
   getGroupBalances(groupId: number): Observable<GroupMemberBalance> {
     return this.http.get<GroupMemberBalance>(`${this.apiUrl}/group/${groupId}/balances`);
+  }
+
+  /**
+   * Get all direct (non-group) expenses between current user and a friend
+   */
+  getFriendExpenses(friendId: string): Observable<ApiResponse<Expense[]>> {
+    return this.http.get<ApiResponse<Expense[]>>(`${this.apiUrl}/friend/${friendId}`);
+  }
+
+  /**
+   * Get net balance between current user and a friend across ALL expenses (group + friend).
+   * Positive = friend owes you; Negative = you owe friend.
+   */
+  getFriendNetBalance(friendId: string): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/friend/${friendId}/balance`);
   }
 }

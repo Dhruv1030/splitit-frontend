@@ -48,6 +48,20 @@
       </div>
     </div>
 
+    <!-- Action Buttons -->
+    <div class="friend-actions">
+      <button mat-raised-button color="primary" (click)="addExpense()">
+        <mat-icon>add</mat-icon>
+        Add Expense
+      </button>
+      @if (netBalance !== 0 && settlementSuggestion) {
+        <button mat-raised-button color="accent" (click)="settleUp()">
+          <mat-icon>payments</mat-icon>
+          Settle Up
+        </button>
+      }
+    </div>
+
     <!-- Tabs -->
     <mat-tab-group class="detail-tabs" animationDuration="200ms">
 

@@ -3,7 +3,9 @@ export interface Expense {
   description: string;
   amount: number;
   currency: string;
-  groupId: number;
+  groupId?: number;          // null for FRIEND expenses
+  friendUserId?: string;     // The other user in a FRIEND expense
+  expenseType: ExpenseType;
   paidBy: string;
   paidByName?: string;
   createdBy?: string;  // User ID who recorded the expense
@@ -14,6 +16,11 @@ export interface Expense {
   updatedAt?: string;
   groupName?: string;
   participants?: ExpenseParticipant[];
+}
+
+export enum ExpenseType {
+  GROUP = 'GROUP',
+  FRIEND = 'FRIEND'
 }
 
 export interface ExpenseParticipant {
@@ -43,6 +50,7 @@ export interface CreateExpenseRequest {
   amount: number;
   currency?: string;
   groupId?: number;
+  friendUserId?: string;     // For FRIEND expenses
   paidBy: string;
   category: string;
   splitType: string;

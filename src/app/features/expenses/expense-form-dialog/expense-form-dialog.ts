@@ -38,6 +38,9 @@ interface DialogData {
   members?: GroupMember[];
   groups?: Group[]; // For dashboard mode
   expense?: any;
+  friendMode?: boolean;
+  friendId?: string;
+  friendName?: string;
 }
 
 @Component({
@@ -78,6 +81,7 @@ export class ExpenseFormDialogComponent implements OnInit {
   
   // For dashboard mode
   isDashboardMode = false;
+  isFriendMode = false;
   availableGroups: Group[] = [];
   selectedGroupMembers: GroupMember[] = [];
 
@@ -100,13 +104,16 @@ export class ExpenseFormDialogComponent implements OnInit {
   constructor() {
     // Determine mode
     this.isDashboardMode = !!this.data.groups;
+    this.isFriendMode = !!this.data.friendMode;
     this.availableGroups = this.data.groups || [];
-    
+
+    const groupIdValidators = this.isDashboardMode ? Validators.required : [];
+
     this.expenseForm = this.fb.group({
-      groupId: [this.data.groupId || '', this.isDashboardMode ? Validators.required : []], // Required in dashboard mode
+      groupId: [this.data.groupId || '', groupIdValidators],
       description: ['', [Validators.required, Validators.minLength(3)]],
       amount: ['', [Validators.required, Validators.min(0.01)]],
-      currency: ['USD', Validators.required],
+      currency: ['CAD', Validators.required],
       category: ['FOOD', Validators.required],
       paidBy: ['', Validators.required],
       splitType: ['EQUAL', Validators.required],
@@ -118,7 +125,7 @@ export class ExpenseFormDialogComponent implements OnInit {
     });
 
     this.isEditMode = !!this.data.expense;
-    
+
     // Listen to group selection changes in dashboard mode
     if (this.isDashboardMode) {
       this.expenseForm.get('groupId')?.valueChanges.subscribe((groupId) => {
@@ -363,9 +370,32 @@ export class ExpenseFormDialogComponent implements OnInit {
 
     this.loading = true;
 
-    // Determine the group ID (from data or form)
-    const groupId = this.isDashboardMode 
-      ? this.expenseForm.get('groupId')?.value 
+    if (this.isEditMode) {
+      // TODO: Implement update expense
+      this.dialogRef.close(true);
+      return;
+    }
+
+    // Friend mode: create a direct friend expense
+    if (this.isFriendMode && this.data.friendId) {
+      request.friendUserId = this.data.friendId;
+      this.expenseService.createFriendExpense(request).subscribe({
+        next: () => {
+          this.loading = false;
+          this.toastService.success('Expense created successfully!');
+          this.dialogRef.close(true);
+        },
+        error: () => {
+          this.loading = false;
+          this.toastService.error('Failed to create expense. Please try again.');
+        },
+      });
+      return;
+    }
+
+    // Group mode: determine the group ID
+    const groupId = this.isDashboardMode
+      ? this.expenseForm.get('groupId')?.value
       : this.data.groupId;
 
     if (!groupId) {
@@ -374,32 +404,17 @@ export class ExpenseFormDialogComponent implements OnInit {
       return;
     }
 
-    if (this.isEditMode) {
-      // TODO: Implement update expense
-      this.dialogRef.close(true);
-    } else {
-      this.expenseService.createExpense(groupId, request).subscribe({
-        next: (response) => {
-          this.loading = false;
-          
-          // Check if email notifications are enabled
-          const emailPrefs = this.getEmailPreferences();
-          const participantCount = formValue.participants.filter((p: any) => p.selected || p.amount > 0).length;
-          
-          if (emailPrefs.newExpenseNotifications) {
-            this.toastService.success(`Expense created successfully! Email notifications sent to ${participantCount} member(s).`);
-          } else {
-            this.toastService.success('Expense created successfully!');
-          }
-          
-          this.dialogRef.close(true);
-        },
-        error: (error: any) => {
-          this.loading = false;
-          this.toastService.error('Failed to create expense. Please try again.');
-        },
-      });
-    }
+    this.expenseService.createExpense(groupId, request).subscribe({
+      next: () => {
+        this.loading = false;
+        this.toastService.success('Expense created successfully!');
+        this.dialogRef.close(true);
+      },
+      error: () => {
+        this.loading = false;
+        this.toastService.error('Failed to create expense. Please try again.');
+      },
+    });
   }
 
   private getEmailPreferences(): any {

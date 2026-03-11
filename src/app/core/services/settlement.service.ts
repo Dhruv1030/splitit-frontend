@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Settlement, RecordSettlementRequest } from '../models/settlement.model';
+import { Settlement, RecordSettlementRequest, FriendSettlementSuggestion } from '../models/settlement.model';
 import { ApiResponse } from '../models/api-response.model';
 import { SettlementSuggestionsResponse, PendingSettlement } from '../models/settlement-suggestion.model';
 
@@ -28,10 +28,10 @@ export class SettlementService {
   }
 
   /**
-   * Record a new settlement
+   * Record a new settlement (group or friend)
    */
-  recordSettlement(groupId: number, request: RecordSettlementRequest): Observable<ApiResponse<Settlement>> {
-    return this.http.post<ApiResponse<Settlement>>(`${this.apiUrl}?groupId=${groupId}`, request);
+  recordSettlement(groupId: number | null, request: RecordSettlementRequest): Observable<Settlement> {
+    return this.http.post<Settlement>(this.apiUrl, request);
   }
 
   /**
@@ -64,5 +64,20 @@ export class SettlementService {
       ? `${this.apiUrl}/pending?groupId=${groupId}`
       : `${this.apiUrl}/pending`;
     return this.http.get<ApiResponse<PendingSettlement[]>>(url);
+  }
+
+  /**
+   * Get settlement suggestion between current user and a friend.
+   * Aggregates ALL debts (group + friend expenses) into a single net balance.
+   */
+  getFriendSettlementSuggestion(friendId: string): Observable<FriendSettlementSuggestion | null> {
+    return this.http.get<FriendSettlementSuggestion | null>(`${this.apiUrl}/friend/${friendId}/suggestion`);
+  }
+
+  /**
+   * Get all settlement history between current user and a friend
+   */
+  getFriendSettlements(friendId: string): Observable<Settlement[]> {
+    return this.http.get<Settlement[]>(`${this.apiUrl}/friend/${friendId}`);
   }
 }

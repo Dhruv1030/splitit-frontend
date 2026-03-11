@@ -24,7 +24,7 @@ interface SettlementSuggestion {
 }
 
 interface DialogData {
-  groupId: number;
+  groupId: number | null;
   suggestion: SettlementSuggestion;
 }
 
@@ -88,7 +88,7 @@ export class RecordPaymentDialogComponent implements OnInit {
 
     const formValue = this.paymentForm.getRawValue();
     const request: RecordSettlementRequest = {
-      groupId: this.data.groupId,
+      groupId: this.data.groupId ?? undefined,
       payerId: this.data.suggestion.payerId,
       payeeId: this.data.suggestion.payeeId,
       amount: formValue.amount,
@@ -101,7 +101,7 @@ export class RecordPaymentDialogComponent implements OnInit {
     this.loading = true;
 
     this.settlementService.recordSettlement(this.data.groupId, request).subscribe({
-      next: (response) => {
+      next: () => {
         this.loading = false;
         
         // Check if email notifications are enabled

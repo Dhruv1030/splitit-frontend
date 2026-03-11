@@ -1,6 +1,6 @@
 export interface Settlement {
   id: number;
-  groupId: number;
+  groupId?: number;  // null for direct friend settlements
   payerId: string;
   payerName?: string;
   payeeId: string;
@@ -39,8 +39,17 @@ export interface GroupBalance {
   suggestions: SettlementSuggestion[];
 }
 
+export interface FriendSettlementSuggestion {
+  payerId: string;
+  payerName: string;
+  payeeId: string;
+  payeeName: string;
+  amount: number;
+  currency: string;
+}
+
 export interface RecordSettlementRequest {
-  groupId: number;
+  groupId?: number;  // Optional for friend settlements
   payerId: string;
   payeeId: string;
   amount: number;
