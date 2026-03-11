@@ -179,7 +179,7 @@
               <mat-list *ngIf="group.members && group.members.length > 0">
                 <mat-list-item *ngFor="let member of group.members">
                   <mat-icon matListItemIcon>person</mat-icon>
-                  <div matListItemTitle>{{ member.name }}</div>
+                  <div matListItemTitle>{{ member.name || member.userId }}</div>
                   <div matListItemLine>
                     <mat-chip [color]="member.role === 'ADMIN' ? 'primary' : 'default'" class="role-chip">
                       {{ member.role }}

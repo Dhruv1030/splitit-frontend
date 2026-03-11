@@ -129,15 +129,16 @@ export class ExpenseFormDialogComponent implements OnInit {
 
   ngOnInit(): void {
     // Set default payer to current user if available
-    const currentUserId = localStorage.getItem('userId');
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || 'null');
+    const currentUserId = currentUser?.id;
     if (currentUserId && !this.isEditMode) {
       this.expenseForm.patchValue({ paidBy: currentUserId });
       // Leave paidBy enabled — any group member can be set as the payer
 
       // Default: all members participate (only if we have members)
       if (this.data.members && this.data.members.length > 0) {
-        this.expenseForm.patchValue({ 
-          participants: this.data.members.map(m => m.userId) 
+        this.expenseForm.patchValue({
+          participants: this.data.members.map(m => m.userId)
         });
       }
     }
@@ -193,7 +194,7 @@ export class ExpenseFormDialogComponent implements OnInit {
             role: m.role || 'MEMBER'
           }));
           // Default payer to current user if they're a member, but keep field editable
-          const currentUserId = localStorage.getItem('userId');
+          const currentUserId = JSON.parse(localStorage.getItem('current_user') || 'null')?.id;
           if (currentUserId) {
             const isMember = this.selectedGroupMembers.some(m => m.userId === currentUserId);
             if (isMember) {
